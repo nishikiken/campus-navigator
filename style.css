@@ -52,12 +52,12 @@
 @keyframes textGlow {
     0% {
         opacity: 0;
-        transform: translateY(10px);
-        filter: blur(4px);
+        transform: scale(0.8);
+        filter: blur(10px);
     }
     100% {
         opacity: 1;
-        transform: translateY(0);
+        transform: scale(1);
         filter: blur(0);
     }
 }
