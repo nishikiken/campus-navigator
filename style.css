@@ -198,14 +198,31 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    cursor: zoom-out;
     animation: fadeIn 0.2s ease;
+    overflow: auto;
+    touch-action: pan-x pan-y pinch-zoom;
 }
 
 .fullscreen-overlay img {
-    max-width: 95%;
-    max-height: 95%;
+    max-width: none;
+    width: 150%;
     object-fit: contain;
+    transform-origin: center center;
+}
+
+.fullscreen-close {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    width: 40px;
+    height: 40px;
+    background: rgba(255,255,255,0.2);
+    border: none;
+    border-radius: 50%;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 1001;
 }
 
 .loading {

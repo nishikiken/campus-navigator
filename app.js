@@ -113,9 +113,21 @@ function openFullscreen() {
     
     const overlay = document.createElement('div');
     overlay.className = 'fullscreen-overlay';
-    overlay.innerHTML = `<img src="${img.src}" alt="Маршрут">`;
-    overlay.onclick = () => overlay.remove();
+    overlay.innerHTML = `
+        <button class="fullscreen-close" onclick="this.parentElement.remove()">✕</button>
+        <img src="${img.src}" alt="Маршрут">
+    `;
     document.body.appendChild(overlay);
+    
+    // Двойной тап для закрытия
+    let lastTap = 0;
+    overlay.addEventListener('touchend', (e) => {
+        const now = Date.now();
+        if (now - lastTap < 300) {
+            overlay.remove();
+        }
+        lastTap = now;
+    });
 }
 
 function goBack() {
