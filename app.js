@@ -104,6 +104,20 @@ function loadRoute() {
     img.src = `routes/${selectedEntrance}-${selectedBuilding}.png`;
 }
 
+// Увеличение картинки по клику
+document.querySelector('.route-container')?.addEventListener('click', openFullscreen);
+
+function openFullscreen() {
+    const img = document.getElementById('route-image');
+    if (!img.src) return;
+    
+    const overlay = document.createElement('div');
+    overlay.className = 'fullscreen-overlay';
+    overlay.innerHTML = `<img src="${img.src}" alt="Маршрут">`;
+    overlay.onclick = () => overlay.remove();
+    document.body.appendChild(overlay);
+}
+
 function goBack() {
     showStep('step-entrance');
 }
