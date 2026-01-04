@@ -42,13 +42,24 @@
             </div>
         </div>
 
-        <!-- Выбор места еды -->
+        <!-- Выбор корпуса для еды -->
         <div id="step-food" class="step">
             <div class="header">
                 <button class="back-btn" onclick="goToMain()">←</button>
                 <div class="icon">🍔</div>
                 <h1>Где поесть</h1>
-                <p class="subtitle">Выбери место</p>
+                <p class="subtitle">Выбери корпус</p>
+            </div>
+            <div class="food-buildings" id="food-buildings-list"></div>
+        </div>
+
+        <!-- Список мест в корпусе -->
+        <div id="step-food-list" class="step">
+            <div class="header">
+                <button class="back-btn" onclick="goToFood()">←</button>
+                <div class="icon">🍽️</div>
+                <h1 id="food-building-title">Корпус</h1>
+                <p class="subtitle">Что тут есть</p>
             </div>
             <div class="food-list" id="food-list"></div>
         </div>
@@ -56,7 +67,7 @@
         <!-- Инфо о месте еды -->
         <div id="step-food-info" class="step">
             <div class="header">
-                <button class="back-btn" onclick="goToFood()">←</button>
+                <button class="back-btn" onclick="goToFoodList()">←</button>
                 <h1 id="food-title">Место</h1>
             </div>
             <div class="food-info-card" id="food-info-content"></div>

@@ -540,3 +540,59 @@ body {
     transform-origin: 0 0;
     touch-action: none;
 }
+
+
+/* Карточки корпусов с едой */
+.food-buildings {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.food-building-card {
+    background: var(--tg-theme-secondary-bg-color);
+    border-radius: 14px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    position: relative;
+}
+
+.food-building-card:active {
+    transform: scale(0.98);
+}
+
+.food-building-card.highlight {
+    border: 1px solid var(--tg-theme-button-color);
+}
+
+.food-building-emoji {
+    font-size: 28px;
+    width: 46px;
+    height: 46px;
+    background: var(--tg-theme-bg-color);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.food-building-info h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.food-building-info p {
+    color: var(--tg-theme-hint-color);
+    font-size: 13px;
+}
+
+.recommend-badge {
+    position: absolute;
+    right: 14px;
+    font-size: 18px;
+}
