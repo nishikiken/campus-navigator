@@ -248,11 +248,11 @@ const foodPlaces = [
 const foodBuildings = [
     { id: 1, name: "Корпус 1", emoji: "1️⃣", count: 1 },
     { id: 3, name: "Корпус 3", emoji: "3️⃣", count: 3 },
-    { id: 5, name: "Корпус 5", emoji: "5️⃣", count: 3, highlight: true },
+    { id: 5, name: "Корпус 5", emoji: "5️⃣", count: 3, popular: true },
     { id: 6, name: "Корпус 6", emoji: "6️⃣", count: 2 },
     { id: 7, name: "Корпус 7", emoji: "7️⃣", count: 2 },
     { id: 8, name: "Корпус 8", emoji: "8️⃣", count: 3 },
-    { id: 12, name: "Корпус 12", emoji: "🔟", count: 3, highlight: true }
+    { id: 12, name: "Корпус 12", emoji: "🔟", count: 3, popular: true }
 ];
 
 let selectedFoodBuilding = null;
@@ -291,13 +291,13 @@ function renderBuildings() {
 function renderFoodBuildings() {
     const container = document.getElementById('food-buildings-list');
     container.innerHTML = foodBuildings.map(b => `
-        <div class="food-building-card ${b.highlight ? 'highlight' : ''}" onclick="selectFoodBuilding(${b.id})">
+        <div class="food-building-card ${b.popular ? 'popular' : ''}" onclick="selectFoodBuilding(${b.id})">
             <div class="food-building-emoji">${b.emoji}</div>
             <div class="food-building-info">
                 <h3>${b.name}</h3>
                 <p>${b.count} ${b.count === 1 ? 'место' : (b.count < 5 ? 'места' : 'мест')}</p>
             </div>
-            ${b.highlight ? '<span class="recommend-badge">⭐</span>' : ''}
+            ${b.popular ? '<span class="popular-badge">🔥 Популярное</span>' : ''}
         </div>
     `).join('');
 }
@@ -343,7 +343,7 @@ function showFoodInfo(id) {
             <span class="info-icon">🕐</span>
             <div class="info-text">
                 <div class="info-label">Время работы</div>
-                <div class="info-value">${place.hours}</div>
+                <div class="info-value hours-value">${place.hours.replace(/\n/g, '<br>')}</div>
             </div>
         </div>
         <div class="info-row">
