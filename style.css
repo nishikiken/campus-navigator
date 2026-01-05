@@ -530,18 +530,14 @@ body {
     flex: 1;
     overflow: auto;
     -webkit-overflow-scrolling: touch;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     padding: 20px;
 }
 
 .fullscreen-img {
-    max-width: none;
-    width: 100%;
+    display: block;
+    min-width: 100%;
     height: auto;
-    transition: transform 0.2s ease;
-    transform-origin: center center;
+    transition: width 0.2s ease;
 }
 
 .zoom-controls {

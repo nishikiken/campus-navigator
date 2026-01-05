@@ -480,31 +480,31 @@ function openFullscreen() {
         }
     });
     
-    window.currentZoom = 1;
+    window.currentZoom = 100;
     window.currentOverlay = overlay;
 }
 
 function zoomIn() {
     if (!window.currentOverlay) return;
-    window.currentZoom = Math.min(window.currentZoom + 0.5, 4);
+    window.currentZoom = Math.min(window.currentZoom + 50, 300);
     updateZoom();
 }
 
 function zoomOut() {
     if (!window.currentOverlay) return;
-    window.currentZoom = Math.max(window.currentZoom - 0.5, 0.5);
+    window.currentZoom = Math.max(window.currentZoom - 50, 100);
     updateZoom();
 }
 
 function zoomReset() {
     if (!window.currentOverlay) return;
-    window.currentZoom = 1;
+    window.currentZoom = 100;
     updateZoom();
 }
 
 function updateZoom() {
     const img = window.currentOverlay.querySelector('.fullscreen-img');
-    img.style.transform = `scale(${window.currentZoom})`;
+    img.style.width = `${window.currentZoom}%`;
 }
 
 function showStep(stepId) {
