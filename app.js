@@ -450,7 +450,7 @@ function showConfetti() {
     setTimeout(() => container.remove(), 2000);
 }
 
-// Полноэкранный просмотр с pinch-zoom
+// Полноэкранный просмотр с нативным зумом
 function openFullscreen() {
     const img = document.getElementById('route-image');
     if (!img.src) return;
@@ -459,8 +459,13 @@ function openFullscreen() {
     overlay.className = 'fullscreen-overlay';
     overlay.innerHTML = `
         <button class="fullscreen-close">✕</button>
-        <div class="fullscreen-image-container">
-            <img src="${img.src}" alt="Маршрут" id="zoomable-image">
+        <div class="fullscreen-scroll">
+            <img src="${img.src}" alt="Маршрут" class="fullscreen-img">
+        </div>
+        <div class="zoom-controls">
+            <button class="zoom-btn" onclick="zoomIn()">+</button>
+            <button class="zoom-btn" onclick="zoomOut()">−</button>
+            <button class="zoom-btn" onclick="zoomReset()">↺</button>
         </div>
     `;
     document.body.appendChild(overlay);
@@ -468,78 +473,38 @@ function openFullscreen() {
     const closeBtn = overlay.querySelector('.fullscreen-close');
     closeBtn.onclick = () => overlay.remove();
     
-    // Pinch-zoom логика
-    const zoomImg = overlay.querySelector('#zoomable-image');
-    let scale = 1;
-    let posX = 0;
-    let posY = 0;
-    let lastX = 0;
-    let lastY = 0;
-    let lastDist = 0;
-    
-    function updateTransform() {
-        zoomImg.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
-    }
-    
-    // Touch events
-    zoomImg.addEventListener('touchstart', (e) => {
-        if (e.touches.length === 1) {
-            lastX = e.touches[0].clientX - posX;
-            lastY = e.touches[0].clientY - posY;
-        } else if (e.touches.length === 2) {
-            lastDist = Math.hypot(
-                e.touches[0].clientX - e.touches[1].clientX,
-                e.touches[0].clientY - e.touches[1].clientY
-            );
+    // Закрытие по тапу на фон (не на картинку)
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay || e.target.classList.contains('fullscreen-scroll')) {
+            // Не закрываем при скролле
         }
     });
     
-    zoomImg.addEventListener('touchmove', (e) => {
-        e.preventDefault();
-        
-        if (e.touches.length === 1 && scale > 1) {
-            posX = e.touches[0].clientX - lastX;
-            posY = e.touches[0].clientY - lastY;
-            updateTransform();
-        } else if (e.touches.length === 2) {
-            const dist = Math.hypot(
-                e.touches[0].clientX - e.touches[1].clientX,
-                e.touches[0].clientY - e.touches[1].clientY
-            );
-            
-            if (lastDist > 0) {
-                scale = Math.min(Math.max(scale * (dist / lastDist), 1), 5);
-                updateTransform();
-            }
-            lastDist = dist;
-        }
-    });
-    
-    zoomImg.addEventListener('touchend', (e) => {
-        if (e.touches.length < 2) lastDist = 0;
-        if (scale <= 1) {
-            posX = 0;
-            posY = 0;
-            updateTransform();
-        }
-    });
-    
-    // Double tap to zoom
-    let lastTap = 0;
-    zoomImg.addEventListener('touchend', (e) => {
-        const now = Date.now();
-        if (now - lastTap < 300 && e.touches.length === 0) {
-            if (scale > 1) {
-                scale = 1;
-                posX = 0;
-                posY = 0;
-            } else {
-                scale = 2.5;
-            }
-            updateTransform();
-        }
-        lastTap = now;
-    });
+    window.currentZoom = 1;
+    window.currentOverlay = overlay;
+}
+
+function zoomIn() {
+    if (!window.currentOverlay) return;
+    window.currentZoom = Math.min(window.currentZoom + 0.5, 4);
+    updateZoom();
+}
+
+function zoomOut() {
+    if (!window.currentOverlay) return;
+    window.currentZoom = Math.max(window.currentZoom - 0.5, 0.5);
+    updateZoom();
+}
+
+function zoomReset() {
+    if (!window.currentOverlay) return;
+    window.currentZoom = 1;
+    updateZoom();
+}
+
+function updateZoom() {
+    const img = window.currentOverlay.querySelector('.fullscreen-img');
+    img.style.transform = `scale(${window.currentZoom})`;
 }
 
 function showStep(stepId) {
