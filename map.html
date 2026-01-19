@@ -25,62 +25,84 @@
                 <!-- Фоновое изображение оригинальной карты -->
                 <image href="campus-map.png" width="1024" height="520" preserveAspectRatio="xMidYMid meet"/>
                 
-                <!-- Невидимые интерактивные зоны поверх корпусов -->
+                <!-- Интерактивные круги с номерами корпусов -->
                 <!-- Корпус 7 -->
-                <rect x="100" y="130" width="70" height="55" fill="transparent" class="building-hotspot" data-building="7" onclick="selectBuilding(7)"/>
+                <g class="building-marker" data-building="7" onclick="selectBuilding(7)">
+                    <circle cx="135" cy="157" r="22" fill="#dc3545" stroke="#fff" stroke-width="2.5"/>
+                    <text x="135" y="165" text-anchor="middle" fill="#fff" font-size="20" font-weight="bold">7</text>
+                </g>
                 
                 <!-- Корпус 6 -->
-                <rect x="100" y="210" width="70" height="55" fill="transparent" class="building-hotspot" data-building="6" onclick="selectBuilding(6)"/>
+                <g class="building-marker" data-building="6" onclick="selectBuilding(6)">
+                    <circle cx="135" cy="237" r="22" fill="#dc3545" stroke="#fff" stroke-width="2.5"/>
+                    <text x="135" y="245" text-anchor="middle" fill="#fff" font-size="20" font-weight="bold">6</text>
+                </g>
                 
                 <!-- Корпус 8 -->
-                <rect x="195" y="170" width="70" height="55" fill="transparent" class="building-hotspot" data-building="8" onclick="selectBuilding(8)"/>
-                
-                <!-- Общ. №2 -->
-                <rect x="270" y="100" width="90" height="75" fill="transparent" class="building-hotspot" data-building="obsh2"/>
+                <g class="building-marker" data-building="8" onclick="selectBuilding(8)">
+                    <circle cx="230" cy="197" r="22" fill="#dc3545" stroke="#fff" stroke-width="2.5"/>
+                    <text x="230" y="205" text-anchor="middle" fill="#fff" font-size="20" font-weight="bold">8</text>
+                </g>
                 
                 <!-- Корпус 1 -->
-                <rect x="405" y="145" width="95" height="80" fill="transparent" class="building-hotspot" data-building="1" onclick="selectBuilding(1)"/>
-                
-                <!-- ЕНИ -->
-                <rect x="405" y="265" width="75" height="50" fill="transparent" class="building-hotspot" data-building="eni"/>
+                <g class="building-marker" data-building="1" onclick="selectBuilding(1)">
+                    <circle cx="452" cy="185" r="26" fill="#dc3545" stroke="#fff" stroke-width="2.5"/>
+                    <text x="452" y="194" text-anchor="middle" fill="#fff" font-size="24" font-weight="bold">1</text>
+                </g>
                 
                 <!-- Корпус 10 -->
-                <rect x="530" y="185" width="80" height="70" fill="transparent" class="building-hotspot" data-building="10" onclick="selectBuilding(10)"/>
+                <g class="building-marker" data-building="10" onclick="selectBuilding(10)">
+                    <circle cx="570" cy="220" r="24" fill="#dc3545" stroke="#fff" stroke-width="2.5"/>
+                    <text x="570" y="229" text-anchor="middle" fill="#fff" font-size="20" font-weight="bold">10</text>
+                </g>
                 
                 <!-- Корпус 12 -->
-                <rect x="485" y="45" width="80" height="60" fill="transparent" class="building-hotspot" data-building="12" onclick="selectBuilding(12)"/>
+                <g class="building-marker" data-building="12" onclick="selectBuilding(12)">
+                    <circle cx="525" cy="75" r="24" fill="#dc3545" stroke="#fff" stroke-width="2.5"/>
+                    <text x="525" y="84" text-anchor="middle" fill="#fff" font-size="20" font-weight="bold">12</text>
+                </g>
                 
                 <!-- Корпус 2 -->
-                <rect x="405" y="355" width="75" height="65" fill="transparent" class="building-hotspot" data-building="2" onclick="selectBuilding(2)"/>
+                <g class="building-marker" data-building="2" onclick="selectBuilding(2)">
+                    <circle cx="442" cy="387" r="24" fill="#dc3545" stroke="#fff" stroke-width="2.5"/>
+                    <text x="442" y="396" text-anchor="middle" fill="#fff" font-size="22" font-weight="bold">2</text>
+                </g>
                 
                 <!-- Корпус 3 -->
-                <rect x="495" y="365" width="70" height="60" fill="transparent" class="building-hotspot" data-building="3" onclick="selectBuilding(3)"/>
+                <g class="building-marker" data-building="3" onclick="selectBuilding(3)">
+                    <circle cx="530" cy="395" r="22" fill="#dc3545" stroke="#fff" stroke-width="2.5"/>
+                    <text x="530" y="403" text-anchor="middle" fill="#fff" font-size="20" font-weight="bold">3</text>
+                </g>
                 
                 <!-- Корпус 4 -->
-                <rect x="405" y="455" width="70" height="60" fill="transparent" class="building-hotspot" data-building="4" onclick="selectBuilding(4)"/>
-                
-                <!-- Общ. №8 -->
-                <rect x="575" y="355" width="85" height="75" fill="transparent" class="building-hotspot" data-building="obsh8"/>
+                <g class="building-marker" data-building="4" onclick="selectBuilding(4)">
+                    <circle cx="440" cy="485" r="22" fill="#dc3545" stroke="#fff" stroke-width="2.5"/>
+                    <text x="440" y="493" text-anchor="middle" fill="#fff" font-size="20" font-weight="bold">4</text>
+                </g>
                 
                 <!-- Корпус 9 -->
-                <rect x="635" y="320" width="70" height="60" fill="transparent" class="building-hotspot" data-building="9" onclick="selectBuilding(9)"/>
+                <g class="building-marker" data-building="9" onclick="selectBuilding(9)">
+                    <circle cx="670" cy="350" r="22" fill="#dc3545" stroke="#fff" stroke-width="2.5"/>
+                    <text x="670" y="358" text-anchor="middle" fill="#fff" font-size="20" font-weight="bold">9</text>
+                </g>
                 
                 <!-- Корпус 11 -->
-                <rect x="615" y="395" width="70" height="60" fill="transparent" class="building-hotspot" data-building="11" onclick="selectBuilding(11)"/>
+                <g class="building-marker" data-building="11" onclick="selectBuilding(11)">
+                    <circle cx="650" cy="425" r="24" fill="#dc3545" stroke="#fff" stroke-width="2.5"/>
+                    <text x="650" y="434" text-anchor="middle" fill="#fff" font-size="20" font-weight="bold">11</text>
+                </g>
                 
                 <!-- Корпус 5 -->
-                <rect x="730" y="140" width="70" height="60" fill="transparent" class="building-hotspot" data-building="5" onclick="selectBuilding(5)"/>
+                <g class="building-marker" data-building="5" onclick="selectBuilding(5)">
+                    <circle cx="765" cy="170" r="22" fill="#dc3545" stroke="#fff" stroke-width="2.5"/>
+                    <text x="765" y="178" text-anchor="middle" fill="#fff" font-size="20" font-weight="bold">5</text>
+                </g>
                 
                 <!-- Корпус 19 -->
-                <rect x="715" y="370" width="70" height="60" fill="transparent" class="building-hotspot" data-building="19" onclick="selectBuilding(19)"/>
-                
-                <!-- Интерактивные входы (невидимые зоны поверх красных треугольников) -->
-                <circle cx="45" cy="140" r="15" fill="transparent" class="entrance-hotspot" data-entrance="west1" onclick="selectEntranceFromMap('west1')"/>
-                <circle cx="45" cy="245" r="15" fill="transparent" class="entrance-hotspot" data-entrance="west2" onclick="selectEntranceFromMap('west2')"/>
-                <circle cx="45" cy="335" r="15" fill="transparent" class="entrance-hotspot" data-entrance="west3" onclick="selectEntranceFromMap('west3')"/>
-                <circle cx="410" cy="290" r="15" fill="transparent" class="entrance-hotspot" data-entrance="center" onclick="selectEntranceFromMap('center')"/>
-                <circle cx="410" cy="385" r="15" fill="transparent" class="entrance-hotspot" data-entrance="south" onclick="selectEntranceFromMap('south')"/>
-                <circle cx="735" cy="165" r="15" fill="transparent" class="entrance-hotspot" data-entrance="east" onclick="selectEntranceFromMap('east')"/>
+                <g class="building-marker" data-building="19" onclick="selectBuilding(19)">
+                    <circle cx="750" cy="400" r="24" fill="#dc3545" stroke="#fff" stroke-width="2.5"/>
+                    <text x="750" y="409" text-anchor="middle" fill="#fff" font-size="18" font-weight="bold">19</text>
+                </g>
                 
                 <!-- Тропинки (будут добавлены динамически) -->
                 <g id="paths-layer"></g>
@@ -94,12 +116,9 @@
         <div id="entrance-panel" class="panel hidden">
             <h3>Выберите вход</h3>
             <div class="entrance-list">
-                <button class="entrance-btn" onclick="selectEntrance('west1')">🚪 Западный 1</button>
-                <button class="entrance-btn" onclick="selectEntrance('west2')">🚪 Западный 2</button>
-                <button class="entrance-btn" onclick="selectEntrance('west3')">🚪 Западный 3</button>
-                <button class="entrance-btn" onclick="selectEntrance('center')">🏛️ Центральный</button>
-                <button class="entrance-btn" onclick="selectEntrance('south')">🚶 Южный</button>
-                <button class="entrance-btn" onclick="selectEntrance('east')">🚶 Восточный</button>
+                <button class="entrance-btn" onclick="selectEntrance('entrance1')">🚪 Вход 1 (Западный)</button>
+                <button class="entrance-btn" onclick="selectEntrance('entrance2')">🏛️ Вход 2 (Центральный)</button>
+                <button class="entrance-btn" onclick="selectEntrance('entrance3')">🚶 Вход 3 (Южный)</button>
             </div>
             <button class="cancel-btn" onclick="cancelSelection()">Отмена</button>
         </div>

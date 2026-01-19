@@ -102,59 +102,39 @@ body {
     transform-origin: center center;
 }
 
-/* Стили для корпусов */
-.building-hotspot {
+/* Стили для маркеров корпусов */
+.building-marker {
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
 }
 
-.building-hotspot:hover {
-    fill: rgba(255, 215, 0, 0.3);
-    stroke: #FFD700;
-    stroke-width: 3;
+.building-marker:hover circle {
+    fill: #ff6b6b;
+    transform: scale(1.15);
+    filter: drop-shadow(0 0 8px rgba(220, 53, 69, 0.8));
 }
 
-.building-hotspot.selected {
-    fill: rgba(255, 215, 0, 0.5);
-    stroke: #FF6347;
+.building-marker.selected circle {
+    fill: #ffd700;
+    stroke: #ff6347;
     stroke-width: 4;
-    filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.8));
+    filter: drop-shadow(0 0 12px rgba(255, 215, 0, 0.9));
 }
 
-.building-hotspot.highlighted {
-    animation: pulse 1s ease-in-out infinite;
+.building-marker.highlighted circle {
+    animation: pulse-marker 1s ease-in-out infinite;
 }
 
-@keyframes pulse {
+@keyframes pulse-marker {
     0%, 100% {
-        fill: rgba(255, 215, 0, 0.3);
+        fill: #ffd700;
+        transform: scale(1);
     }
     50% {
-        fill: rgba(255, 215, 0, 0.7);
-        filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.9));
+        fill: #ffed4e;
+        transform: scale(1.2);
+        filter: drop-shadow(0 0 20px rgba(255, 215, 0, 1));
     }
-}
-
-/* Входы */
-.entrance-hotspot {
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.entrance-hotspot:hover {
-    fill: rgba(255, 0, 0, 0.3);
-    filter: drop-shadow(0 0 5px rgba(255, 0, 0, 0.8));
-}
-
-.entrance-hotspot.selected {
-    fill: rgba(255, 0, 0, 0.5);
-    filter: drop-shadow(0 0 10px rgba(255, 0, 0, 1));
-    animation: bounce 0.5s ease;
-}
-
-@keyframes bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-5px); }
 }
 
 /* Панели */
