@@ -109,9 +109,9 @@ body {
 }
 
 .building-marker:hover circle {
-    fill: #ff6b6b;
+    fill: #0b5ed7;
     transform: scale(1.15);
-    filter: drop-shadow(0 0 8px rgba(220, 53, 69, 0.8));
+    filter: drop-shadow(0 0 8px rgba(13, 110, 253, 0.8));
 }
 
 .building-marker.selected circle {
