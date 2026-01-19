@@ -33,46 +33,46 @@ const buildingData = {
 // Координаты для построения маршрутов (центры корпусов и входов)
 const coordinates = {
     // Входы
-    west1: { x: 70, y: 165 },
-    west2: { x: 70, y: 270 },
-    west3: { x: 70, y: 370 },
-    center: { x: 410, y: 315 },
-    south: { x: 410, y: 410 },
+    west1: { x: 45, y: 140 },
+    west2: { x: 45, y: 245 },
+    west3: { x: 45, y: 335 },
+    center: { x: 410, y: 290 },
+    south: { x: 410, y: 385 },
     east: { x: 735, y: 165 },
     
-    // Корпуса
-    1: { x: 460, y: 197 },
-    2: { x: 450, y: 400 },
-    3: { x: 532, y: 407 },
-    4: { x: 462, y: 507 },
-    5: { x: 767, y: 182 },
-    6: { x: 145, y: 257 },
-    7: { x: 145, y: 177 },
-    8: { x: 230, y: 217 },
-    9: { x: 672, y: 367 },
-    10: { x: 572, y: 232 },
-    11: { x: 652, y: 447 },
-    12: { x: 527, y: 87 },
-    19: { x: 752, y: 417 },
-    obsh2: { x: 325, y: 150 },
-    obsh8: { x: 620, y: 405 },
-    eni: { x: 450, y: 305 }
+    // Корпуса (центры зданий)
+    1: { x: 452, y: 185 },
+    2: { x: 442, y: 387 },
+    3: { x: 530, y: 395 },
+    4: { x: 440, y: 485 },
+    5: { x: 765, y: 170 },
+    6: { x: 135, y: 237 },
+    7: { x: 135, y: 157 },
+    8: { x: 230, y: 197 },
+    9: { x: 670, y: 350 },
+    10: { x: 570, y: 220 },
+    11: { x: 650, y: 425 },
+    12: { x: 525, y: 75 },
+    19: { x: 750, y: 400 },
+    obsh2: { x: 315, y: 137 },
+    obsh8: { x: 617, y: 392 },
+    eni: { x: 442, y: 290 }
 };
 
 // Узлы для построения путей (ключевые точки пересечений)
 const pathNodes = {
-    n1: { x: 100, y: 165 },
-    n2: { x: 100, y: 270 },
-    n3: { x: 100, y: 370 },
-    n4: { x: 230, y: 210 },
-    n5: { x: 325, y: 210 },
-    n6: { x: 395, y: 210 },
-    n7: { x: 395, y: 315 },
-    n8: { x: 395, y: 410 },
-    n9: { x: 532, y: 315 },
-    n10: { x: 532, y: 410 },
-    n11: { x: 672, y: 315 },
-    n12: { x: 767, y: 210 }
+    n1: { x: 90, y: 140 },
+    n2: { x: 90, y: 245 },
+    n3: { x: 90, y: 335 },
+    n4: { x: 230, y: 195 },
+    n5: { x: 315, y: 195 },
+    n6: { x: 390, y: 195 },
+    n7: { x: 390, y: 290 },
+    n8: { x: 390, y: 385 },
+    n9: { x: 530, y: 290 },
+    n10: { x: 530, y: 385 },
+    n11: { x: 670, y: 290 },
+    n12: { x: 765, y: 195 }
 };
 
 // Граф путей (какие узлы соединены)
@@ -143,7 +143,7 @@ function findPath(start, end) {
 // Выбор корпуса
 function selectBuilding(buildingId) {
     // Снять выделение с предыдущего
-    document.querySelectorAll('.building').forEach(b => b.classList.remove('selected'));
+    document.querySelectorAll('.building-hotspot').forEach(b => b.classList.remove('selected'));
     
     // Выделить текущий
     const building = document.querySelector(`[data-building="${buildingId}"]`);
@@ -159,6 +159,26 @@ function selectBuilding(buildingId) {
         
         haptic();
     }
+}
+
+// Выбор входа с карты (клик на треугольник)
+function selectEntranceFromMap(entranceId) {
+    if (!selectedBuilding) {
+        // Если корпус не выбран, просто подсветить вход
+        document.querySelectorAll('.entrance-hotspot').forEach(e => e.classList.remove('selected'));
+        const entrance = document.querySelector(`[data-entrance="${entranceId}"]`);
+        if (entrance) {
+            entrance.classList.add('selected');
+            haptic();
+        }
+        return;
+    }
+    
+    // Если корпус выбран, сразу построить маршрут
+    selectedEntrance = entranceId;
+    buildRoute(entranceId, selectedBuilding);
+    document.getElementById('building-info').classList.add('hidden');
+    haptic('success');
 }
 
 // Показать панель выбора входа
@@ -252,7 +272,7 @@ function cancelSelection() {
 // Закрыть информацию
 function closeInfo() {
     document.getElementById('building-info').classList.add('hidden');
-    document.querySelectorAll('.building').forEach(b => {
+    document.querySelectorAll('.building-hotspot').forEach(b => {
         b.classList.remove('selected');
         b.classList.remove('highlighted');
     });

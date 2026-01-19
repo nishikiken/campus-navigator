@@ -21,146 +21,66 @@
         </div>
 
         <div id="map-wrapper" class="map-wrapper">
-            <svg id="campus-map" viewBox="0 0 1024 600" xmlns="http://www.w3.org/2000/svg">
-                <!-- Фон -->
-                <rect width="1024" height="600" fill="#e5e5e5"/>
+            <svg id="campus-map" viewBox="0 0 1024 520" xmlns="http://www.w3.org/2000/svg">
+                <!-- Фоновое изображение оригинальной карты -->
+                <image href="campus-map.png" width="1024" height="520" preserveAspectRatio="xMidYMid meet"/>
                 
-                <!-- Улицы -->
-                <rect x="0" y="10" width="1024" height="70" fill="#c8c8c8"/>
-                <text x="512" y="50" text-anchor="middle" fill="#666" font-size="16" font-weight="500">ул. Дзержинского</text>
-                
-                <rect x="0" y="310" width="1024" height="50" fill="#c8c8c8"/>
-                <text x="512" y="340" text-anchor="middle" fill="#666" font-size="14">ул. Генкеля</text>
-                
-                <rect x="10" y="0" width="50" height="600" fill="#c8c8c8"/>
-                <text x="35" y="300" text-anchor="middle" fill="#666" font-size="13" transform="rotate(-90 35 300)">ул. Вилонова</text>
-                
-                <rect x="380" y="80" width="30" height="230" fill="#c8c8c8"/>
-                <text x="395" y="195" text-anchor="middle" fill="#666" font-size="12" transform="rotate(-90 395 195)">Восточная</text>
-                
-                <!-- Зеленые зоны -->
-                <!-- Зона с фонтаном -->
-                <rect x="110" y="100" width="260" height="200" fill="#b8e994" opacity="0.8" rx="8"/>
-                <text x="240" y="205" text-anchor="middle" fill="#2d5016" font-size="18" font-weight="bold">Фонтан</text>
-                
-                <!-- Ботанический сад -->
-                <rect x="110" y="370" width="230" height="210" fill="#a8e063" opacity="0.8" rx="8"/>
-                <text x="225" y="480" text-anchor="middle" fill="#2d5016" font-size="16" font-weight="bold">Ботанический сад</text>
-                
-                <!-- Площадь Дзержинского -->
-                <rect x="760" y="90" width="240" height="210" fill="#b8e994" opacity="0.7" rx="8"/>
-                <text x="880" y="200" text-anchor="middle" fill="#2d5016" font-size="14">площадь Дзержинского</text>
-                
-                <!-- Парковка -->
-                <rect x="115" y="20" width="90" height="50" fill="#ffeaa7" stroke="#fdcb6e" stroke-width="3" rx="5"/>
-                <text x="160" y="50" text-anchor="middle" fill="#8B4513" font-size="14" font-weight="bold">Парковка</text>
-                
-                <!-- Корпуса -->
+                <!-- Невидимые интерактивные зоны поверх корпусов -->
                 <!-- Корпус 7 -->
-                <g class="building" data-building="7" onclick="selectBuilding(7)">
-                    <rect x="115" y="150" width="60" height="55" fill="#fab1a0" stroke="#2d3436" stroke-width="2.5" rx="4"/>
-                    <text x="145" y="183" text-anchor="middle" fill="#2d3436" font-size="22" font-weight="bold">7</text>
-                </g>
+                <rect x="100" y="130" width="70" height="55" fill="transparent" class="building-hotspot" data-building="7" onclick="selectBuilding(7)"/>
                 
                 <!-- Корпус 6 -->
-                <g class="building" data-building="6" onclick="selectBuilding(6)">
-                    <rect x="115" y="230" width="60" height="55" fill="#fab1a0" stroke="#2d3436" stroke-width="2.5" rx="4"/>
-                    <text x="145" y="263" text-anchor="middle" fill="#2d3436" font-size="22" font-weight="bold">6</text>
-                </g>
+                <rect x="100" y="210" width="70" height="55" fill="transparent" class="building-hotspot" data-building="6" onclick="selectBuilding(6)"/>
                 
                 <!-- Корпус 8 -->
-                <g class="building" data-building="8" onclick="selectBuilding(8)">
-                    <rect x="200" y="190" width="60" height="55" fill="#fab1a0" stroke="#2d3436" stroke-width="2.5" rx="4"/>
-                    <text x="230" y="223" text-anchor="middle" fill="#2d3436" font-size="22" font-weight="bold">8</text>
-                </g>
+                <rect x="195" y="170" width="70" height="55" fill="transparent" class="building-hotspot" data-building="8" onclick="selectBuilding(8)"/>
                 
                 <!-- Общ. №2 -->
-                <g class="building" data-building="obsh2">
-                    <rect x="285" y="115" width="80" height="70" fill="#74b9ff" stroke="#2d3436" stroke-width="2.5" rx="4"/>
-                    <text x="325" y="143" text-anchor="middle" fill="#2d3436" font-size="15" font-weight="bold">Общ.</text>
-                    <text x="325" y="163" text-anchor="middle" fill="#2d3436" font-size="15" font-weight="bold">№2</text>
-                </g>
+                <rect x="270" y="100" width="90" height="75" fill="transparent" class="building-hotspot" data-building="obsh2"/>
                 
                 <!-- Корпус 1 -->
-                <g class="building" data-building="1" onclick="selectBuilding(1)">
-                    <rect x="415" y="160" width="90" height="75" fill="#fab1a0" stroke="#2d3436" stroke-width="2.5" rx="4"/>
-                    <text x="460" y="205" text-anchor="middle" fill="#2d3436" font-size="26" font-weight="bold">1</text>
-                </g>
+                <rect x="405" y="145" width="95" height="80" fill="transparent" class="building-hotspot" data-building="1" onclick="selectBuilding(1)"/>
                 
                 <!-- ЕНИ -->
-                <g class="building" data-building="eni">
-                    <rect x="415" y="280" width="70" height="50" fill="#a29bfe" stroke="#2d3436" stroke-width="2.5" rx="4"/>
-                    <text x="450" y="310" text-anchor="middle" fill="#2d3436" font-size="16" font-weight="bold">ЕНИ</text>
-                </g>
+                <rect x="405" y="265" width="75" height="50" fill="transparent" class="building-hotspot" data-building="eni"/>
                 
                 <!-- Корпус 10 -->
-                <g class="building" data-building="10" onclick="selectBuilding(10)">
-                    <rect x="535" y="200" width="75" height="65" fill="#fab1a0" stroke="#2d3436" stroke-width="2.5" rx="4"/>
-                    <text x="572" y="238" text-anchor="middle" fill="#2d3436" font-size="22" font-weight="bold">10</text>
-                </g>
+                <rect x="530" y="185" width="80" height="70" fill="transparent" class="building-hotspot" data-building="10" onclick="selectBuilding(10)"/>
                 
                 <!-- Корпус 12 -->
-                <g class="building" data-building="12" onclick="selectBuilding(12)">
-                    <rect x="490" y="60" width="75" height="55" fill="#fab1a0" stroke="#2d3436" stroke-width="2.5" rx="4"/>
-                    <text x="527" y="93" text-anchor="middle" fill="#2d3436" font-size="22" font-weight="bold">12</text>
-                </g>
+                <rect x="485" y="45" width="80" height="60" fill="transparent" class="building-hotspot" data-building="12" onclick="selectBuilding(12)"/>
                 
-                <!-- Корпус 2 (ЖЕЛТЫЙ - выделенный) -->
-                <g class="building" data-building="2" onclick="selectBuilding(2)">
-                    <rect x="415" y="370" width="70" height="60" fill="#ffeaa7" stroke="#fdcb6e" stroke-width="4" rx="4"/>
-                    <text x="450" y="406" text-anchor="middle" fill="#2d3436" font-size="24" font-weight="bold">2</text>
-                </g>
+                <!-- Корпус 2 -->
+                <rect x="405" y="355" width="75" height="65" fill="transparent" class="building-hotspot" data-building="2" onclick="selectBuilding(2)"/>
                 
                 <!-- Корпус 3 -->
-                <g class="building" data-building="3" onclick="selectBuilding(3)">
-                    <rect x="500" y="380" width="65" height="55" fill="#fab1a0" stroke="#2d3436" stroke-width="2.5" rx="4"/>
-                    <text x="532" y="413" text-anchor="middle" fill="#2d3436" font-size="22" font-weight="bold">3</text>
-                </g>
+                <rect x="495" y="365" width="70" height="60" fill="transparent" class="building-hotspot" data-building="3" onclick="selectBuilding(3)"/>
                 
                 <!-- Корпус 4 -->
-                <g class="building" data-building="4" onclick="selectBuilding(4)">
-                    <rect x="430" y="480" width="65" height="55" fill="#fab1a0" stroke="#2d3436" stroke-width="2.5" rx="4"/>
-                    <text x="462" y="513" text-anchor="middle" fill="#2d3436" font-size="22" font-weight="bold">4</text>
-                </g>
+                <rect x="405" y="455" width="70" height="60" fill="transparent" class="building-hotspot" data-building="4" onclick="selectBuilding(4)"/>
                 
                 <!-- Общ. №8 -->
-                <g class="building" data-building="obsh8">
-                    <rect x="580" y="370" width="80" height="70" fill="#74b9ff" stroke="#2d3436" stroke-width="2.5" rx="4"/>
-                    <text x="620" y="398" text-anchor="middle" fill="#2d3436" font-size="15" font-weight="bold">Общ.</text>
-                    <text x="620" y="418" text-anchor="middle" fill="#2d3436" font-size="15" font-weight="bold">№8</text>
-                </g>
+                <rect x="575" y="355" width="85" height="75" fill="transparent" class="building-hotspot" data-building="obsh8"/>
                 
                 <!-- Корпус 9 -->
-                <g class="building" data-building="9" onclick="selectBuilding(9)">
-                    <rect x="640" y="340" width="65" height="55" fill="#fab1a0" stroke="#2d3436" stroke-width="2.5" rx="4"/>
-                    <text x="672" y="373" text-anchor="middle" fill="#2d3436" font-size="22" font-weight="bold">9</text>
-                </g>
+                <rect x="635" y="320" width="70" height="60" fill="transparent" class="building-hotspot" data-building="9" onclick="selectBuilding(9)"/>
                 
                 <!-- Корпус 11 -->
-                <g class="building" data-building="11" onclick="selectBuilding(11)">
-                    <rect x="620" y="420" width="65" height="55" fill="#fab1a0" stroke="#2d3436" stroke-width="2.5" rx="4"/>
-                    <text x="652" y="453" text-anchor="middle" fill="#2d3436" font-size="22" font-weight="bold">11</text>
-                </g>
+                <rect x="615" y="395" width="70" height="60" fill="transparent" class="building-hotspot" data-building="11" onclick="selectBuilding(11)"/>
                 
                 <!-- Корпус 5 -->
-                <g class="building" data-building="5" onclick="selectBuilding(5)">
-                    <rect x="735" y="155" width="65" height="55" fill="#fab1a0" stroke="#2d3436" stroke-width="2.5" rx="4"/>
-                    <text x="767" y="188" text-anchor="middle" fill="#2d3436" font-size="22" font-weight="bold">5</text>
-                </g>
+                <rect x="730" y="140" width="70" height="60" fill="transparent" class="building-hotspot" data-building="5" onclick="selectBuilding(5)"/>
                 
                 <!-- Корпус 19 -->
-                <g class="building" data-building="19" onclick="selectBuilding(19)">
-                    <rect x="720" y="390" width="65" height="55" fill="#fab1a0" stroke="#2d3436" stroke-width="2.5" rx="4"/>
-                    <text x="752" y="423" text-anchor="middle" fill="#2d3436" font-size="20" font-weight="bold">19</text>
-                </g>
+                <rect x="715" y="370" width="70" height="60" fill="transparent" class="building-hotspot" data-building="19" onclick="selectBuilding(19)"/>
                 
-                <!-- Входы (красные треугольники) -->
-                <polygon points="60,155 80,165 60,175" fill="#e74c3c" class="entrance" data-entrance="west1"/>
-                <polygon points="60,260 80,270 60,280" fill="#e74c3c" class="entrance" data-entrance="west2"/>
-                <polygon points="60,360 80,370 60,380" fill="#e74c3c" class="entrance" data-entrance="west3"/>
-                <polygon points="405,295 415,315 405,335" fill="#e74c3c" class="entrance" data-entrance="center"/>
-                <polygon points="405,390 415,410 405,430" fill="#e74c3c" class="entrance" data-entrance="south"/>
-                <polygon points="730,155 740,165 730,175" fill="#e74c3c" class="entrance" data-entrance="east"/>
+                <!-- Интерактивные входы (невидимые зоны поверх красных треугольников) -->
+                <circle cx="45" cy="140" r="15" fill="transparent" class="entrance-hotspot" data-entrance="west1" onclick="selectEntranceFromMap('west1')"/>
+                <circle cx="45" cy="245" r="15" fill="transparent" class="entrance-hotspot" data-entrance="west2" onclick="selectEntranceFromMap('west2')"/>
+                <circle cx="45" cy="335" r="15" fill="transparent" class="entrance-hotspot" data-entrance="west3" onclick="selectEntranceFromMap('west3')"/>
+                <circle cx="410" cy="290" r="15" fill="transparent" class="entrance-hotspot" data-entrance="center" onclick="selectEntranceFromMap('center')"/>
+                <circle cx="410" cy="385" r="15" fill="transparent" class="entrance-hotspot" data-entrance="south" onclick="selectEntranceFromMap('south')"/>
+                <circle cx="735" cy="165" r="15" fill="transparent" class="entrance-hotspot" data-entrance="east" onclick="selectEntranceFromMap('east')"/>
                 
                 <!-- Тропинки (будут добавлены динамически) -->
                 <g id="paths-layer"></g>
