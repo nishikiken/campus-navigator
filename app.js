@@ -371,6 +371,11 @@ function goToMain() {
     haptic();
 }
 
+function goToMap() {
+    window.location.href = 'map.html';
+    haptic();
+}
+
 function goToEntrances() {
     showStep('step-entrance');
     haptic();
