@@ -354,9 +354,14 @@ function openOverlay() {
     const profileCard = document.getElementById('user-profile-card');
     const darkOverlay = document.getElementById('dark-overlay');
     
+    // Форсируем reflow для корректной анимации
+    profileCard.offsetHeight;
+    
     // Одновременно поднимаем плашку и открываем меню
-    profileCard.classList.add('lifted');
-    darkOverlay.classList.add('active');
+    requestAnimationFrame(() => {
+        profileCard.classList.add('lifted');
+        darkOverlay.classList.add('active');
+    });
     
     profileCard.style.cursor = 'default';
     

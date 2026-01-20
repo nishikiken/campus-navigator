@@ -691,12 +691,14 @@ body {
     z-index: 100;
     overflow: visible;
     cursor: pointer;
-    transition: bottom 0.5s cubic-bezier(0.4, 0, 0.2, 1), z-index 0s;
+    transition: bottom 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: bottom;
 }
 
 .user-profile-card.lifted {
     bottom: calc(100vh - 120px);
     z-index: 101;
+    transition: bottom 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Индикатор свайпа - маленькие стрелочки елочкой */
@@ -811,7 +813,7 @@ body {
     right: 0;
     bottom: 0;
     background: var(--tg-theme-bg-color);
-    z-index: 200;
+    z-index: 95;
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.3s ease, visibility 0.3s ease;
@@ -822,10 +824,6 @@ body {
     visibility: visible;
 }
 
-.leaderboard-view.active ~ .user-profile-card {
-    z-index: 201;
-}
-
 /* Главное меню уезжает вверх */
 #step-main.hidden-up {
     transform: translateY(-100%);
@@ -833,7 +831,7 @@ body {
 }
 
 .leaderboard-header {
-    padding: 140px 16px 16px 16px;
+    padding: 16px 16px 16px 16px;
     background: var(--tg-theme-bg-color);
     position: sticky;
     top: 0;
