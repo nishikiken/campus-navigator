@@ -324,12 +324,12 @@ function resetView() {
 }
 
 function applyZoom() {
-    const mapInner = document.getElementById('map-inner');
-    if (mapInner) {
-        mapInner.style.transform = `scale(${currentZoom})`;
+    const map = document.getElementById('campus-map');
+    if (map) {
+        map.style.transform = `scale(${currentZoom})`;
         console.log('Applied zoom:', currentZoom);
     } else {
-        console.error('Map inner element not found');
+        console.error('Map element not found');
     }
 }
 
@@ -356,4 +356,14 @@ function haptic(type = 'selection') {
 // Инициализация
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Интерактивная карта загружена');
+    
+    // Добавить обработчики кликов на все маркеры
+    document.querySelectorAll('.building-marker').forEach(marker => {
+        const buildingId = marker.getAttribute('data-building');
+        marker.addEventListener('click', () => {
+            console.log('Clicked building:', buildingId);
+            selectBuilding(buildingId);
+        });
+        marker.style.cursor = 'pointer';
+    });
 });

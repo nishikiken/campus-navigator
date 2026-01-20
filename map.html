@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Интерактивная карта кампуса</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link rel="stylesheet" href="map-style.css?v=5">
+    <link rel="stylesheet" href="map-style.css?v=6">
 </head>
 <body>
     <div class="map-container">
@@ -21,8 +21,7 @@
         </div>
 
         <div id="map-wrapper" class="map-wrapper">
-            <div class="map-inner" id="map-inner">
-                <svg id="campus-map" viewBox="0 0 1024 520" xmlns="http://www.w3.org/2000/svg">
+            <svg id="campus-map" viewBox="0 0 1024 520" xmlns="http://www.w3.org/2000/svg">
                 <!-- Фоновое изображение оригинальной карты -->
                 <image href="campus-map.png" width="1024" height="520" preserveAspectRatio="xMidYMid meet"/>
                 
@@ -111,7 +110,6 @@
                 <!-- Слой для анимации маршрута -->
                 <g id="route-layer"></g>
             </svg>
-            </div>
         </div>
         
         <!-- Панель выбора входа -->
@@ -134,6 +132,6 @@
         </div>
     </div>
     
-    <script src="map-script.js?v=5"></script>
+    <script src="map-script.js?v=6"></script>
 </body>
 </html>
