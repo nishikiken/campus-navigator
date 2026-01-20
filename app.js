@@ -324,7 +324,7 @@ function initSwipeGesture() {
     let startBottom = 0; // начальная позиция плашки
     
     const screenHeight = window.innerHeight;
-    const maxBottom = screenHeight - 150; // calc(100vh - 150px) - опустили ниже
+    const maxBottom = screenHeight - 120; // calc(100vh - 120px) - вернули как было
     const minBottom = 20;
 
     profileCard.addEventListener('touchstart', (e) => {

@@ -697,7 +697,7 @@ body {
 }
 
 .user-profile-card.lifted {
-    bottom: calc(100vh - 150px);
+    bottom: calc(100vh - 120px);
     z-index: 101;
     transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -848,9 +848,9 @@ body {
 }
 
 .leaderboard-list {
-    padding: 24px 16px 160px 16px;
+    padding: 140px 16px 160px 16px;
     overflow-y: auto;
-    max-height: calc(100vh - 200px);
+    max-height: calc(100vh - 60px);
 }
 
 .leader-item {
