@@ -178,6 +178,7 @@
                 <li><strong>Добавить вход на кампус:</strong> Нажми "Добавить вход", затем кликни на карте (главные входы)</li>
                 <li><strong>Добавить узел:</strong> Нажми "Добавить узел", затем кликни на карте (для перекрестков)</li>
                 <li><strong>Добавить вход в корпус:</strong> Нажми "Вход в корпус", затем кликни где дверь корпуса</li>
+                <li><strong>Добавить медпункт:</strong> Нажми "Медпункт", затем кликни где находится медпункт</li>
                 <li><strong>Нарисовать дорогу:</strong> Нажми "Рисовать дороги", затем кликай по точкам - между ними появится дорога</li>
                 <li><strong>Удалить дорогу:</strong> Нажми "Удалить дорогу", затем кликни на линию</li>
                 <li><strong>Удалить точку:</strong> Нажми "Удалить точку", затем кликни на точку (удалятся все связанные дороги)</li>
@@ -203,6 +204,10 @@
                 <div class="stat-label">Входов в корпуса</div>
             </div>
             <div class="stat-item">
+                <div class="stat-value" id="medical-count">0</div>
+                <div class="stat-label">Медпунктов</div>
+            </div>
+            <div class="stat-item">
                 <div class="stat-value" id="road-count">0</div>
                 <div class="stat-label">Дорог</div>
             </div>
@@ -212,6 +217,7 @@
             <button class="btn-success" onclick="setMode('entrance')">🚪 Добавить вход</button>
             <button class="btn-primary" onclick="setMode('node')">➕ Добавить узел</button>
             <button class="btn-primary" onclick="setMode('buildingEntrance')">🏢 Вход в корпус</button>
+            <button class="btn-danger" onclick="setMode('medicalPoint')">🏥 Медпункт</button>
             <button class="btn-primary" onclick="setMode('road')">🛣️ Рисовать дороги</button>
             <button class="btn-danger" onclick="setMode('deleteRoad')">❌ Удалить дорогу</button>
             <button class="btn-danger" onclick="setMode('deletePoint')">❌ Удалить точку</button>
@@ -302,11 +308,13 @@
         let entrances = [];
         let nodes = [];
         let buildingEntrances = [];
+        let medicalPoints = [];
         let roads = [];
         let selectedPoint = null;
         let entranceCounter = 1;
         let nodeCounter = 1;
         let buildingEntranceCounter = 1;
+        let medicalPointCounter = 1;
 
         // Координаты корпусов (для связывания с дорогами)
         const buildings = {
@@ -338,6 +346,7 @@
                 entrance: 'Добавление входа на кампус (кликни на карте)',
                 node: 'Добавление узла (кликни на карте)',
                 buildingEntrance: 'Добавление входа в корпус (кликни где дверь)',
+                medicalPoint: 'Добавление медпункта (кликни на карте)',
                 road: 'Рисование дороги (кликай по точкам)',
                 deleteRoad: 'Удаление дороги (кликни на линию)',
                 deletePoint: 'Удаление точки (кликни на точку)'
@@ -363,6 +372,8 @@
                     addNode(e);
                 } else if (mode === 'buildingEntrance') {
                     addBuildingEntrance(e);
+                } else if (mode === 'medicalPoint') {
+                    addMedicalPoint(e);
                 }
             }
         });
@@ -387,6 +398,14 @@
             const coords = getSVGCoordinates(event);
             const id = 'be' + buildingEntranceCounter++;
             buildingEntrances.push({ id, x: coords.x, y: coords.y });
+            renderPoints();
+            updateStats();
+        }
+
+        function addMedicalPoint(event) {
+            const coords = getSVGCoordinates(event);
+            const id = 'med' + medicalPointCounter++;
+            medicalPoints.push({ id, x: coords.x, y: coords.y });
             renderPoints();
             updateStats();
         }
@@ -463,6 +482,35 @@
                 g.appendChild(rect);
                 layer.appendChild(g);
             });
+            
+            // Рисуем медпункты (красные кресты)
+            medicalPoints.forEach(point => {
+                const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                g.classList.add('point-marker');
+                g.setAttribute('data-id', point.id);
+                g.onclick = () => handlePointClick(point.id);
+                
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', point.x);
+                circle.setAttribute('cy', point.y);
+                circle.setAttribute('r', 12);
+                circle.setAttribute('fill', '#ff3b30');
+                circle.setAttribute('stroke', '#fff');
+                circle.setAttribute('stroke-width', 2);
+                
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', point.x);
+                text.setAttribute('y', point.y + 5);
+                text.setAttribute('text-anchor', 'middle');
+                text.setAttribute('fill', '#fff');
+                text.setAttribute('font-size', 16);
+                text.setAttribute('font-weight', 'bold');
+                text.textContent = '+';
+                
+                g.appendChild(circle);
+                g.appendChild(text);
+                layer.appendChild(g);
+            });
         }
 
         function handlePointClick(pointId) {
@@ -505,6 +553,8 @@
             if (node) return node;
             const buildingEntrance = buildingEntrances.find(p => p.id === id);
             if (buildingEntrance) return buildingEntrance;
+            const medicalPoint = medicalPoints.find(p => p.id === id);
+            if (medicalPoint) return medicalPoint;
             const building = Object.keys(buildings).find(b => b === id);
             if (building) return buildings[building];
             return null;
@@ -559,6 +609,7 @@
             entrances = entrances.filter(p => p.id !== pointId);
             nodes = nodes.filter(p => p.id !== pointId);
             buildingEntrances = buildingEntrances.filter(p => p.id !== pointId);
+            medicalPoints = medicalPoints.filter(p => p.id !== pointId);
             
             // Удаляем все дороги, связанные с этой точкой
             roads = roads.filter(r => r.from !== pointId && r.to !== pointId);
@@ -573,10 +624,12 @@
                 entrances = [];
                 nodes = [];
                 buildingEntrances = [];
+                medicalPoints = [];
                 roads = [];
                 entranceCounter = 1;
                 nodeCounter = 1;
                 buildingEntranceCounter = 1;
+                medicalPointCounter = 1;
                 renderPoints();
                 renderRoads();
                 updateStats();
@@ -587,6 +640,7 @@
             document.getElementById('entrance-count').textContent = entrances.length;
             document.getElementById('node-count').textContent = nodes.length;
             document.getElementById('building-entrance-count').textContent = buildingEntrances.length;
+            document.getElementById('medical-count').textContent = medicalPoints.length;
             document.getElementById('road-count').textContent = roads.length;
         }
 
@@ -614,6 +668,11 @@
                 coordsCode += `    ${be.id}: { x: ${be.x}, y: ${be.y} },\n`;
             });
             
+            // Медпункты
+            medicalPoints.forEach(med => {
+                coordsCode += `    ${med.id}: { x: ${med.x}, y: ${med.y} },\n`;
+            });
+            
             coordsCode += '};\n\n';
             
             // Создаем граф путей
@@ -626,6 +685,7 @@
             entrances.forEach(e => connections[e.id] = []);
             nodes.forEach(n => connections[n.id] = []);
             buildingEntrances.forEach(be => connections[be.id] = []);
+            medicalPoints.forEach(med => connections[med.id] = []);
             Object.keys(buildings).forEach(b => connections[b] = []);
             
             // Заполняем связи из дорог
