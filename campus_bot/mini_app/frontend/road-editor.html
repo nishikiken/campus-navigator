@@ -443,17 +443,17 @@
                 const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
                 circle.setAttribute('cx', point.x);
                 circle.setAttribute('cy', point.y);
-                circle.setAttribute('r', 8);
+                circle.setAttribute('r', 5);
                 circle.setAttribute('fill', '#34c759');
                 circle.setAttribute('stroke', '#fff');
-                circle.setAttribute('stroke-width', 1.5);
+                circle.setAttribute('stroke-width', 1);
                 
                 const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
                 text.setAttribute('x', point.x);
-                text.setAttribute('y', point.y + 3);
+                text.setAttribute('y', point.y + 2);
                 text.setAttribute('text-anchor', 'middle');
                 text.setAttribute('fill', '#fff');
-                text.setAttribute('font-size', 9);
+                text.setAttribute('font-size', 7);
                 text.setAttribute('font-weight', 'bold');
                 text.textContent = point.id.replace('entrance', 'E');
                 
@@ -472,10 +472,10 @@
                 const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
                 circle.setAttribute('cx', point.x);
                 circle.setAttribute('cy', point.y);
-                circle.setAttribute('r', 5);
+                circle.setAttribute('r', 3);
                 circle.setAttribute('fill', '#ff9500');
                 circle.setAttribute('stroke', '#fff');
-                circle.setAttribute('stroke-width', 1.5);
+                circle.setAttribute('stroke-width', 1);
                 
                 g.appendChild(circle);
                 layer.appendChild(g);
@@ -489,21 +489,21 @@
                 g.onclick = () => handlePointClick(point.id);
                 
                 const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                rect.setAttribute('x', point.x - 7);
-                rect.setAttribute('y', point.y - 7);
-                rect.setAttribute('width', 14);
-                rect.setAttribute('height', 14);
+                rect.setAttribute('x', point.x - 5);
+                rect.setAttribute('y', point.y - 5);
+                rect.setAttribute('width', 10);
+                rect.setAttribute('height', 10);
                 rect.setAttribute('fill', '#af52de');
                 rect.setAttribute('stroke', '#fff');
-                rect.setAttribute('stroke-width', 1.5);
-                rect.setAttribute('rx', 2);
+                rect.setAttribute('stroke-width', 1);
+                rect.setAttribute('rx', 1);
                 
                 const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
                 text.setAttribute('x', point.x);
-                text.setAttribute('y', point.y + 3);
+                text.setAttribute('y', point.y + 2);
                 text.setAttribute('text-anchor', 'middle');
                 text.setAttribute('fill', '#fff');
-                text.setAttribute('font-size', 9);
+                text.setAttribute('font-size', 7);
                 text.setAttribute('font-weight', 'bold');
                 text.textContent = point.building || point.id.replace('be', '');
                 
@@ -522,17 +522,17 @@
                 const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
                 circle.setAttribute('cx', point.x);
                 circle.setAttribute('cy', point.y);
-                circle.setAttribute('r', 8);
+                circle.setAttribute('r', 5);
                 circle.setAttribute('fill', '#ff3b30');
                 circle.setAttribute('stroke', '#fff');
-                circle.setAttribute('stroke-width', 1.5);
+                circle.setAttribute('stroke-width', 1);
                 
                 const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
                 text.setAttribute('x', point.x);
-                text.setAttribute('y', point.y + 4);
+                text.setAttribute('y', point.y + 3);
                 text.setAttribute('text-anchor', 'middle');
                 text.setAttribute('fill', '#fff');
-                text.setAttribute('font-size', 12);
+                text.setAttribute('font-size', 9);
                 text.setAttribute('font-weight', 'bold');
                 text.textContent = '+';
                 
@@ -552,17 +552,17 @@
                 const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
                 circle.setAttribute('cx', point.x);
                 circle.setAttribute('cy', point.y);
-                circle.setAttribute('r', 12);
+                circle.setAttribute('r', 8);
                 circle.setAttribute('fill', '#0d6efd');
                 circle.setAttribute('stroke', '#fff');
-                circle.setAttribute('stroke-width', 1.5);
+                circle.setAttribute('stroke-width', 1);
                 
                 const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
                 text.setAttribute('x', point.x);
-                text.setAttribute('y', point.y + 4);
+                text.setAttribute('y', point.y + 3);
                 text.setAttribute('text-anchor', 'middle');
                 text.setAttribute('fill', '#fff');
-                text.setAttribute('font-size', 11);
+                text.setAttribute('font-size', 8);
                 text.setAttribute('font-weight', 'bold');
                 text.textContent = buildingId;
                 

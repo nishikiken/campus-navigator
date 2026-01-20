@@ -284,35 +284,11 @@ function buildRoute(from, to) {
         const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
         dot.setAttribute('cx', coord.x);
         dot.setAttribute('cy', coord.y);
-        dot.setAttribute('r', 5);
+        dot.setAttribute('r', 3);
         dot.setAttribute('class', 'route-dot');
         dot.style.animationDelay = `${index * 0.2}s`;
         routeLayer.appendChild(dot);
     });
-    
-    // Добавить маркеры начала и конца
-    const startCoord = coordinates[from];
-    const endCoord = coordinates[to];
-    
-    if (startCoord) {
-        const startMarker = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        startMarker.setAttribute('cx', startCoord.x);
-        startMarker.setAttribute('cy', startCoord.y);
-        startMarker.setAttribute('r', 8);
-        startMarker.setAttribute('fill', '#00FF00');
-        startMarker.setAttribute('class', 'route-marker');
-        routeLayer.appendChild(startMarker);
-    }
-    
-    if (endCoord) {
-        const endMarker = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        endMarker.setAttribute('cx', endCoord.x);
-        endMarker.setAttribute('cy', endCoord.y);
-        endMarker.setAttribute('r', 8);
-        endMarker.setAttribute('fill', '#FF0000');
-        endMarker.setAttribute('class', 'route-marker');
-        routeLayer.appendChild(endMarker);
-    }
     
     // Подсветить корпус
     const building = document.querySelector(`.building-marker[data-building="${to}"]`);
