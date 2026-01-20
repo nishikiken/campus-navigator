@@ -385,21 +385,6 @@ function openLeaderboard() {
     // 2. Через 300ms показываем лидерборд
     setTimeout(() => {
         leaderboardView.classList.add('active');
-        
-        // Копируем данные пользователя
-        document.getElementById('user-tokens-top').textContent = document.getElementById('user-tokens').textContent;
-        document.getElementById('user-name-top').textContent = document.getElementById('user-name').textContent;
-        document.getElementById('user-rating-top').textContent = document.getElementById('user-rating').textContent;
-        
-        const avatarTop = document.getElementById('user-avatar-top');
-        const avatarBottom = document.getElementById('user-avatar');
-        avatarTop.innerHTML = avatarBottom.innerHTML;
-        
-        // Создаем частицы
-        const particlesTop = document.querySelector('#step-leaderboard .particles-bg');
-        if (particlesTop && particlesTop.children.length === 0) {
-            createParticlesForContainer(particlesTop);
-        }
     }, 300);
     
     haptic();

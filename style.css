@@ -690,9 +690,8 @@ body {
         inset 0 -1px 2px rgba(0, 0, 0, 0.3);
     z-index: 100;
     overflow: visible;
-    position: fixed;
-    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
+    transition: bottom 0.5s cubic-bezier(0.4, 0, 0.2, 1), z-index 0s;
 }
 
 .user-profile-card.lifted {
@@ -804,29 +803,6 @@ body {
     background: var(--tg-theme-bg-color);
 }
 
-/* Профиль в топе таблицы лидеров */
-.user-profile-card-top {
-    position: relative;
-    background: rgba(40, 40, 45, 0.6);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-radius: 20px;
-    padding: 16px 20px;
-    box-shadow: 
-        0 0 30px rgba(0, 0, 0, 0.8),
-        0 0 60px rgba(0, 0, 0, 0.5),
-        0 8px 32px rgba(0, 0, 0, 0.6),
-        inset 0 1px 1px rgba(255, 255, 255, 0.15),
-        inset 0 -1px 2px rgba(0, 0, 0, 0.3);
-    overflow: hidden;
-    margin-bottom: 20px;
-    position: fixed;
-    top: 20px;
-    left: 16px;
-    right: 16px;
-    z-index: 201;
-}
-
 /* Таблица лидеров */
 .leaderboard-view {
     position: fixed;
@@ -844,6 +820,10 @@ body {
 .leaderboard-view.active {
     opacity: 1;
     visibility: visible;
+}
+
+.leaderboard-view.active ~ .user-profile-card {
+    z-index: 201;
 }
 
 /* Главное меню уезжает вверх */
