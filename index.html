@@ -2,10 +2,122 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="0; url=campus_bot/mini_app/frontend/index.html">
-    <title>Campus Navigator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Navigate Helper</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <p>Перенаправление на карту кампуса...</p>
+    <!-- Splash Screen -->
+    <div id="splash" class="splash">
+        <div class="splash-content">
+            <h1 class="splash-title">Navigate Helper</h1>
+            <p class="splash-subtitle">Сделано Артемом Галковым ИСП 3-4</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Главное меню -->
+        <div id="step-main" class="step active">
+            <div class="header">
+                <div class="icon">🎓</div>
+                <h1>Чем помочь?</h1>
+                <p class="subtitle">Выбери что тебе нужно</p>
+            </div>
+            <div class="main-menu">
+                <div class="menu-card" onclick="goToMap()">
+                    <div class="menu-icon">🗺️</div>
+                    <div class="menu-info">
+                        <h3>Интерактивная карта</h3>
+                        <p>Векторная карта с маршрутами</p>
+                    </div>
+                </div>
+                <div class="menu-card" onclick="goToEntrances()">
+                    <div class="menu-icon">🏢</div>
+                    <div class="menu-info">
+                        <h3>Найти корпус</h3>
+                        <p>Маршрут от входа до корпуса</p>
+                    </div>
+                </div>
+                <div class="menu-card" onclick="goToFood()">
+                    <div class="menu-icon">🍔</div>
+                    <div class="menu-info">
+                        <h3>Где поесть</h3>
+                        <p>Столовые, кафе, автоматы</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Выбор корпуса для еды -->
+        <div id="step-food" class="step">
+            <div class="header">
+                <button class="back-btn" onclick="goToMain()">←</button>
+                <div class="icon">🍔</div>
+                <h1>Где поесть</h1>
+                <p class="subtitle">Выбери корпус</p>
+            </div>
+            <div class="food-buildings" id="food-buildings-list"></div>
+        </div>
+
+        <!-- Список мест в корпусе -->
+        <div id="step-food-list" class="step">
+            <div class="header">
+                <button class="back-btn" onclick="goToFood()">←</button>
+                <div class="icon">🍽️</div>
+                <h1 id="food-building-title">Корпус</h1>
+                <p class="subtitle">Что тут есть</p>
+            </div>
+            <div class="food-list" id="food-list"></div>
+        </div>
+
+        <!-- Инфо о месте еды -->
+        <div id="step-food-info" class="step">
+            <div class="header">
+                <button class="back-btn" onclick="goToFoodList()">←</button>
+                <h1 id="food-title">Место</h1>
+            </div>
+            <div class="food-info-card" id="food-info-content"></div>
+        </div>
+
+        <!-- Выбор входа -->
+        <div id="step-entrance" class="step">
+            <div class="header">
+                <button class="back-btn" onclick="goToMain()">←</button>
+                <div class="icon">📍</div>
+                <h1>Где ты сейчас?</h1>
+                <p class="subtitle">Выбери ближайший вход</p>
+            </div>
+            <div class="entrances" id="entrances-list"></div>
+        </div>
+
+        <!-- Выбор корпуса -->
+        <div id="step-building" class="step">
+            <div class="header">
+                <button class="back-btn" onclick="goToEntrances()">←</button>
+                <div class="icon">🏢</div>
+                <h1>Куда идём?</h1>
+                <p class="subtitle" id="selected-entrance"></p>
+            </div>
+            <div class="buildings-grid" id="buildings-list"></div>
+        </div>
+
+        <!-- Маршрут -->
+        <div id="step-route" class="step">
+            <div class="header">
+                <button class="back-btn" onclick="goToBuildings()">←</button>
+                <h1 id="route-title">Маршрут</h1>
+            </div>
+            <div class="route-container" onclick="openFullscreen()">
+                <img id="route-image" src="" alt="Маршрут">
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                </div>
+                <div class="zoom-hint">Нажми для увеличения</div>
+            </div>
+            <button class="arrived-btn" onclick="arrived()">✅ Дошли!</button>
+        </div>
+    </div>
+    <script src="app.js"></script>
 </body>
 </html>
