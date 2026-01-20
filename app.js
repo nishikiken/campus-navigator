@@ -12,6 +12,16 @@ if (tg) {
     document.documentElement.style.setProperty('--tg-theme-secondary-bg-color', tg.themeParams.secondary_bg_color || '#2c2c2e');
 }
 
+// Проверка: если возвращаемся с другой страницы - скрыть splash screen
+if (sessionStorage.getItem('visited')) {
+    const splash = document.getElementById('splash');
+    if (splash) {
+        splash.style.display = 'none';
+    }
+} else {
+    sessionStorage.setItem('visited', 'true');
+}
+
 // Состояние
 let selectedEntrance = null;
 let selectedBuilding = null;

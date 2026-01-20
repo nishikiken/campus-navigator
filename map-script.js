@@ -348,7 +348,8 @@ function closeInfo() {
 function arrivedAtDestination() {
     haptic('success');
     closeInfo();
-    alert('Отлично! Рады что вы добрались 🎉');
+    // Возврат на главную страницу
+    window.location.href = 'index.html';
 }
 
 // Управление зумом
@@ -453,11 +454,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Возврат назад
 function goBack() {
-    if (window.history.length > 1) {
-        window.history.back();
-    } else {
-        window.location.href = 'index.html';
-    }
+    window.location.href = 'index.html';
 }
 
 // Тактильная обратная связь
