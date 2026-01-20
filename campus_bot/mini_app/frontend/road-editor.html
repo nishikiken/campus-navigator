@@ -217,6 +217,7 @@
             <button class="btn-success" onclick="setMode('entrance')">🚪 Добавить вход</button>
             <button class="btn-primary" onclick="setMode('node')">➕ Добавить узел</button>
             <button class="btn-primary" onclick="setMode('buildingEntrance')">🏢 Вход в корпус</button>
+            <button class="btn-primary" onclick="setMode('building')">🏫 Переместить корпус</button>
             <button class="btn-danger" onclick="setMode('medicalPoint')">🏥 Медпункт</button>
             <button class="btn-primary" onclick="setMode('road')">🛣️ Рисовать дороги</button>
             <button class="btn-danger" onclick="setMode('deleteRoad')">❌ Удалить дорогу</button>
@@ -346,6 +347,7 @@
                 entrance: 'Добавление входа на кампус (кликни на карте)',
                 node: 'Добавление узла (кликни на карте)',
                 buildingEntrance: 'Добавление входа в корпус (кликни где дверь)',
+                building: 'Перемещение корпуса (кликни на новое место)',
                 medicalPoint: 'Добавление медпункта (кликни на карте)',
                 road: 'Рисование дороги (кликай по точкам)',
                 deleteRoad: 'Удаление дороги (кликни на линию)',
@@ -374,9 +376,23 @@
                     addBuildingEntrance(e);
                 } else if (mode === 'medicalPoint') {
                     addMedicalPoint(e);
+                } else if (mode === 'building') {
+                    moveBuilding(e);
                 }
             }
         });
+
+        function moveBuilding(event) {
+            const buildingId = prompt('Введите номер корпуса для перемещения (1, 2, 3... 19):');
+            if (!buildingId || !buildings[buildingId]) {
+                alert('Корпус не найден!');
+                return;
+            }
+            
+            const coords = getSVGCoordinates(event);
+            buildings[buildingId] = { x: coords.x, y: coords.y };
+            renderPoints();
+        }
 
         function addEntrance(event) {
             const coords = getSVGCoordinates(event);
@@ -427,17 +443,17 @@
                 const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
                 circle.setAttribute('cx', point.x);
                 circle.setAttribute('cy', point.y);
-                circle.setAttribute('r', 12);
+                circle.setAttribute('r', 8);
                 circle.setAttribute('fill', '#34c759');
                 circle.setAttribute('stroke', '#fff');
-                circle.setAttribute('stroke-width', 2);
+                circle.setAttribute('stroke-width', 1.5);
                 
                 const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
                 text.setAttribute('x', point.x);
-                text.setAttribute('y', point.y + 4);
+                text.setAttribute('y', point.y + 3);
                 text.setAttribute('text-anchor', 'middle');
                 text.setAttribute('fill', '#fff');
-                text.setAttribute('font-size', 12);
+                text.setAttribute('font-size', 9);
                 text.setAttribute('font-weight', 'bold');
                 text.textContent = point.id.replace('entrance', 'E');
                 
@@ -456,10 +472,10 @@
                 const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
                 circle.setAttribute('cx', point.x);
                 circle.setAttribute('cy', point.y);
-                circle.setAttribute('r', 8);
+                circle.setAttribute('r', 5);
                 circle.setAttribute('fill', '#ff9500');
                 circle.setAttribute('stroke', '#fff');
-                circle.setAttribute('stroke-width', 2);
+                circle.setAttribute('stroke-width', 1.5);
                 
                 g.appendChild(circle);
                 layer.appendChild(g);
@@ -473,21 +489,21 @@
                 g.onclick = () => handlePointClick(point.id);
                 
                 const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                rect.setAttribute('x', point.x - 10);
-                rect.setAttribute('y', point.y - 10);
-                rect.setAttribute('width', 20);
-                rect.setAttribute('height', 20);
+                rect.setAttribute('x', point.x - 7);
+                rect.setAttribute('y', point.y - 7);
+                rect.setAttribute('width', 14);
+                rect.setAttribute('height', 14);
                 rect.setAttribute('fill', '#af52de');
                 rect.setAttribute('stroke', '#fff');
-                rect.setAttribute('stroke-width', 2);
-                rect.setAttribute('rx', 3);
+                rect.setAttribute('stroke-width', 1.5);
+                rect.setAttribute('rx', 2);
                 
                 const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
                 text.setAttribute('x', point.x);
-                text.setAttribute('y', point.y + 4);
+                text.setAttribute('y', point.y + 3);
                 text.setAttribute('text-anchor', 'middle');
                 text.setAttribute('fill', '#fff');
-                text.setAttribute('font-size', 12);
+                text.setAttribute('font-size', 9);
                 text.setAttribute('font-weight', 'bold');
                 text.textContent = point.building || point.id.replace('be', '');
                 
@@ -506,19 +522,49 @@
                 const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
                 circle.setAttribute('cx', point.x);
                 circle.setAttribute('cy', point.y);
-                circle.setAttribute('r', 12);
+                circle.setAttribute('r', 8);
                 circle.setAttribute('fill', '#ff3b30');
                 circle.setAttribute('stroke', '#fff');
-                circle.setAttribute('stroke-width', 2);
+                circle.setAttribute('stroke-width', 1.5);
                 
                 const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
                 text.setAttribute('x', point.x);
-                text.setAttribute('y', point.y + 5);
+                text.setAttribute('y', point.y + 4);
                 text.setAttribute('text-anchor', 'middle');
                 text.setAttribute('fill', '#fff');
-                text.setAttribute('font-size', 16);
+                text.setAttribute('font-size', 12);
                 text.setAttribute('font-weight', 'bold');
                 text.textContent = '+';
+                
+                g.appendChild(circle);
+                g.appendChild(text);
+                layer.appendChild(g);
+            });
+            
+            // Рисуем корпуса (синие круги с номерами)
+            Object.keys(buildings).forEach(buildingId => {
+                const point = buildings[buildingId];
+                const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                g.classList.add('point-marker');
+                g.setAttribute('data-id', buildingId);
+                g.onclick = () => handlePointClick(buildingId);
+                
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', point.x);
+                circle.setAttribute('cy', point.y);
+                circle.setAttribute('r', 12);
+                circle.setAttribute('fill', '#0d6efd');
+                circle.setAttribute('stroke', '#fff');
+                circle.setAttribute('stroke-width', 1.5);
+                
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', point.x);
+                text.setAttribute('y', point.y + 4);
+                text.setAttribute('text-anchor', 'middle');
+                text.setAttribute('fill', '#fff');
+                text.setAttribute('font-size', 11);
+                text.setAttribute('font-weight', 'bold');
+                text.textContent = buildingId;
                 
                 g.appendChild(circle);
                 g.appendChild(text);

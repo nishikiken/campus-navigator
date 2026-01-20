@@ -10,7 +10,7 @@ let selectedBuilding = null;
 let selectedEntrance = null;
 let currentZoom = 1;
 
-// Данные о корпусах
+// Данные о корпусах и медпунктах
 const buildingData = {
     1: { name: "Корпус 1", description: "Главный учебный корпус" },
     2: { name: "Корпус 2", description: "Учебный корпус" },
@@ -24,7 +24,8 @@ const buildingData = {
     10: { name: "Корпус 10", description: "Учебный корпус" },
     11: { name: "Корпус 11", description: "Учебный корпус" },
     12: { name: "Корпус 12", description: "Учебный корпус" },
-    19: { name: "Корпус 19", description: "Учебный корпус" }
+    19: { name: "Корпус 19", description: "Учебный корпус" },
+    med1: { name: "Медпункт", description: "Медицинский пункт" }
 };
 
 // Координаты для построения маршрутов
@@ -96,19 +97,6 @@ const coordinates = {
 
 // Граф путей (какие точки соединены дорогами)
 const pathGraph = {
-    1: ['be1'],
-    2: ['be2'],
-    3: ['be3'],
-    4: ['be4'],
-    5: ['be5'],
-    6: ['be6'],
-    7: ['be7'],
-    8: ['be8'],
-    9: ['be9'],
-    10: ['be10'],
-    11: ['be11'],
-    12: ['be12'],
-    19: [],
     entrance1: ['n1'],
     entrance2: ['n4'],
     entrance3: ['n30'],
@@ -122,7 +110,7 @@ const pathGraph = {
     n8: ['n12', 'n3', 'n14'],
     n9: ['n3', 'n10', 'n11'],
     n10: ['n9', 'be6', 'n16'],
-    n11: ['n9', 'n15', 'n18', 'n17', 'n12'],
+    n11: ['n9', 'n15', 'n18', 'n17', 'n12', 'be8'],
     n12: ['n11', 'n19', 'n8'],
     n13: ['n14', 'med1'],
     n14: ['n8', 'be1', 'n13'],
@@ -146,18 +134,18 @@ const pathGraph = {
     n32: ['n33', 'n30'],
     n33: ['n28', 'n32'],
     n34: ['n2', 'be7', 'n3'],
-    be7: ['n34', '7'],
-    be6: ['n10', '6'],
-    be8: ['8'],
-    be1: ['n14', '1'],
-    be12: ['n27', '12'],
-    be10: ['n26', '10'],
-    be2: ['n20', '2'],
-    be4: ['n21', '4'],
-    be3: ['n23', '3'],
-    be9: ['n28', 'n29', '9'],
-    be11: ['n29', '11'],
-    be5: ['n31', '5'],
+    be7: ['n34'],
+    be6: ['n10'],
+    be8: ['n11'],
+    be1: ['n14'],
+    be12: ['n27'],
+    be10: ['n26'],
+    be2: ['n20'],
+    be4: ['n21'],
+    be3: ['n23'],
+    be9: ['n28', 'n29'],
+    be11: ['n29'],
+    be5: ['n31'],
     med1: ['n13']
 };
 
@@ -245,8 +233,11 @@ function selectEntrance(entranceId) {
     selectedEntrance = entranceId;
     document.getElementById('entrance-panel').classList.add('hidden');
     
-    // Построить маршрут
-    buildRoute(entranceId, selectedBuilding);
+    // Найти вход в корпус (be) для выбранного корпуса
+    const buildingEntranceId = 'be' + selectedBuilding;
+    
+    // Построить маршрут от входа на кампус до входа в корпус
+    buildRoute(entranceId, buildingEntranceId);
     haptic('success');
 }
 
