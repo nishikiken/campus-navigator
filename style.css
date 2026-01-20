@@ -746,17 +746,23 @@ body {
     transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     flex-direction: column;
+    padding: 20px 16px 40px 16px;
 }
 
 .dark-overlay.active {
     transform: translateY(0);
 }
 
+/* Кнопка назад над плашкой */
+.back-top {
+    margin-bottom: 16px;
+}
+
 .overlay-content {
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: 140px 16px 40px 16px;
+    padding-top: 100px;
 }
 
 /* Капсула назад */

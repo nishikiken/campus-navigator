@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Navigate Helper</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link rel="stylesheet" href="style.css?v=20">
+    <link rel="stylesheet" href="style.css?v=21">
 </head>
 <body>
     <!-- Splash Screen -->
@@ -82,10 +82,10 @@
             
             <!-- Черное полотно (открывается свайпом) -->
             <div class="dark-overlay" id="dark-overlay">
+                <button class="back-capsule back-top" onclick="closeOverlay()">
+                    ← Назад
+                </button>
                 <div class="overlay-content">
-                    <button class="back-capsule" onclick="closeOverlay()">
-                        ← Назад
-                    </button>
                     <div class="menu-card" onclick="openLeaderboard()">
                         <div class="menu-icon">🏆</div>
                         <div class="menu-info">
