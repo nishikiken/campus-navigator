@@ -145,6 +145,16 @@
             stroke-dasharray: 5,5;
             pointer-events: none;
         }
+        .grid-line {
+            stroke: rgba(255, 255, 255, 0.15);
+            stroke-width: 1;
+            pointer-events: none;
+        }
+        .grid-line-major {
+            stroke: rgba(255, 255, 255, 0.3);
+            stroke-width: 1;
+            pointer-events: none;
+        }
         .stats {
             background: #2c2c2e;
             padding: 15px;
@@ -175,15 +185,21 @@
         <div class="instructions">
             <h3>Инструкция:</h3>
             <ol>
-                <li><strong>Добавить вход на кампус:</strong> Нажми "Добавить вход", затем кликни на карте (главные входы)</li>
+                <li><strong>Импорт:</strong> Вставь код из map-script.js в поле ниже и нажми "Импортировать"</li>
+                <li><strong>Добавить вход на кампус:</strong> Нажми "Добавить вход", затем кликни на карте</li>
                 <li><strong>Добавить узел:</strong> Нажми "Добавить узел", затем кликни на карте (для перекрестков)</li>
                 <li><strong>Добавить вход в корпус:</strong> Нажми "Вход в корпус", затем кликни где дверь корпуса</li>
+                <li><strong>Добавить корпус:</strong> Нажми "Добавить корпус", затем кликни на карте</li>
                 <li><strong>Добавить медпункт:</strong> Нажми "Медпункт", затем кликни где находится медпункт</li>
-                <li><strong>Нарисовать дорогу:</strong> Нажми "Рисовать дороги", затем кликай по точкам - между ними появится дорога</li>
-                <li><strong>Удалить дорогу:</strong> Нажми "Удалить дорогу", затем кликни на линию</li>
-                <li><strong>Удалить точку:</strong> Нажми "Удалить точку", затем кликни на точку (удалятся все связанные дороги)</li>
+                <li><strong>Рисовать дорогу:</strong> Нажми "Рисовать дороги", затем кликай по точкам</li>
                 <li><strong>Экспорт:</strong> Нажми "Экспортировать" - скопируй код и вставь в map-script.js</li>
             </ol>
+        </div>
+        
+        <div class="output">
+            <h3>Импорт данных:</h3>
+            <textarea id="import-code" placeholder="Вставь сюда код coordinates и pathGraph из map-script.js..."></textarea>
+            <button class="btn-success" onclick="importData()" style="margin-top: 10px; width: 100%;">📥 Импортировать</button>
         </div>
 
         <div class="mode-indicator" id="mode-indicator">
@@ -204,6 +220,10 @@
                 <div class="stat-label">Входов в корпуса</div>
             </div>
             <div class="stat-item">
+                <div class="stat-value" id="building-count">0</div>
+                <div class="stat-label">Корпусов</div>
+            </div>
+            <div class="stat-item">
                 <div class="stat-value" id="medical-count">0</div>
                 <div class="stat-label">Медпунктов</div>
             </div>
@@ -217,12 +237,13 @@
             <button class="btn-success" onclick="setMode('entrance')">🚪 Добавить вход</button>
             <button class="btn-primary" onclick="setMode('node')">➕ Добавить узел</button>
             <button class="btn-primary" onclick="setMode('buildingEntrance')">🏢 Вход в корпус</button>
-            <button class="btn-primary" onclick="setMode('building')">🏫 Переместить корпус</button>
+            <button class="btn-primary" onclick="setMode('building')">🏫 Добавить корпус</button>
             <button class="btn-danger" onclick="setMode('medicalPoint')">🏥 Медпункт</button>
             <button class="btn-primary" onclick="setMode('road')">🛣️ Рисовать дороги</button>
             <button class="btn-danger" onclick="setMode('deleteRoad')">❌ Удалить дорогу</button>
             <button class="btn-danger" onclick="setMode('deletePoint')">❌ Удалить точку</button>
             <button class="btn-secondary" onclick="setMode('view')">👁️ Просмотр</button>
+            <button class="btn-secondary" onclick="toggleGrid()">📐 Сетка</button>
             <button class="btn-secondary" onclick="clearAll()">🗑️ Очистить всё</button>
             <button class="btn-success" onclick="exportData()">📤 Экспортировать</button>
         </div>
@@ -231,61 +252,8 @@
             <svg id="editor-svg" viewBox="0 0 1024 520" xmlns="http://www.w3.org/2000/svg">
                 <image href="https://raw.githubusercontent.com/nishikiken/campus-navigator/main/campus_bot/mini_app/frontend/campus-map.png" width="1024" height="520" preserveAspectRatio="xMidYMid meet"/>
                 
-                <!-- Корпуса (только для визуализации) -->
-                <g id="buildings-layer">
-                    <g class="building-marker" data-building="1">
-                        <circle cx="450" cy="175" r="20" fill="#0d6efd" stroke="#fff" stroke-width="2.5"/>
-                        <text x="450" y="183" text-anchor="middle" fill="#fff" font-size="20" font-weight="bold">1</text>
-                    </g>
-                    <g class="building-marker" data-building="2">
-                        <circle cx="444" cy="376" r="18" fill="#0d6efd" stroke="#fff" stroke-width="2.5"/>
-                        <text x="444" y="384" text-anchor="middle" fill="#fff" font-size="18" font-weight="bold">2</text>
-                    </g>
-                    <g class="building-marker" data-building="3">
-                        <circle cx="510" cy="387" r="18" fill="#0d6efd" stroke="#fff" stroke-width="2.5"/>
-                        <text x="510" y="395" text-anchor="middle" fill="#fff" font-size="18" font-weight="bold">3</text>
-                    </g>
-                    <g class="building-marker" data-building="4">
-                        <circle cx="421" cy="478" r="18" fill="#0d6efd" stroke="#fff" stroke-width="2.5"/>
-                        <text x="421" y="486" text-anchor="middle" fill="#fff" font-size="18" font-weight="bold">4</text>
-                    </g>
-                    <g class="building-marker" data-building="5">
-                        <circle cx="678" cy="174" r="18" fill="#0d6efd" stroke="#fff" stroke-width="2.5"/>
-                        <text x="678" y="182" text-anchor="middle" fill="#fff" font-size="18" font-weight="bold">5</text>
-                    </g>
-                    <g class="building-marker" data-building="6">
-                        <circle cx="149" cy="241" r="18" fill="#0d6efd" stroke="#fff" stroke-width="2.5"/>
-                        <text x="149" y="249" text-anchor="middle" fill="#fff" font-size="18" font-weight="bold">6</text>
-                    </g>
-                    <g class="building-marker" data-building="7">
-                        <circle cx="149" cy="157" r="18" fill="#0d6efd" stroke="#fff" stroke-width="2.5"/>
-                        <text x="149" y="165" text-anchor="middle" fill="#fff" font-size="18" font-weight="bold">7</text>
-                    </g>
-                    <g class="building-marker" data-building="8">
-                        <circle cx="293" cy="198" r="18" fill="#0d6efd" stroke="#fff" stroke-width="2.5"/>
-                        <text x="293" y="206" text-anchor="middle" fill="#fff" font-size="18" font-weight="bold">8</text>
-                    </g>
-                    <g class="building-marker" data-building="9">
-                        <circle cx="640" cy="351" r="18" fill="#0d6efd" stroke="#fff" stroke-width="2.5"/>
-                        <text x="640" y="359" text-anchor="middle" fill="#fff" font-size="18" font-weight="bold">9</text>
-                    </g>
-                    <g class="building-marker" data-building="10">
-                        <circle cx="576" cy="207" r="19" fill="#0d6efd" stroke="#fff" stroke-width="2.5"/>
-                        <text x="576" y="215" text-anchor="middle" fill="#fff" font-size="18" font-weight="bold">10</text>
-                    </g>
-                    <g class="building-marker" data-building="11">
-                        <circle cx="609" cy="418" r="19" fill="#0d6efd" stroke="#fff" stroke-width="2.5"/>
-                        <text x="609" y="426" text-anchor="middle" fill="#fff" font-size="18" font-weight="bold">11</text>
-                    </g>
-                    <g class="building-marker" data-building="12">
-                        <circle cx="510" cy="67" r="19" fill="#0d6efd" stroke="#fff" stroke-width="2.5"/>
-                        <text x="510" y="75" text-anchor="middle" fill="#fff" font-size="18" font-weight="bold">12</text>
-                    </g>
-                    <g class="building-marker" data-building="19">
-                        <circle cx="709" cy="406" r="19" fill="#0d6efd" stroke="#fff" stroke-width="2.5"/>
-                        <text x="709" y="414" text-anchor="middle" fill="#fff" font-size="17" font-weight="bold">19</text>
-                    </g>
-                </g>
+                <!-- Сетка -->
+                <g id="grid-layer"></g>
                 
                 <!-- Слой для дорог -->
                 <g id="roads-layer"></g>
@@ -316,23 +284,11 @@
         let nodeCounter = 1;
         let buildingEntranceCounter = 1;
         let medicalPointCounter = 1;
+        let buildingCounter = 1;
+        let gridVisible = true;
 
-        // Координаты корпусов (для связывания с дорогами)
-        const buildings = {
-            1: { x: 450, y: 175 },
-            2: { x: 444, y: 376 },
-            3: { x: 510, y: 387 },
-            4: { x: 421, y: 478 },
-            5: { x: 678, y: 174 },
-            6: { x: 149, y: 241 },
-            7: { x: 149, y: 157 },
-            8: { x: 293, y: 198 },
-            9: { x: 640, y: 351 },
-            10: { x: 576, y: 207 },
-            11: { x: 609, y: 418 },
-            12: { x: 510, y: 67 },
-            19: { x: 709, y: 406 }
-        };
+        // Координаты корпусов
+        const buildings = {};
 
         function setMode(newMode) {
             mode = newMode;
@@ -347,7 +303,7 @@
                 entrance: 'Добавление входа на кампус (кликни на карте)',
                 node: 'Добавление узла (кликни на карте)',
                 buildingEntrance: 'Добавление входа в корпус (кликни где дверь)',
-                building: 'Перемещение корпуса (кликни на новое место)',
+                building: 'Добавление корпуса (кликни на карте)',
                 medicalPoint: 'Добавление медпункта (кликни на карте)',
                 road: 'Рисование дороги (кликай по точкам)',
                 deleteRoad: 'Удаление дороги (кликни на линию)',
@@ -383,15 +339,13 @@
         });
 
         function moveBuilding(event) {
-            const buildingId = prompt('Введите номер корпуса для перемещения (1, 2, 3... 19):');
-            if (!buildingId || !buildings[buildingId]) {
-                alert('Корпус не найден!');
-                return;
-            }
+            const buildingId = prompt('Введите номер корпуса (1, 2, 3... 19):');
+            if (!buildingId) return;
             
             const coords = getSVGCoordinates(event);
             buildings[buildingId] = { x: coords.x, y: coords.y };
             renderPoints();
+            updateStats();
         }
 
         function addEntrance(event) {
@@ -699,6 +653,7 @@
             document.getElementById('entrance-count').textContent = entrances.length;
             document.getElementById('node-count').textContent = nodes.length;
             document.getElementById('building-entrance-count').textContent = buildingEntrances.length;
+            document.getElementById('building-count').textContent = Object.keys(buildings).length;
             document.getElementById('medical-count').textContent = medicalPoints.length;
             document.getElementById('road-count').textContent = roads.length;
         }
@@ -771,6 +726,121 @@
 
         // Инициализация
         updateStats();
+        drawGrid();
+        
+        function drawGrid() {
+            const gridLayer = document.getElementById('grid-layer');
+            gridLayer.innerHTML = '';
+            
+            if (!gridVisible) return;
+            
+            // Вертикальные линии
+            for (let x = 0; x <= 1024; x += 10) {
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', x);
+                line.setAttribute('y1', 0);
+                line.setAttribute('x2', x);
+                line.setAttribute('y2', 520);
+                line.setAttribute('class', x % 50 === 0 ? 'grid-line-major' : 'grid-line');
+                gridLayer.appendChild(line);
+            }
+            
+            // Горизонтальные линии
+            for (let y = 0; y <= 520; y += 10) {
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', 0);
+                line.setAttribute('y1', y);
+                line.setAttribute('x2', 1024);
+                line.setAttribute('y2', y);
+                line.setAttribute('class', y % 50 === 0 ? 'grid-line-major' : 'grid-line');
+                gridLayer.appendChild(line);
+            }
+        }
+        
+        function toggleGrid() {
+            gridVisible = !gridVisible;
+            drawGrid();
+        }
+        
+        function importData() {
+            const code = document.getElementById('import-code').value;
+            if (!code) {
+                alert('Вставь код для импорта!');
+                return;
+            }
+            
+            try {
+                // Извлекаем coordinates
+                const coordsMatch = code.match(/const coordinates = \{([^}]+)\}/s);
+                if (coordsMatch) {
+                    const coordsStr = '{' + coordsMatch[1] + '}';
+                    const coordsObj = eval('(' + coordsStr + ')');
+                    
+                    // Очищаем всё
+                    entrances = [];
+                    nodes = [];
+                    buildingEntrances = [];
+                    medicalPoints = [];
+                    Object.keys(buildings).forEach(k => delete buildings[k]);
+                    roads = [];
+                    
+                    // Импортируем координаты
+                    Object.keys(coordsObj).forEach(key => {
+                        const coord = coordsObj[key];
+                        if (key.startsWith('entrance')) {
+                            entrances.push({ id: key, x: coord.x, y: coord.y });
+                            const num = parseInt(key.replace('entrance', ''));
+                            if (num >= entranceCounter) entranceCounter = num + 1;
+                        } else if (key.startsWith('n')) {
+                            nodes.push({ id: key, x: coord.x, y: coord.y });
+                            const num = parseInt(key.replace('n', ''));
+                            if (num >= nodeCounter) nodeCounter = num + 1;
+                        } else if (key.startsWith('be')) {
+                            const buildingNum = key.replace('be', '');
+                            buildingEntrances.push({ id: key, x: coord.x, y: coord.y, building: buildingNum });
+                        } else if (key.startsWith('med')) {
+                            medicalPoints.push({ id: key, x: coord.x, y: coord.y });
+                            const num = parseInt(key.replace('med', ''));
+                            if (num >= medicalPointCounter) medicalPointCounter = num + 1;
+                        } else if (!isNaN(key)) {
+                            buildings[key] = { x: coord.x, y: coord.y };
+                            const num = parseInt(key);
+                            if (num >= buildingCounter) buildingCounter = num + 1;
+                        }
+                    });
+                }
+                
+                // Извлекаем pathGraph
+                const graphMatch = code.match(/const pathGraph = \{([^}]+)\}/s);
+                if (graphMatch) {
+                    const graphStr = '{' + graphMatch[1] + '}';
+                    const graphObj = eval('(' + graphStr + ')');
+                    
+                    // Импортируем дороги
+                    const processed = new Set();
+                    Object.keys(graphObj).forEach(from => {
+                        const neighbors = graphObj[from];
+                        neighbors.forEach(to => {
+                            const roadKey1 = from + '-' + to;
+                            const roadKey2 = to + '-' + from;
+                            if (!processed.has(roadKey1) && !processed.has(roadKey2)) {
+                                roads.push({ from, to });
+                                processed.add(roadKey1);
+                                processed.add(roadKey2);
+                            }
+                        });
+                    });
+                }
+                
+                renderPoints();
+                renderRoads();
+                updateStats();
+                alert('Данные импортированы успешно!');
+            } catch (e) {
+                alert('Ошибка импорта: ' + e.message);
+                console.error(e);
+            }
+        }
     </script>
 </body>
 </html>
