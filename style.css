@@ -741,17 +741,17 @@ body {
     }
 }
 
-/* Черное полотно */
+/* Черное полотно - приклеено к нижней грани плашки */
 .dark-overlay {
     position: fixed;
-    top: 0;
+    top: calc(100vh - 120px + 90px); /* начинается от нижней грани плашки */
     left: 0;
     right: 0;
     bottom: 0;
     background: var(--tg-theme-bg-color);
-    z-index: 90;
+    z-index: 89;
     transform: translateY(100%);
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), top 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     flex-direction: column;
     will-change: transform;
@@ -765,7 +765,7 @@ body {
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: 140px 16px 40px 16px;
+    padding: 20px 16px 40px 16px;
     opacity: 1;
     transition: opacity 0.3s ease;
 }
@@ -826,6 +826,11 @@ body {
     visibility: visible;
 }
 
+/* В лидерборде плашка опускается ниже */
+.leaderboard-view.active ~ .user-profile-card {
+    bottom: calc(100vh - 180px) !important;
+}
+
 /* Главное меню уезжает вверх */
 #step-main.hidden-up {
     transform: translateY(-100%);
@@ -848,7 +853,7 @@ body {
 }
 
 .leaderboard-list {
-    padding: 140px 16px 160px 16px;
+    padding: 200px 16px 160px 16px;
     overflow-y: auto;
     max-height: calc(100vh - 60px);
 }

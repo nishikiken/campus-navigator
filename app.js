@@ -324,8 +324,9 @@ function initSwipeGesture() {
     let startBottom = 0; // начальная позиция плашки
     
     const screenHeight = window.innerHeight;
-    const maxBottom = screenHeight - 120; // calc(100vh - 120px) - вернули как было
+    const maxBottom = screenHeight - 120; // calc(100vh - 120px)
     const minBottom = 20;
+    const cardHeight = 90; // примерная высота плашки
 
     profileCard.addEventListener('touchstart', (e) => {
         startY = e.touches[0].clientY;
@@ -359,9 +360,17 @@ function initSwipeGesture() {
         // Двигаем плашку
         profileCard.style.bottom = newBottom + 'px';
         
-        // Двигаем overlay синхронно (от 100% до 0%)
+        // Двигаем overlay синхронно - он всегда приклеен к нижней грани плашки
+        const overlayTop = screenHeight - newBottom - cardHeight;
+        darkOverlay.style.top = overlayTop + 'px';
+        
+        // Показываем overlay когда плашка поднимается
         const progress = (newBottom - minBottom) / (maxBottom - minBottom);
-        darkOverlay.style.transform = `translateY(${100 - progress * 100}%)`;
+        if (progress > 0.1) {
+            darkOverlay.style.transform = 'translateY(0)';
+        } else {
+            darkOverlay.style.transform = 'translateY(100%)';
+        }
         
         // Показываем/скрываем стрелочки
         if (newBottom > minBottom + 50) {
@@ -377,7 +386,7 @@ function initSwipeGesture() {
         
         // Возвращаем transition
         profileCard.style.transition = 'bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
-        darkOverlay.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+        darkOverlay.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), top 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
         
         const deltaY = startY - currentY;
         
@@ -408,7 +417,7 @@ function initSwipeGesture() {
         
         // Возвращаем transition
         profileCard.style.transition = 'bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
-        darkOverlay.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+        darkOverlay.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), top 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
         
         // Возвращаем в исходное состояние
         const isLifted = profileCard.classList.contains('lifted');
@@ -426,6 +435,7 @@ function openOverlay() {
     
     // Убираем inline стили если были
     profileCard.style.bottom = '';
+    darkOverlay.style.top = '';
     darkOverlay.style.transform = '';
     
     // Форсируем reflow для корректной анимации
@@ -448,6 +458,7 @@ function closeOverlay() {
     
     // Убираем inline стили если были
     profileCard.style.bottom = '';
+    darkOverlay.style.top = '';
     darkOverlay.style.transform = '';
     
     profileCard.classList.remove('lifted');
