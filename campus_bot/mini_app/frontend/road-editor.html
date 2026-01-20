@@ -175,8 +175,9 @@
         <div class="instructions">
             <h3>Инструкция:</h3>
             <ol>
-                <li><strong>Добавить вход:</strong> Нажми "Добавить вход", затем кликни на карте</li>
+                <li><strong>Добавить вход на кампус:</strong> Нажми "Добавить вход", затем кликни на карте (главные входы)</li>
                 <li><strong>Добавить узел:</strong> Нажми "Добавить узел", затем кликни на карте (для перекрестков)</li>
+                <li><strong>Добавить вход в корпус:</strong> Нажми "Вход в корпус", затем кликни где дверь корпуса</li>
                 <li><strong>Нарисовать дорогу:</strong> Нажми "Рисовать дороги", затем кликай по точкам - между ними появится дорога</li>
                 <li><strong>Удалить дорогу:</strong> Нажми "Удалить дорогу", затем кликни на линию</li>
                 <li><strong>Удалить точку:</strong> Нажми "Удалить точку", затем кликни на точку (удалятся все связанные дороги)</li>
@@ -191,11 +192,15 @@
         <div class="stats">
             <div class="stat-item">
                 <div class="stat-value" id="entrance-count">0</div>
-                <div class="stat-label">Входов</div>
+                <div class="stat-label">Входов на кампус</div>
             </div>
             <div class="stat-item">
                 <div class="stat-value" id="node-count">0</div>
                 <div class="stat-label">Узлов</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="building-entrance-count">0</div>
+                <div class="stat-label">Входов в корпуса</div>
             </div>
             <div class="stat-item">
                 <div class="stat-value" id="road-count">0</div>
@@ -204,8 +209,9 @@
         </div>
 
         <div class="controls">
-            <button class="btn-success" onclick="setMode('entrance')">➕ Добавить вход</button>
+            <button class="btn-success" onclick="setMode('entrance')">🚪 Добавить вход</button>
             <button class="btn-primary" onclick="setMode('node')">➕ Добавить узел</button>
+            <button class="btn-primary" onclick="setMode('buildingEntrance')">🏢 Вход в корпус</button>
             <button class="btn-primary" onclick="setMode('road')">🛣️ Рисовать дороги</button>
             <button class="btn-danger" onclick="setMode('deleteRoad')">❌ Удалить дорогу</button>
             <button class="btn-danger" onclick="setMode('deletePoint')">❌ Удалить точку</button>
@@ -295,10 +301,12 @@
         let mode = 'view';
         let entrances = [];
         let nodes = [];
+        let buildingEntrances = [];
         let roads = [];
         let selectedPoint = null;
         let entranceCounter = 1;
         let nodeCounter = 1;
+        let buildingEntranceCounter = 1;
 
         // Координаты корпусов (для связывания с дорогами)
         const buildings = {
@@ -327,8 +335,9 @@
             
             const modeNames = {
                 view: 'Просмотр',
-                entrance: 'Добавление входа (кликни на карте)',
+                entrance: 'Добавление входа на кампус (кликни на карте)',
                 node: 'Добавление узла (кликни на карте)',
+                buildingEntrance: 'Добавление входа в корпус (кликни где дверь)',
                 road: 'Рисование дороги (кликай по точкам)',
                 deleteRoad: 'Удаление дороги (кликни на линию)',
                 deletePoint: 'Удаление точки (кликни на точку)'
@@ -352,6 +361,8 @@
                     addEntrance(e);
                 } else if (mode === 'node') {
                     addNode(e);
+                } else if (mode === 'buildingEntrance') {
+                    addBuildingEntrance(e);
                 }
             }
         });
@@ -368,6 +379,14 @@
             const coords = getSVGCoordinates(event);
             const id = 'n' + nodeCounter++;
             nodes.push({ id, x: coords.x, y: coords.y });
+            renderPoints();
+            updateStats();
+        }
+
+        function addBuildingEntrance(event) {
+            const coords = getSVGCoordinates(event);
+            const id = 'be' + buildingEntranceCounter++;
+            buildingEntrances.push({ id, x: coords.x, y: coords.y });
             renderPoints();
             updateStats();
         }
@@ -423,6 +442,27 @@
                 g.appendChild(circle);
                 layer.appendChild(g);
             });
+            
+            // Рисуем входы в корпуса (фиолетовые квадраты)
+            buildingEntrances.forEach(point => {
+                const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                g.classList.add('point-marker');
+                g.setAttribute('data-id', point.id);
+                g.onclick = () => handlePointClick(point.id);
+                
+                const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                rect.setAttribute('x', point.x - 8);
+                rect.setAttribute('y', point.y - 8);
+                rect.setAttribute('width', 16);
+                rect.setAttribute('height', 16);
+                rect.setAttribute('fill', '#af52de');
+                rect.setAttribute('stroke', '#fff');
+                rect.setAttribute('stroke-width', 2);
+                rect.setAttribute('rx', 2);
+                
+                g.appendChild(rect);
+                layer.appendChild(g);
+            });
         }
 
         function handlePointClick(pointId) {
@@ -463,6 +503,8 @@
             if (entrance) return entrance;
             const node = nodes.find(p => p.id === id);
             if (node) return node;
+            const buildingEntrance = buildingEntrances.find(p => p.id === id);
+            if (buildingEntrance) return buildingEntrance;
             const building = Object.keys(buildings).find(b => b === id);
             if (building) return buildings[building];
             return null;
@@ -516,6 +558,7 @@
             // Удаляем точку
             entrances = entrances.filter(p => p.id !== pointId);
             nodes = nodes.filter(p => p.id !== pointId);
+            buildingEntrances = buildingEntrances.filter(p => p.id !== pointId);
             
             // Удаляем все дороги, связанные с этой точкой
             roads = roads.filter(r => r.from !== pointId && r.to !== pointId);
@@ -529,9 +572,11 @@
             if (confirm('Удалить все точки и дороги?')) {
                 entrances = [];
                 nodes = [];
+                buildingEntrances = [];
                 roads = [];
                 entranceCounter = 1;
                 nodeCounter = 1;
+                buildingEntranceCounter = 1;
                 renderPoints();
                 renderRoads();
                 updateStats();
@@ -541,6 +586,7 @@
         function updateStats() {
             document.getElementById('entrance-count').textContent = entrances.length;
             document.getElementById('node-count').textContent = nodes.length;
+            document.getElementById('building-entrance-count').textContent = buildingEntrances.length;
             document.getElementById('road-count').textContent = roads.length;
         }
 
@@ -563,6 +609,11 @@
                 coordsCode += `    ${n.id}: { x: ${n.x}, y: ${n.y} },\n`;
             });
             
+            // Входы в корпуса
+            buildingEntrances.forEach(be => {
+                coordsCode += `    ${be.id}: { x: ${be.x}, y: ${be.y} },\n`;
+            });
+            
             coordsCode += '};\n\n';
             
             // Создаем граф путей
@@ -574,6 +625,7 @@
             // Добавляем все точки
             entrances.forEach(e => connections[e.id] = []);
             nodes.forEach(n => connections[n.id] = []);
+            buildingEntrances.forEach(be => connections[be.id] = []);
             Object.keys(buildings).forEach(b => connections[b] = []);
             
             // Заполняем связи из дорог
