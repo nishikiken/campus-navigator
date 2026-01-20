@@ -696,8 +696,8 @@ body {
 }
 
 .user-profile-card.lifted {
-    bottom: calc(100vh - 120px);
-    transition: bottom 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    bottom: calc(100vh - 180px);
+    z-index: 95;
 }
 
 /* Индикатор свайпа - маленькие стрелочки елочкой */
@@ -756,13 +756,15 @@ body {
 /* Кнопка назад над плашкой */
 .back-top {
     margin-bottom: 16px;
+    z-index: 96;
+    position: relative;
 }
 
 .overlay-content {
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding-top: 100px;
+    padding-top: 160px;
 }
 
 /* Капсула назад */
