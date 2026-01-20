@@ -323,9 +323,8 @@ function initSwipeGesture() {
     let isDragging = false;
     let startBottom = 0; // начальная позиция плашки
     
-    const cardHeight = 90; // высота плашки примерно
     const screenHeight = window.innerHeight;
-    const maxBottom = screenHeight - 120; // calc(100vh - 120px)
+    const maxBottom = screenHeight - 150; // calc(100vh - 150px) - опустили ниже
     const minBottom = 20;
 
     profileCard.addEventListener('touchstart', (e) => {
@@ -345,6 +344,7 @@ function initSwipeGesture() {
     profileCard.addEventListener('touchmove', (e) => {
         if (!isDragging) return;
         e.preventDefault();
+        e.stopPropagation();
         
         currentY = e.touches[0].clientY;
         const deltaY = startY - currentY; // положительное = вверх, отрицательное = вниз
@@ -376,13 +376,13 @@ function initSwipeGesture() {
         isDragging = false;
         
         // Возвращаем transition
-        profileCard.style.transition = 'bottom 0.35s cubic-bezier(0.4, 0, 0.2, 1)';
-        darkOverlay.style.transition = 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
+        profileCard.style.transition = 'bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+        darkOverlay.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
         
         const deltaY = startY - currentY;
         
-        // Если протянули больше чем на 30% экрана - открываем/закрываем полностью
-        if (Math.abs(deltaY) > screenHeight * 0.3) {
+        // Если протянули больше чем на 20% экрана - открываем/закрываем полностью
+        if (Math.abs(deltaY) > screenHeight * 0.2) {
             if (deltaY > 0) {
                 // Протянули вверх - открываем
                 openOverlay();
@@ -398,6 +398,24 @@ function initSwipeGesture() {
             } else {
                 closeOverlay(); // Возвращаем вниз
             }
+        }
+    });
+
+    // Отменяем touchcancel
+    profileCard.addEventListener('touchcancel', (e) => {
+        if (!isDragging) return;
+        isDragging = false;
+        
+        // Возвращаем transition
+        profileCard.style.transition = 'bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+        darkOverlay.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+        
+        // Возвращаем в исходное состояние
+        const isLifted = profileCard.classList.contains('lifted');
+        if (isLifted) {
+            openOverlay();
+        } else {
+            closeOverlay();
         }
     });
 }
