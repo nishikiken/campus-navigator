@@ -165,6 +165,10 @@ const pathGraph = {
 
 // Алгоритм поиска кратчайшего пути (BFS)
 function findPath(start, end) {
+    console.log('Finding path from', start, 'to', end);
+    console.log('Start neighbors:', pathGraph[start]);
+    console.log('End neighbors:', pathGraph[end]);
+    
     const queue = [[start]];
     const visited = new Set([start]);
     
@@ -173,6 +177,7 @@ function findPath(start, end) {
         const node = path[path.length - 1];
         
         if (node === end) {
+            console.log('Path found:', path);
             return path;
         }
         
@@ -185,6 +190,7 @@ function findPath(start, end) {
         }
     }
     
+    console.error('No path found from', start, 'to', end);
     return null;
 }
 
@@ -238,10 +244,14 @@ function selectEntrance(entranceId) {
 
 // Построение маршрута
 function buildRoute(from, to) {
+    console.log('buildRoute called:', from, '→', to);
     const path = findPath(from, to);
     
+    console.log('Found path:', path);
+    
     if (!path) {
-        alert('Маршрут не найден');
+        alert('Маршрут не найден. Проверьте, что все дороги соединены.');
+        console.error('Path not found from', from, 'to', to);
         return;
     }
     
@@ -252,8 +262,14 @@ function buildRoute(from, to) {
     // Построить линию маршрута
     const points = path.map(nodeId => {
         const coord = coordinates[nodeId];
+        if (!coord) {
+            console.error('Coordinate not found for node:', nodeId);
+            return null;
+        }
         return `${coord.x},${coord.y}`;
-    }).join(' ');
+    }).filter(p => p !== null).join(' ');
+    
+    console.log('Route points:', points);
     
     // Создать путь
     const routePath = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
@@ -264,6 +280,8 @@ function buildRoute(from, to) {
     // Добавить точки на маршруте
     path.forEach((nodeId, index) => {
         const coord = coordinates[nodeId];
+        if (!coord) return;
+        
         const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
         dot.setAttribute('cx', coord.x);
         dot.setAttribute('cy', coord.y);
@@ -277,21 +295,25 @@ function buildRoute(from, to) {
     const startCoord = coordinates[from];
     const endCoord = coordinates[to];
     
-    const startMarker = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    startMarker.setAttribute('cx', startCoord.x);
-    startMarker.setAttribute('cy', startCoord.y);
-    startMarker.setAttribute('r', 8);
-    startMarker.setAttribute('fill', '#00FF00');
-    startMarker.setAttribute('class', 'route-marker');
-    routeLayer.appendChild(startMarker);
+    if (startCoord) {
+        const startMarker = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        startMarker.setAttribute('cx', startCoord.x);
+        startMarker.setAttribute('cy', startCoord.y);
+        startMarker.setAttribute('r', 8);
+        startMarker.setAttribute('fill', '#00FF00');
+        startMarker.setAttribute('class', 'route-marker');
+        routeLayer.appendChild(startMarker);
+    }
     
-    const endMarker = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    endMarker.setAttribute('cx', endCoord.x);
-    endMarker.setAttribute('cy', endCoord.y);
-    endMarker.setAttribute('r', 8);
-    endMarker.setAttribute('fill', '#FF0000');
-    endMarker.setAttribute('class', 'route-marker');
-    routeLayer.appendChild(endMarker);
+    if (endCoord) {
+        const endMarker = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        endMarker.setAttribute('cx', endCoord.x);
+        endMarker.setAttribute('cy', endCoord.y);
+        endMarker.setAttribute('r', 8);
+        endMarker.setAttribute('fill', '#FF0000');
+        endMarker.setAttribute('class', 'route-marker');
+        routeLayer.appendChild(endMarker);
+    }
     
     // Подсветить корпус
     const building = document.querySelector(`.building-marker[data-building="${to}"]`);

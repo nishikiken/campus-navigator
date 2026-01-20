@@ -119,10 +119,10 @@ body {
 }
 
 .building-marker.selected circle {
-    fill: #ffd700;
-    stroke: #ff6347;
-    stroke-width: 4;
-    filter: drop-shadow(0 0 12px rgba(255, 215, 0, 0.9));
+    fill: #00d4ff;
+    stroke: #0a84ff;
+    stroke-width: 2;
+    filter: drop-shadow(0 0 10px rgba(0, 212, 255, 0.8));
 }
 
 .building-marker.highlighted circle {
@@ -131,11 +131,11 @@ body {
 
 @keyframes pulse-marker {
     0%, 100% {
-        fill: #ffd700;
+        fill: #00d4ff;
     }
     50% {
-        fill: #ffed4e;
-        filter: drop-shadow(0 0 20px rgba(255, 215, 0, 1));
+        fill: #5ce1ff;
+        filter: drop-shadow(0 0 15px rgba(0, 212, 255, 1));
     }
 }
 
