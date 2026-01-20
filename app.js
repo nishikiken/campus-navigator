@@ -314,14 +314,14 @@ document.addEventListener('DOMContentLoaded', () => {
     renderLeaderboard();
 });
 
-// Протягивание плашки пальцем
+// Протягивание плашки пальцем (вверх и вниз)
 function initSwipeGesture() {
     const profileCard = document.getElementById('user-profile-card');
     const darkOverlay = document.getElementById('dark-overlay');
     let startY = 0;
     let currentY = 0;
     let isDragging = false;
-    let isOpen = false;
+    let startBottom = 0; // начальная позиция плашки
     
     const cardHeight = 90; // высота плашки примерно
     const screenHeight = window.innerHeight;
@@ -333,6 +333,10 @@ function initSwipeGesture() {
         currentY = startY;
         isDragging = true;
         
+        // Запоминаем текущую позицию плашки
+        const isLifted = profileCard.classList.contains('lifted');
+        startBottom = isLifted ? maxBottom : minBottom;
+        
         // Убираем transition для плавного следования за пальцем
         profileCard.style.transition = 'none';
         darkOverlay.style.transition = 'none';
@@ -343,10 +347,10 @@ function initSwipeGesture() {
         e.preventDefault();
         
         currentY = e.touches[0].clientY;
-        const deltaY = startY - currentY; // положительное = вверх
+        const deltaY = startY - currentY; // положительное = вверх, отрицательное = вниз
         
         // Вычисляем новую позицию плашки
-        let newBottom = minBottom + deltaY;
+        let newBottom = startBottom + deltaY;
         
         // Ограничиваем диапазон
         if (newBottom < minBottom) newBottom = minBottom;
@@ -377,12 +381,23 @@ function initSwipeGesture() {
         
         const deltaY = startY - currentY;
         
-        // Если протянули больше чем на 30% экрана - открываем полностью
-        if (deltaY > screenHeight * 0.3) {
-            openOverlay();
+        // Если протянули больше чем на 30% экрана - открываем/закрываем полностью
+        if (Math.abs(deltaY) > screenHeight * 0.3) {
+            if (deltaY > 0) {
+                // Протянули вверх - открываем
+                openOverlay();
+            } else {
+                // Протянули вниз - закрываем
+                closeOverlay();
+            }
         } else {
-            // Иначе возвращаем назад
-            closeOverlay();
+            // Иначе возвращаем в исходное состояние
+            const isLifted = profileCard.classList.contains('lifted');
+            if (isLifted) {
+                openOverlay(); // Возвращаем наверх
+            } else {
+                closeOverlay(); // Возвращаем вниз
+            }
         }
     });
 }

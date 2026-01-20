@@ -832,7 +832,7 @@ body {
 }
 
 .leaderboard-header {
-    padding: 16px 16px 16px 16px;
+    padding: 16px 16px 8px 16px;
     background: var(--tg-theme-bg-color);
     position: sticky;
     top: 0;
@@ -847,9 +847,9 @@ body {
 }
 
 .leaderboard-list {
-    padding: 0 16px 140px 16px;
+    padding: 8px 16px 140px 16px;
     overflow-y: auto;
-    max-height: calc(100vh - 80px);
+    max-height: calc(100vh - 200px);
 }
 
 .leader-item {
