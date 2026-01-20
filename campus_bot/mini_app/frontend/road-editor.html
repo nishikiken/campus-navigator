@@ -134,10 +134,15 @@
             stroke-width: 5;
         }
         .point-marker {
-            cursor: pointer;
+            cursor: move;
         }
-        .point-marker:hover circle {
+        .point-marker:hover circle,
+        .point-marker:hover rect {
             fill: #ff3b30;
+            opacity: 0.7;
+        }
+        .point-marker.dragging {
+            opacity: 0.5;
         }
         .temp-line {
             stroke: #0a84ff;
@@ -305,6 +310,8 @@
         let gridVisible = true;
         let snapToGrid = true;
         const gridSize = 10;
+        let draggedPoint = null;
+        let isDragging = false;
 
         // Координаты корпусов
         const buildings = {};
@@ -353,7 +360,93 @@
         document.getElementById('editor-svg').addEventListener('mousemove', function(e) {
             const coords = getSVGCoordinates(e);
             document.getElementById('coords-display').textContent = `X: ${coords.x}, Y: ${coords.y}`;
+            
+            // Обновление позиции при перетаскивании
+            if (isDragging && draggedPoint) {
+                updatePointPosition(draggedPoint, coords.x, coords.y);
+            }
         });
+        
+        document.getElementById('editor-svg').addEventListener('mouseup', function(e) {
+            if (isDragging) {
+                stopDrag();
+            }
+        });
+        
+        document.getElementById('editor-svg').addEventListener('mouseleave', function(e) {
+            if (isDragging) {
+                stopDrag();
+            }
+        });
+        
+        function startDrag(event, pointId) {
+            if (mode !== 'view') return; // Только в режиме просмотра можно таскать
+            
+            event.stopPropagation();
+            event.preventDefault();
+            
+            isDragging = true;
+            draggedPoint = pointId;
+            
+            // Добавляем класс для визуального эффекта
+            const marker = document.querySelector(`[data-id="${pointId}"]`);
+            if (marker) marker.classList.add('dragging');
+        }
+        
+        function stopDrag() {
+            if (draggedPoint) {
+                const marker = document.querySelector(`[data-id="${draggedPoint}"]`);
+                if (marker) marker.classList.remove('dragging');
+            }
+            
+            isDragging = false;
+            draggedPoint = null;
+            
+            // Перерисовываем дороги
+            renderRoads();
+        }
+        
+        function updatePointPosition(pointId, x, y) {
+            // Находим точку и обновляем её координаты
+            let point = entrances.find(p => p.id === pointId);
+            if (point) {
+                point.x = x;
+                point.y = y;
+                renderPoints();
+                return;
+            }
+            
+            point = nodes.find(p => p.id === pointId);
+            if (point) {
+                point.x = x;
+                point.y = y;
+                renderPoints();
+                return;
+            }
+            
+            point = buildingEntrances.find(p => p.id === pointId);
+            if (point) {
+                point.x = x;
+                point.y = y;
+                renderPoints();
+                return;
+            }
+            
+            point = medicalPoints.find(p => p.id === pointId);
+            if (point) {
+                point.x = x;
+                point.y = y;
+                renderPoints();
+                return;
+            }
+            
+            if (buildings[pointId]) {
+                buildings[pointId].x = x;
+                buildings[pointId].y = y;
+                renderPoints();
+                return;
+            }
+        }
 
         document.getElementById('editor-svg').addEventListener('click', function(e) {
             if (e.target.id === 'editor-svg' || e.target.tagName === 'image') {
@@ -426,21 +519,22 @@
                 g.classList.add('point-marker');
                 g.setAttribute('data-id', point.id);
                 g.onclick = () => handlePointClick(point.id);
+                g.onmousedown = (e) => startDrag(e, point.id);
                 
                 const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
                 circle.setAttribute('cx', point.x);
                 circle.setAttribute('cy', point.y);
-                circle.setAttribute('r', 5);
+                circle.setAttribute('r', 8);
                 circle.setAttribute('fill', '#34c759');
                 circle.setAttribute('stroke', '#fff');
-                circle.setAttribute('stroke-width', 1);
+                circle.setAttribute('stroke-width', 2);
                 
                 const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
                 text.setAttribute('x', point.x);
-                text.setAttribute('y', point.y + 2);
+                text.setAttribute('y', point.y + 3);
                 text.setAttribute('text-anchor', 'middle');
                 text.setAttribute('fill', '#fff');
-                text.setAttribute('font-size', 7);
+                text.setAttribute('font-size', 10);
                 text.setAttribute('font-weight', 'bold');
                 text.textContent = point.id.replace('entrance', 'E');
                 
@@ -455,14 +549,15 @@
                 g.classList.add('point-marker');
                 g.setAttribute('data-id', point.id);
                 g.onclick = () => handlePointClick(point.id);
+                g.onmousedown = (e) => startDrag(e, point.id);
                 
                 const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
                 circle.setAttribute('cx', point.x);
                 circle.setAttribute('cy', point.y);
-                circle.setAttribute('r', 3);
+                circle.setAttribute('r', 6);
                 circle.setAttribute('fill', '#ff9500');
                 circle.setAttribute('stroke', '#fff');
-                circle.setAttribute('stroke-width', 1);
+                circle.setAttribute('stroke-width', 2);
                 
                 g.appendChild(circle);
                 layer.appendChild(g);
@@ -474,23 +569,24 @@
                 g.classList.add('point-marker');
                 g.setAttribute('data-id', point.id);
                 g.onclick = () => handlePointClick(point.id);
+                g.onmousedown = (e) => startDrag(e, point.id);
                 
                 const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                rect.setAttribute('x', point.x - 5);
-                rect.setAttribute('y', point.y - 5);
-                rect.setAttribute('width', 10);
-                rect.setAttribute('height', 10);
+                rect.setAttribute('x', point.x - 7);
+                rect.setAttribute('y', point.y - 7);
+                rect.setAttribute('width', 14);
+                rect.setAttribute('height', 14);
                 rect.setAttribute('fill', '#af52de');
                 rect.setAttribute('stroke', '#fff');
-                rect.setAttribute('stroke-width', 1);
-                rect.setAttribute('rx', 1);
+                rect.setAttribute('stroke-width', 2);
+                rect.setAttribute('rx', 2);
                 
                 const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
                 text.setAttribute('x', point.x);
-                text.setAttribute('y', point.y + 2);
+                text.setAttribute('y', point.y + 3);
                 text.setAttribute('text-anchor', 'middle');
                 text.setAttribute('fill', '#fff');
-                text.setAttribute('font-size', 7);
+                text.setAttribute('font-size', 10);
                 text.setAttribute('font-weight', 'bold');
                 text.textContent = point.building || point.id.replace('be', '');
                 
@@ -505,21 +601,22 @@
                 g.classList.add('point-marker');
                 g.setAttribute('data-id', point.id);
                 g.onclick = () => handlePointClick(point.id);
+                g.onmousedown = (e) => startDrag(e, point.id);
                 
                 const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
                 circle.setAttribute('cx', point.x);
                 circle.setAttribute('cy', point.y);
-                circle.setAttribute('r', 5);
+                circle.setAttribute('r', 8);
                 circle.setAttribute('fill', '#ff3b30');
                 circle.setAttribute('stroke', '#fff');
-                circle.setAttribute('stroke-width', 1);
+                circle.setAttribute('stroke-width', 2);
                 
                 const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
                 text.setAttribute('x', point.x);
-                text.setAttribute('y', point.y + 3);
+                text.setAttribute('y', point.y + 4);
                 text.setAttribute('text-anchor', 'middle');
                 text.setAttribute('fill', '#fff');
-                text.setAttribute('font-size', 9);
+                text.setAttribute('font-size', 12);
                 text.setAttribute('font-weight', 'bold');
                 text.textContent = '+';
                 
@@ -528,28 +625,29 @@
                 layer.appendChild(g);
             });
             
-            // Рисуем корпуса (синие круги с номерами)
+            // Рисуем корпуса (прозрачные круги с обводкой и номерами)
             Object.keys(buildings).forEach(buildingId => {
                 const point = buildings[buildingId];
                 const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
                 g.classList.add('point-marker');
                 g.setAttribute('data-id', buildingId);
                 g.onclick = () => handlePointClick(buildingId);
+                g.onmousedown = (e) => startDrag(e, buildingId);
                 
                 const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
                 circle.setAttribute('cx', point.x);
                 circle.setAttribute('cy', point.y);
-                circle.setAttribute('r', 8);
-                circle.setAttribute('fill', '#0d6efd');
-                circle.setAttribute('stroke', '#fff');
-                circle.setAttribute('stroke-width', 1);
+                circle.setAttribute('r', 15);
+                circle.setAttribute('fill', 'rgba(13, 110, 253, 0.2)');
+                circle.setAttribute('stroke', '#0d6efd');
+                circle.setAttribute('stroke-width', 2);
                 
                 const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
                 text.setAttribute('x', point.x);
-                text.setAttribute('y', point.y + 3);
+                text.setAttribute('y', point.y + 4);
                 text.setAttribute('text-anchor', 'middle');
-                text.setAttribute('fill', '#fff');
-                text.setAttribute('font-size', 8);
+                text.setAttribute('fill', '#0d6efd');
+                text.setAttribute('font-size', 12);
                 text.setAttribute('font-weight', 'bold');
                 text.textContent = buildingId;
                 
