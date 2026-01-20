@@ -317,9 +317,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // Свайп для открытия черного полотна
 function initSwipeGesture() {
     const profileCard = document.getElementById('user-profile-card');
-    const darkOverlay = document.getElementById('dark-overlay');
     let startY = 0;
-    let currentY = 0;
     let isDragging = false;
 
     profileCard.addEventListener('touchstart', (e) => {
@@ -329,27 +327,20 @@ function initSwipeGesture() {
 
     profileCard.addEventListener('touchmove', (e) => {
         if (!isDragging) return;
-        currentY = e.touches[0].clientY;
-        const diff = startY - currentY;
-        
-        if (diff > 0) {
-            const progress = Math.min(diff / 100, 1);
-            profileCard.style.transform = `translateY(-${diff}px)`;
-            darkOverlay.style.transform = `translateY(${100 - (progress * 100)}%)`;
-        }
+        // Не двигаем плашку вручную, только отслеживаем движение
+        e.preventDefault();
     });
 
     profileCard.addEventListener('touchend', (e) => {
         if (!isDragging) return;
         isDragging = false;
         
-        const diff = startY - currentY;
+        const endY = e.changedTouches[0].clientY;
+        const diff = startY - endY;
         
+        // Только вертикальный свайп вверх открывает
         if (diff > 80) {
             openOverlay();
-        } else {
-            profileCard.style.transform = '';
-            darkOverlay.style.transform = 'translateY(100%)';
         }
     });
 
