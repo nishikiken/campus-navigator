@@ -310,7 +310,171 @@ document.addEventListener('DOMContentLoaded', () => {
     renderFoodBuildings();
     loadUserData();
     createParticles();
+    initSwipeGesture();
+    renderLeaderboard();
 });
+
+// Свайп для открытия таблицы лидеров
+function initSwipeGesture() {
+    const profileCard = document.getElementById('user-profile-card');
+    let startY = 0;
+    let currentY = 0;
+    let isDragging = false;
+
+    profileCard.addEventListener('touchstart', (e) => {
+        startY = e.touches[0].clientY;
+        isDragging = true;
+    });
+
+    profileCard.addEventListener('touchmove', (e) => {
+        if (!isDragging) return;
+        currentY = e.touches[0].clientY;
+        const diff = startY - currentY;
+        
+        if (diff > 0) {
+            profileCard.style.transform = `translateY(-${Math.min(diff, 50)}px)`;
+        }
+    });
+
+    profileCard.addEventListener('touchend', (e) => {
+        if (!isDragging) return;
+        isDragging = false;
+        
+        const diff = startY - currentY;
+        
+        if (diff > 80) {
+            openLeaderboard();
+        }
+        
+        profileCard.style.transform = '';
+    });
+
+    // Клик тоже открывает
+    profileCard.addEventListener('click', () => {
+        openLeaderboard();
+    });
+}
+
+function openLeaderboard() {
+    document.getElementById('step-leaderboard').classList.add('active');
+    
+    // Копируем данные пользователя в топ
+    document.getElementById('user-tokens-top').textContent = document.getElementById('user-tokens').textContent;
+    document.getElementById('user-name-top').textContent = document.getElementById('user-name').textContent;
+    document.getElementById('user-rating-top').textContent = document.getElementById('user-rating').textContent;
+    
+    const avatarTop = document.getElementById('user-avatar-top');
+    const avatarBottom = document.getElementById('user-avatar');
+    avatarTop.innerHTML = avatarBottom.innerHTML;
+    
+    // Создаем частицы для верхней карточки
+    const particlesTop = document.querySelector('#step-leaderboard .particles-bg');
+    if (particlesTop && particlesTop.children.length === 0) {
+        createParticlesForContainer(particlesTop);
+    }
+    
+    haptic();
+}
+
+function closeLeaderboard() {
+    document.getElementById('step-leaderboard').classList.remove('active');
+    haptic();
+}
+
+// Создание частиц для конкретного контейнера
+function createParticlesForContainer(container) {
+    const particleCount = 20;
+    const colors = [
+        'rgba(135, 206, 250, 0.4)',
+        'rgba(173, 216, 230, 0.35)',
+        'rgba(176, 224, 230, 0.3)',
+    ];
+    
+    for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        
+        const size = Math.random() * 2.5 + 1.5;
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        const startX = Math.random() * 100;
+        const startY = Math.random() * 100;
+        const duration = Math.random() * 8 + 12;
+        const delay = Math.random() * 5;
+        
+        const moveX = (Math.random() - 0.5) * 40;
+        const moveY = (Math.random() - 0.5) * 30;
+        
+        particle.style.cssText = `
+            position: absolute;
+            width: ${size}px;
+            height: ${size}px;
+            background: ${color};
+            border-radius: 50%;
+            left: ${startX}%;
+            top: ${startY}%;
+            animation: gentleFloat ${duration}s infinite ease-in-out;
+            animation-delay: ${delay}s;
+            box-shadow: 0 0 ${size * 3}px ${color};
+            pointer-events: none;
+            --move-x: ${moveX}px;
+            --move-y: ${moveY}px;
+        `;
+        
+        container.appendChild(particle);
+    }
+}
+
+// Генерация таблицы лидеров (заглушка с тестовыми данными)
+function renderLeaderboard() {
+    const container = document.getElementById('leaderboard-list');
+    
+    // Тестовые данные (потом заменишь на реальные с сервера)
+    const leaders = [];
+    for (let i = 1; i <= 50; i++) {
+        leaders.push({
+            rank: i,
+            name: `Пользователь ${i}`,
+            rating: 5000 - (i * 50) + Math.floor(Math.random() * 40),
+            avatar: null
+        });
+    }
+    
+    container.innerHTML = leaders.map(leader => {
+        let medal = '';
+        let rankClass = '';
+        
+        if (leader.rank === 1) {
+            medal = '🔷';
+            rankClass = 'rank-1';
+        } else if (leader.rank === 2) {
+            medal = '🥇';
+            rankClass = 'rank-2';
+        } else if (leader.rank === 3) {
+            medal = '🥈';
+            rankClass = 'rank-3';
+        }
+        
+        return `
+            <div class="leader-item ${rankClass}">
+                <div class="leader-rank">${leader.rank}</div>
+                ${medal ? `<div class="leader-medal">${medal}</div>` : ''}
+                <div class="leader-avatar">
+                    ${leader.avatar ? 
+                        `<img src="${leader.avatar}" alt="Avatar">` : 
+                        '<div class="leader-avatar-placeholder">👤</div>'
+                    }
+                </div>
+                <div class="leader-info">
+                    <div class="leader-name">${leader.name}</div>
+                    <div class="leader-rating">
+                        <span class="leader-rating-icon">⭐</span>
+                        <span class="leader-rating-value">${leader.rating}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
 
 // Создание анимированных частиц для профиля
 function createParticles() {
@@ -483,6 +647,14 @@ function goToFood() {
 
 function goToFAQ() {
     showStep('step-faq');
+    haptic();
+}
+
+function goToShop() {
+    // TODO: Реализовать магазин кастомизации
+    if (tg?.showAlert) {
+        tg.showAlert('Магазин кастомизации скоро откроется! 🎨');
+    }
     haptic();
 }
 
