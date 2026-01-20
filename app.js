@@ -357,6 +357,9 @@ function openOverlay() {
     profileCard.classList.add('lifted');
     darkOverlay.classList.add('active');
     
+    // Скрываем стрелочки когда меню открыто
+    profileCard.style.cursor = 'default';
+    
     haptic();
 }
 
@@ -367,22 +370,18 @@ function closeOverlay() {
     profileCard.classList.remove('lifted');
     darkOverlay.classList.remove('active');
     
+    // Возвращаем курсор
+    profileCard.style.cursor = 'pointer';
+    
     haptic();
 }
 
 function openLeaderboard() {
-    // Закрываем оверлей
-    closeOverlay();
-    
-    // Скрываем главное меню вверх
-    setTimeout(() => {
-        document.getElementById('step-main').classList.add('hidden-up');
-    }, 100);
+    // Скрываем главное меню мгновенно
+    document.getElementById('step-main').style.display = 'none';
     
     // Показываем таблицу лидеров
-    setTimeout(() => {
-        document.getElementById('step-leaderboard').classList.add('active');
-    }, 200);
+    document.getElementById('step-leaderboard').classList.add('active');
     
     // Копируем данные пользователя в топ
     document.getElementById('user-tokens-top').textContent = document.getElementById('user-tokens').textContent;
@@ -406,9 +405,9 @@ function closeLeaderboard() {
     // Скрываем таблицу лидеров
     document.getElementById('step-leaderboard').classList.remove('active');
     
-    // Возвращаем главное меню
+    // Показываем главное меню обратно
     setTimeout(() => {
-        document.getElementById('step-main').classList.remove('hidden-up');
+        document.getElementById('step-main').style.display = 'block';
     }, 100);
     
     haptic();

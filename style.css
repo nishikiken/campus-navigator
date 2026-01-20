@@ -696,7 +696,7 @@ body {
 }
 
 .user-profile-card.lifted {
-    transform: translateY(calc(-100vh - 20px));
+    transform: translateY(calc(-100% - 40px));
 }
 
 /* Индикатор свайпа - маленькие стрелочки елочкой */
