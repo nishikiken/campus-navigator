@@ -347,9 +347,35 @@ function closeInfo() {
 // Кнопка "Дошли!"
 function arrivedAtDestination() {
     haptic('success');
-    closeInfo();
-    // Возврат на главную страницу
-    window.location.href = 'index.html';
+    
+    // Показываем конфетти
+    showConfetti();
+    
+    // Через 2 секунды возвращаемся на главную
+    setTimeout(() => {
+        closeInfo();
+        window.location.href = 'index.html';
+    }, 2000);
+}
+
+// Функция конфетти
+function showConfetti() {
+    const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff', '#ffa500'];
+    const confettiCount = 100;
+    
+    for (let i = 0; i < confettiCount; i++) {
+        setTimeout(() => {
+            const confetti = document.createElement('div');
+            confetti.className = 'confetti';
+            confetti.style.left = Math.random() * 100 + '%';
+            confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            confetti.style.animationDelay = Math.random() * 0.5 + 's';
+            confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+            document.body.appendChild(confetti);
+            
+            setTimeout(() => confetti.remove(), 4000);
+        }, i * 20);
+    }
 }
 
 // Управление зумом
@@ -429,22 +455,44 @@ document.addEventListener('DOMContentLoaded', () => {
     // Тач (для телефонов)
     let touchStartX = 0;
     let touchStartY = 0;
+    let initialDistance = 0;
+    let initialZoom = 1;
     
     mapWrapper.addEventListener('touchstart', (e) => {
         if (e.target.closest('.building-marker')) return;
+        
         if (e.touches.length === 1) {
+            // Одним пальцем - перетаскивание
             isDragging = true;
             touchStartX = e.touches[0].clientX - panX;
             touchStartY = e.touches[0].clientY - panY;
+        } else if (e.touches.length === 2) {
+            // Двумя пальцами - зум
+            isDragging = false;
+            const dx = e.touches[0].clientX - e.touches[1].clientX;
+            const dy = e.touches[0].clientY - e.touches[1].clientY;
+            initialDistance = Math.sqrt(dx * dx + dy * dy);
+            initialZoom = currentZoom;
         }
     });
     
     mapWrapper.addEventListener('touchmove', (e) => {
-        if (!isDragging || e.touches.length !== 1) return;
-        e.preventDefault();
-        panX = e.touches[0].clientX - touchStartX;
-        panY = e.touches[0].clientY - touchStartY;
-        applyZoom();
+        if (e.touches.length === 1 && isDragging) {
+            // Перетаскивание одним пальцем
+            e.preventDefault();
+            panX = e.touches[0].clientX - touchStartX;
+            panY = e.touches[0].clientY - touchStartY;
+            applyZoom();
+        } else if (e.touches.length === 2) {
+            // Зум двумя пальцами (pinch)
+            e.preventDefault();
+            const dx = e.touches[0].clientX - e.touches[1].clientX;
+            const dy = e.touches[0].clientY - e.touches[1].clientY;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            const scale = distance / initialDistance;
+            currentZoom = Math.min(Math.max(initialZoom * scale, 0.5), 3);
+            applyZoom();
+        }
     });
     
     mapWrapper.addEventListener('touchend', () => {
