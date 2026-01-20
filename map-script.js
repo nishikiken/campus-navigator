@@ -337,6 +337,12 @@ function closeInfo() {
 }
 
 // Управление зумом
+let panX = 0;
+let panY = 0;
+let isDragging = false;
+let startX = 0;
+let startY = 0;
+
 function zoomIn() {
     currentZoom = Math.min(currentZoom + 0.2, 3);
     applyZoom();
@@ -353,6 +359,8 @@ function zoomOut() {
 
 function resetView() {
     currentZoom = 1;
+    panX = 0;
+    panY = 0;
     applyZoom();
     console.log('Reset zoom:', currentZoom);
     haptic();
@@ -361,12 +369,72 @@ function resetView() {
 function applyZoom() {
     const map = document.getElementById('campus-map');
     if (map) {
-        map.style.transform = `scale(${currentZoom})`;
-        console.log('Applied zoom:', currentZoom);
+        map.style.transform = `translate(${panX}px, ${panY}px) scale(${currentZoom})`;
+        console.log('Applied zoom:', currentZoom, 'pan:', panX, panY);
     } else {
         console.error('Map element not found');
     }
 }
+
+// Добавляем pan/drag функциональность
+document.addEventListener('DOMContentLoaded', () => {
+    const mapWrapper = document.getElementById('map-wrapper');
+    const map = document.getElementById('campus-map');
+    
+    if (!mapWrapper || !map) return;
+    
+    // Мышь
+    mapWrapper.addEventListener('mousedown', (e) => {
+        if (e.target.closest('.building-marker')) return;
+        isDragging = true;
+        startX = e.clientX - panX;
+        startY = e.clientY - panY;
+        mapWrapper.style.cursor = 'grabbing';
+    });
+    
+    mapWrapper.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        e.preventDefault();
+        panX = e.clientX - startX;
+        panY = e.clientY - startY;
+        applyZoom();
+    });
+    
+    mapWrapper.addEventListener('mouseup', () => {
+        isDragging = false;
+        mapWrapper.style.cursor = 'grab';
+    });
+    
+    mapWrapper.addEventListener('mouseleave', () => {
+        isDragging = false;
+        mapWrapper.style.cursor = 'grab';
+    });
+    
+    // Тач (для телефонов)
+    let touchStartX = 0;
+    let touchStartY = 0;
+    
+    mapWrapper.addEventListener('touchstart', (e) => {
+        if (e.target.closest('.building-marker')) return;
+        if (e.touches.length === 1) {
+            isDragging = true;
+            touchStartX = e.touches[0].clientX - panX;
+            touchStartY = e.touches[0].clientY - panY;
+        }
+    });
+    
+    mapWrapper.addEventListener('touchmove', (e) => {
+        if (!isDragging || e.touches.length !== 1) return;
+        e.preventDefault();
+        panX = e.touches[0].clientX - touchStartX;
+        panY = e.touches[0].clientY - touchStartY;
+        applyZoom();
+    });
+    
+    mapWrapper.addEventListener('touchend', () => {
+        isDragging = false;
+    });
+});
 
 // Возврат назад
 function goBack() {
@@ -395,7 +463,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Добавить обработчики кликов на все маркеры
     document.querySelectorAll('.building-marker').forEach(marker => {
         const buildingId = marker.getAttribute('data-building');
-        marker.addEventListener('click', () => {
+        marker.addEventListener('click', (e) => {
+            e.stopPropagation();
             console.log('Clicked building:', buildingId);
             selectBuilding(buildingId);
         });
