@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Navigate Helper</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link rel="stylesheet" href="style.css?v=13">
+    <link rel="stylesheet" href="style.css?v=14">
 </head>
 <body>
     <!-- Splash Screen -->
@@ -77,9 +77,22 @@
                     <div class="user-avatar" id="user-avatar">
                         <div class="avatar-placeholder">👤</div>
                     </div>
-                    <button class="leaderboard-btn" onclick="openLeaderboard(event)">
-                        🏆
-                    </button>
+                </div>
+            </div>
+            
+            <!-- Нижнее меню (открывается свайпом) -->
+            <div class="bottom-menu" id="bottom-menu">
+                <button class="back-capsule" onclick="closeBottomMenu()">
+                    ← Назад
+                </button>
+                <div class="bottom-menu-content">
+                    <div class="menu-card" onclick="openLeaderboard()">
+                        <div class="menu-icon">🏆</div>
+                        <div class="menu-info">
+                            <h3>Таблица лидеров</h3>
+                            <p>Топ 50 игроков по рейтингу</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -87,10 +100,10 @@
         <!-- Таблица лидеров -->
         <div id="step-leaderboard" class="step leaderboard-view">
             <div class="leaderboard-header">
+                <button class="back-capsule" onclick="closeLeaderboard()">
+                    ← Назад
+                </button>
                 <div class="user-profile-card-top" id="user-profile-card-top">
-                    <div class="swipe-indicator-down">
-                        <div class="swipe-arrows-down">››</div>
-                    </div>
                     <div class="particles-bg"></div>
                     <div class="user-info">
                         <div class="user-balance">
@@ -210,6 +223,6 @@
             <button class="arrived-btn" onclick="arrived()">✅ Дошли!</button>
         </div>
     </div>
-    <script src="app.js?v=13"></script>
+    <script src="app.js?v=14"></script>
 </body>
 </html>

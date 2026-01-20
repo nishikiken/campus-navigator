@@ -312,9 +312,16 @@ document.addEventListener('DOMContentLoaded', () => {
     createParticles();
     initSwipeGesture();
     renderLeaderboard();
+    startHintAnimation();
 });
 
-// Свайп для открытия таблицы лидеров
+// Запуск анимации подсказки
+function startHintAnimation() {
+    const profileCard = document.getElementById('user-profile-card');
+    profileCard.classList.add('hint');
+}
+
+// Свайп для открытия нижнего меню
 function initSwipeGesture() {
     const profileCard = document.getElementById('user-profile-card');
     let startY = 0;
@@ -343,7 +350,7 @@ function initSwipeGesture() {
         const diff = startY - currentY;
         
         if (diff > 80) {
-            openLeaderboard();
+            openBottomMenu();
         }
         
         profileCard.style.transform = '';
@@ -351,12 +358,33 @@ function initSwipeGesture() {
 
     // Клик тоже открывает
     profileCard.addEventListener('click', () => {
-        openLeaderboard();
+        openBottomMenu();
     });
 }
 
+function openBottomMenu() {
+    document.getElementById('bottom-menu').classList.add('active');
+    haptic();
+}
+
+function closeBottomMenu() {
+    document.getElementById('bottom-menu').classList.remove('active');
+    haptic();
+}
+
 function openLeaderboard() {
-    document.getElementById('step-leaderboard').classList.add('active');
+    // Закрываем нижнее меню
+    closeBottomMenu();
+    
+    // Скрываем главное меню вверх
+    setTimeout(() => {
+        document.getElementById('step-main').classList.add('hidden-up');
+    }, 100);
+    
+    // Показываем таблицу лидеров
+    setTimeout(() => {
+        document.getElementById('step-leaderboard').classList.add('active');
+    }, 200);
     
     // Копируем данные пользователя в топ
     document.getElementById('user-tokens-top').textContent = document.getElementById('user-tokens').textContent;
@@ -377,7 +405,14 @@ function openLeaderboard() {
 }
 
 function closeLeaderboard() {
+    // Скрываем таблицу лидеров
     document.getElementById('step-leaderboard').classList.remove('active');
+    
+    // Возвращаем главное меню
+    setTimeout(() => {
+        document.getElementById('step-main').classList.remove('hidden-up');
+    }, 100);
+    
     haptic();
 }
 
