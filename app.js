@@ -312,53 +312,51 @@ document.addEventListener('DOMContentLoaded', () => {
     createParticles();
 });
 
-// Создание анимированных частиц для профиля (стаи)
+// Создание анимированных частиц для профиля
 function createParticles() {
     const particlesContainer = document.querySelector('.particles-bg');
     if (!particlesContainer) return;
     
+    const particleCount = 12;
     const colors = [
-        'rgba(135, 206, 250, 0.7)', // светло-голубой
-        'rgba(173, 216, 230, 0.6)', // голубой
-        'rgba(176, 224, 230, 0.5)', // powder blue
+        'rgba(135, 206, 250, 0.4)',
+        'rgba(173, 216, 230, 0.35)',
+        'rgba(176, 224, 230, 0.3)',
     ];
     
-    // Создаем 3 стаи по 5-7 частиц
-    const flocks = [
-        { count: 6, animation: 'flock1', duration: 10, yBase: 30 },
-        { count: 5, animation: 'flock2', duration: 12, yBase: 50 },
-        { count: 7, animation: 'flock3', duration: 11, yBase: 70 }
-    ];
-    
-    flocks.forEach((flock, flockIndex) => {
-        for (let i = 0; i < flock.count; i++) {
-            const particle = document.createElement('div');
-            particle.className = 'particle';
-            
-            const size = Math.random() * 2 + 2; // 2-4px
-            const color = colors[flockIndex % colors.length];
-            
-            // Частицы в стае идут друг за другом с небольшим смещением
-            const delay = i * 0.8; // задержка между частицами в стае
-            const yOffset = (Math.random() - 0.5) * 15; // небольшое вертикальное смещение
-            
-            particle.style.cssText = `
-                position: absolute;
-                width: ${size}px;
-                height: ${size}px;
-                background: ${color};
-                border-radius: 50%;
-                left: 0;
-                top: ${flock.yBase + yOffset}%;
-                animation: ${flock.animation} ${flock.duration}s infinite ease-in-out;
-                animation-delay: ${delay}s;
-                box-shadow: 0 0 ${size * 4}px ${color}, 0 0 ${size * 8}px ${color.replace(/[\d.]+\)/, '0.3)')};
-                pointer-events: none;
-            `;
-            
-            particlesContainer.appendChild(particle);
-        }
-    });
+    for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        
+        const size = Math.random() * 2.5 + 1.5; // 1.5-4px
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        const startX = Math.random() * 100;
+        const startY = Math.random() * 100;
+        const duration = Math.random() * 8 + 12; // 12-20s - медленно
+        const delay = Math.random() * 5;
+        
+        // Случайное направление движения
+        const moveX = (Math.random() - 0.5) * 40; // -20 до 20
+        const moveY = (Math.random() - 0.5) * 30; // -15 до 15
+        
+        particle.style.cssText = `
+            position: absolute;
+            width: ${size}px;
+            height: ${size}px;
+            background: ${color};
+            border-radius: 50%;
+            left: ${startX}%;
+            top: ${startY}%;
+            animation: gentleFloat ${duration}s infinite ease-in-out;
+            animation-delay: ${delay}s;
+            box-shadow: 0 0 ${size * 3}px ${color};
+            pointer-events: none;
+            --move-x: ${moveX}px;
+            --move-y: ${moveY}px;
+        `;
+        
+        particlesContainer.appendChild(particle);
+    }
 }
 
 
