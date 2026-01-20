@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Редактор дорог кампуса</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1c1c1e;
+            color: #fff;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .instructions {
+            background: #2c2c2e;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .instructions h3 {
+            margin-bottom: 10px;
+            color: #0a84ff;
+        }
+        .instructions ol {
+            margin-left: 20px;
+        }
+        .instructions li {
+            margin: 5px 0;
+        }
+        .map-container {
+            position: relative;
+            background: #f5f5f5;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        #editor-svg {
+            display: block;
+            width: 100%;
+            height: auto;
+            cursor: crosshair;
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: #0a84ff;
+            color: white;
+        }
+        .btn-danger {
+            background: #ff3b30;
+            color: white;
+        }
+        .btn-success {
+            background: #34c759;
+            color: white;
+        }
+        .btn-secondary {
+            background: #8e8e93;
+            color: white;
+        }
+        button:hover {
+            opacity: 0.8;
+        }
+        button:active {
+            transform: scale(0.98);
+        }
+        .mode-indicator {
+            background: #2c2c2e;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .mode-indicator.entrance { color: #34c759; }
+        .mode-indicator.node { color: #0a84ff; }
+        .mode-indicator.road { color: #ff9500; }
+        .output {
+            background: #2c2c2e;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .output h3 {
+            margin-bottom: 10px;
+            color: #0a84ff;
+        }
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            background: #1c1c1e;
+            color: #fff;
+            border: 1px solid #3a3a3c;
+            border-radius: 8px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            resize: vertical;
+        }
+        .road-line {
+            stroke: #ff9500;
+            stroke-width: 3;
+            cursor: pointer;
+        }
+        .road-line:hover {
+            stroke: #ff3b30;
+            stroke-width: 5;
+        }
+        .point-marker {
+            cursor: pointer;
+        }
+        .point-marker:hover circle {
+            fill: #ff3b30;
+        }
+        .temp-line {
+            stroke: #0a84ff;
+            stroke-width: 2;
+            stroke-dasharray: 5,5;
+            pointer-events: none;
+        }
+        .stats {
+            background: #2c2c2e;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #0a84ff;
+        }
+        .stat-label {
+            font-size: 14px;
+            color: #8e8e93;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🛣️ Редактор дорог кампуса</h1>
+        
+        <div class="instructions">
+            <h3>Инструкция:</h3>
+            <ol>
+                <li><strong>Добавить вход:</strong> Нажми "Добавить вход", затем кликни на карте</li>
+                <li><strong>Добавить узел:</strong> Нажми "Добавить узел", затем кликни на карте (для перекрестков)</li>
+                <li><strong>Нарисовать дорогу:</strong> Нажми "Рисовать дороги", затем кликай по точкам - между ними появится дорога</li>
+                <li><strong>Удалить дорогу:</strong> Нажми "Удалить дорогу", затем кликни на линию</li>
+                <li><strong>Удалить точку:</strong> Нажми "Удалить точку", затем кликни на точку (удалятся все связанные дороги)</li>
+                <li><strong>Экспорт:</strong> Нажми "Экспортировать" - скопируй код и вставь в map-script.js</li>
+            </ol>
+        </div>
+
+        <div class="mode-indicator" id="mode-indicator">
+            Режим: Просмотр
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-value" id="entrance-count">0</div>
+                <div class="stat-label">Входов</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="node-count">0</div>
+                <div class="stat-label">Узлов</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="road-count">0</div>
+                <div class="stat-label">Дорог</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn-success" onclick="setMode('entrance')">➕ Добавить вход</button>
+            <button class="btn-primary" onclick="setMode('node')">➕ Добавить узел</button>
+            <button class="btn-primary" onclick="setMode('road')">🛣️ Рисовать дороги</button>
+            <button class="btn-danger" onclick="setMode('deleteRoad')">❌ Удалить дорогу</button>
+            <button class="btn-danger" onclick="setMode('deletePoint')">❌ Удалить точку</button>
+            <button class="btn-secondary" onclick="setMode('view')">👁️ Просмотр</button>
+            <button class="btn-secondary" onclick="clearAll()">🗑️ Очистить всё</button>
+            <button class="btn-success" onclick="exportData()">📤 Экспортировать</button>
+        </div>
+
+        <div class="map-container">
+            <svg id="editor-svg" viewBox="0 0 1024 520" xmlns="http://www.w3.org/2000/svg">
+                <image href="campus-map.png" width="1024" height="520" preserveAspectRatio="xMidYMid meet"/>
+                
+                <!-- Корпуса (только для визуализации) -->
+                <g id="buildings-layer">
+                    <g class="building-marker" data-building="1">
+                        <circle cx="450" cy="175" r="20" fill="#0d6efd" stroke="#fff" stroke-width="2.5"/>
+                        <text x="450" y="183" text-anchor="middle" fill="#fff" font-size="20" font-weight="bold">1</text>
+                    </g>
+                    <g class="building-marker" data-building="2">
+                        <circle cx="444" cy="376" r="18" fill="#0d6efd" stroke="#fff" stroke-width="2.5"/>
+                        <text x="444" y="384" text-anchor="middle" fill="#fff" font-size="18" font-weight="bold">2</text>
+                    </g>
+                    <g class="building-marker" data-building="3">
+                        <circle cx="510" cy="387" r="18" fill="#0d6efd" stroke="#fff" stroke-width="2.5"/>
+                        <text x="510" y="395" text-anchor="middle" fill="#fff" font-size="18" font-weight="bold">3</text>
+                    </g>
+                    <g class="building-marker" data-building="4">
+                        <circle cx="421" cy="478" r="18" fill="#0d6efd" stroke="#fff" stroke-width="2.5"/>
+                        <text x="421" y="486" text-anchor="middle" fill="#fff" font-size="18" font-weight="bold">4</text>
+                    </g>
+                    <g class="building-marker" data-building="5">
+                        <circle cx="678" cy="174" r="18" fill="#0d6efd" stroke="#fff" stroke-width="2.5"/>
+                        <text x="678" y="182" text-anchor="middle" fill="#fff" font-size="18" font-weight="bold">5</text>
+                    </g>
+                    <g class="building-marker" data-building="6">
+                        <circle cx="149" cy="241" r="18" fill="#0d6efd" stroke="#fff" stroke-width="2.5"/>
+                        <text x="149" y="249" text-anchor="middle" fill="#fff" font-size="18" font-weight="bold">6</text>
+                    </g>
+                    <g class="building-marker" data-building="7">
+                        <circle cx="149" cy="157" r="18" fill="#0d6efd" stroke="#fff" stroke-width="2.5"/>
+                        <text x="149" y="165" text-anchor="middle" fill="#fff" font-size="18" font-weight="bold">7</text>
+                    </g>
+                    <g class="building-marker" data-building="8">
+                        <circle cx="293" cy="198" r="18" fill="#0d6efd" stroke="#fff" stroke-width="2.5"/>
+                        <text x="293" y="206" text-anchor="middle" fill="#fff" font-size="18" font-weight="bold">8</text>
+                    </g>
+                    <g class="building-marker" data-building="9">
+                        <circle cx="640" cy="351" r="18" fill="#0d6efd" stroke="#fff" stroke-width="2.5"/>
+                        <text x="640" y="359" text-anchor="middle" fill="#fff" font-size="18" font-weight="bold">9</text>
+                    </g>
+                    <g class="building-marker" data-building="10">
+                        <circle cx="576" cy="207" r="19" fill="#0d6efd" stroke="#fff" stroke-width="2.5"/>
+                        <text x="576" y="215" text-anchor="middle" fill="#fff" font-size="18" font-weight="bold">10</text>
+                    </g>
+                    <g class="building-marker" data-building="11">
+                        <circle cx="609" cy="418" r="19" fill="#0d6efd" stroke="#fff" stroke-width="2.5"/>
+                        <text x="609" y="426" text-anchor="middle" fill="#fff" font-size="18" font-weight="bold">11</text>
+                    </g>
+                    <g class="building-marker" data-building="12">
+                        <circle cx="510" cy="67" r="19" fill="#0d6efd" stroke="#fff" stroke-width="2.5"/>
+                        <text x="510" y="75" text-anchor="middle" fill="#fff" font-size="18" font-weight="bold">12</text>
+                    </g>
+                    <g class="building-marker" data-building="19">
+                        <circle cx="709" cy="406" r="19" fill="#0d6efd" stroke="#fff" stroke-width="2.5"/>
+                        <text x="709" y="414" text-anchor="middle" fill="#fff" font-size="17" font-weight="bold">19</text>
+                    </g>
+                </g>
+                
+                <!-- Слой для дорог -->
+                <g id="roads-layer"></g>
+                
+                <!-- Слой для точек (входы и узлы) -->
+                <g id="points-layer"></g>
+                
+                <!-- Временная линия при рисовании -->
+                <line id="temp-line" class="temp-line" style="display:none;"/>
+            </svg>
+        </div>
+
+        <div class="output">
+            <h3>Экспортированный код:</h3>
+            <textarea id="output-code" readonly placeholder="Нажми 'Экспортировать' чтобы получить код..."></textarea>
+        </div>
+    </div>
+
+    <script>
+        let mode = 'view';
+        let entrances = [];
+        let nodes = [];
+        let roads = [];
+        let selectedPoint = null;
+        let entranceCounter = 1;
+        let nodeCounter = 1;
+
+        // Координаты корпусов (для связывания с дорогами)
+        const buildings = {
+            1: { x: 450, y: 175 },
+            2: { x: 444, y: 376 },
+            3: { x: 510, y: 387 },
+            4: { x: 421, y: 478 },
+            5: { x: 678, y: 174 },
+            6: { x: 149, y: 241 },
+            7: { x: 149, y: 157 },
+            8: { x: 293, y: 198 },
+            9: { x: 640, y: 351 },
+            10: { x: 576, y: 207 },
+            11: { x: 609, y: 418 },
+            12: { x: 510, y: 67 },
+            19: { x: 709, y: 406 }
+        };
+
+        function setMode(newMode) {
+            mode = newMode;
+            selectedPoint = null;
+            document.getElementById('temp-line').style.display = 'none';
+            
+            const indicator = document.getElementById('mode-indicator');
+            indicator.className = 'mode-indicator ' + newMode;
+            
+            const modeNames = {
+                view: 'Просмотр',
+                entrance: 'Добавление входа (кликни на карте)',
+                node: 'Добавление узла (кликни на карте)',
+                road: 'Рисование дороги (кликай по точкам)',
+                deleteRoad: 'Удаление дороги (кликни на линию)',
+                deletePoint: 'Удаление точки (кликни на точку)'
+            };
+            
+            indicator.textContent = 'Режим: ' + modeNames[newMode];
+        }
+
+        function getSVGCoordinates(event) {
+            const svg = document.getElementById('editor-svg');
+            const pt = svg.createSVGPoint();
+            pt.x = event.clientX;
+            pt.y = event.clientY;
+            const svgP = pt.matrixTransform(svg.getScreenCTM().inverse());
+            return { x: Math.round(svgP.x), y: Math.round(svgP.y) };
+        }
+
+        document.getElementById('editor-svg').addEventListener('click', function(e) {
+            if (e.target.id === 'editor-svg' || e.target.tagName === 'image') {
+                if (mode === 'entrance') {
+                    addEntrance(e);
+                } else if (mode === 'node') {
+                    addNode(e);
+                }
+            }
+        });
+
+        function addEntrance(event) {
+            const coords = getSVGCoordinates(event);
+            const id = 'entrance' + entranceCounter++;
+            entrances.push({ id, x: coords.x, y: coords.y });
+            renderPoints();
+            updateStats();
+        }
+
+        function addNode(event) {
+            const coords = getSVGCoordinates(event);
+            const id = 'n' + nodeCounter++;
+            nodes.push({ id, x: coords.x, y: coords.y });
+            renderPoints();
+            updateStats();
+        }
+
+        function renderPoints() {
+            const layer = document.getElementById('points-layer');
+            layer.innerHTML = '';
+            
+            // Рисуем входы (зеленые)
+            entrances.forEach(point => {
+                const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                g.classList.add('point-marker');
+                g.setAttribute('data-id', point.id);
+                g.onclick = () => handlePointClick(point.id);
+                
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', point.x);
+                circle.setAttribute('cy', point.y);
+                circle.setAttribute('r', 12);
+                circle.setAttribute('fill', '#34c759');
+                circle.setAttribute('stroke', '#fff');
+                circle.setAttribute('stroke-width', 2);
+                
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', point.x);
+                text.setAttribute('y', point.y + 4);
+                text.setAttribute('text-anchor', 'middle');
+                text.setAttribute('fill', '#fff');
+                text.setAttribute('font-size', 12);
+                text.setAttribute('font-weight', 'bold');
+                text.textContent = point.id.replace('entrance', 'E');
+                
+                g.appendChild(circle);
+                g.appendChild(text);
+                layer.appendChild(g);
+            });
+            
+            // Рисуем узлы (оранжевые)
+            nodes.forEach(point => {
+                const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                g.classList.add('point-marker');
+                g.setAttribute('data-id', point.id);
+                g.onclick = () => handlePointClick(point.id);
+                
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', point.x);
+                circle.setAttribute('cy', point.y);
+                circle.setAttribute('r', 8);
+                circle.setAttribute('fill', '#ff9500');
+                circle.setAttribute('stroke', '#fff');
+                circle.setAttribute('stroke-width', 2);
+                
+                g.appendChild(circle);
+                layer.appendChild(g);
+            });
+        }
+
+        function handlePointClick(pointId) {
+            if (mode === 'road') {
+                if (!selectedPoint) {
+                    selectedPoint = pointId;
+                    showTempLine(pointId);
+                } else {
+                    if (selectedPoint !== pointId) {
+                        addRoad(selectedPoint, pointId);
+                    }
+                    selectedPoint = null;
+                    document.getElementById('temp-line').style.display = 'none';
+                }
+            } else if (mode === 'deletePoint') {
+                deletePoint(pointId);
+            }
+        }
+
+        function showTempLine(fromId) {
+            const from = getPointCoords(fromId);
+            const tempLine = document.getElementById('temp-line');
+            tempLine.setAttribute('x1', from.x);
+            tempLine.setAttribute('y1', from.y);
+            tempLine.style.display = 'block';
+            
+            document.getElementById('editor-svg').onmousemove = function(e) {
+                if (mode === 'road' && selectedPoint) {
+                    const coords = getSVGCoordinates(e);
+                    tempLine.setAttribute('x2', coords.x);
+                    tempLine.setAttribute('y2', coords.y);
+                }
+            };
+        }
+
+        function getPointCoords(id) {
+            const entrance = entrances.find(p => p.id === id);
+            if (entrance) return entrance;
+            const node = nodes.find(p => p.id === id);
+            if (node) return node;
+            const building = Object.keys(buildings).find(b => b === id);
+            if (building) return buildings[building];
+            return null;
+        }
+
+        function addRoad(from, to) {
+            // Проверяем, нет ли уже такой дороги
+            const exists = roads.some(r => 
+                (r.from === from && r.to === to) || (r.from === to && r.to === from)
+            );
+            if (!exists) {
+                roads.push({ from, to });
+                renderRoads();
+                updateStats();
+            }
+        }
+
+        function renderRoads() {
+            const layer = document.getElementById('roads-layer');
+            layer.innerHTML = '';
+            
+            roads.forEach((road, index) => {
+                const fromCoords = getPointCoords(road.from);
+                const toCoords = getPointCoords(road.to);
+                
+                if (fromCoords && toCoords) {
+                    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    line.classList.add('road-line');
+                    line.setAttribute('x1', fromCoords.x);
+                    line.setAttribute('y1', fromCoords.y);
+                    line.setAttribute('x2', toCoords.x);
+                    line.setAttribute('y2', toCoords.y);
+                    line.setAttribute('data-index', index);
+                    line.onclick = () => {
+                        if (mode === 'deleteRoad') {
+                            deleteRoad(index);
+                        }
+                    };
+                    layer.appendChild(line);
+                }
+            });
+        }
+
+        function deleteRoad(index) {
+            roads.splice(index, 1);
+            renderRoads();
+            updateStats();
+        }
+
+        function deletePoint(pointId) {
+            // Удаляем точку
+            entrances = entrances.filter(p => p.id !== pointId);
+            nodes = nodes.filter(p => p.id !== pointId);
+            
+            // Удаляем все дороги, связанные с этой точкой
+            roads = roads.filter(r => r.from !== pointId && r.to !== pointId);
+            
+            renderPoints();
+            renderRoads();
+            updateStats();
+        }
+
+        function clearAll() {
+            if (confirm('Удалить все точки и дороги?')) {
+                entrances = [];
+                nodes = [];
+                roads = [];
+                entranceCounter = 1;
+                nodeCounter = 1;
+                renderPoints();
+                renderRoads();
+                updateStats();
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('entrance-count').textContent = entrances.length;
+            document.getElementById('node-count').textContent = nodes.length;
+            document.getElementById('road-count').textContent = roads.length;
+        }
+
+        function exportData() {
+            // Создаем объект coordinates
+            let coordsCode = '// Координаты для построения маршрутов\nconst coordinates = {\n';
+            
+            // Входы
+            entrances.forEach(e => {
+                coordsCode += `    ${e.id}: { x: ${e.x}, y: ${e.y} },\n`;
+            });
+            
+            // Корпуса
+            Object.keys(buildings).forEach(b => {
+                coordsCode += `    ${b}: { x: ${buildings[b].x}, y: ${buildings[b].y} },\n`;
+            });
+            
+            // Узлы
+            nodes.forEach(n => {
+                coordsCode += `    ${n.id}: { x: ${n.x}, y: ${n.y} },\n`;
+            });
+            
+            coordsCode += '};\n\n';
+            
+            // Создаем граф путей
+            let graphCode = '// Граф путей (какие точки соединены дорогами)\nconst pathGraph = {\n';
+            
+            // Собираем связи для каждой точки
+            const connections = {};
+            
+            // Добавляем все точки
+            entrances.forEach(e => connections[e.id] = []);
+            nodes.forEach(n => connections[n.id] = []);
+            Object.keys(buildings).forEach(b => connections[b] = []);
+            
+            // Заполняем связи из дорог
+            roads.forEach(road => {
+                if (!connections[road.from]) connections[road.from] = [];
+                if (!connections[road.to]) connections[road.to] = [];
+                connections[road.from].push(road.to);
+                connections[road.to].push(road.from);
+            });
+            
+            // Генерируем код
+            Object.keys(connections).forEach(point => {
+                const conn = connections[point].map(c => `'${c}'`).join(', ');
+                graphCode += `    ${point}: [${conn}],\n`;
+            });
+            
+            graphCode += '};\n';
+            
+            const fullCode = coordsCode + graphCode;
+            document.getElementById('output-code').value = fullCode;
+            
+            alert('Код экспортирован! Скопируй его и замени соответствующие части в map-script.js');
+        }
+
+        // Инициализация
+        updateStats();
+    </script>
+</body>
+</html>
