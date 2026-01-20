@@ -35,20 +35,22 @@ const coordinates = {
     entrance2: { x: 410, y: 290 }, // Центральный
     entrance3: { x: 410, y: 385 }, // Южный
     
-    // Корпуса (точные координаты по красным кругам)
-    1: { x: 475, y: 150 },
-    2: { x: 455, y: 385 },
-    3: { x: 555, y: 390 },
-    4: { x: 455, y: 485 },
-    5: { x: 830, y: 130 },
-    6: { x: 125, y: 240 },
-    7: { x: 125, y: 155 },
-    8: { x: 220, y: 160 },
-    9: { x: 720, y: 330 },
-    10: { x: 600, y: 185 },
-    11: { x: 685, y: 415 },
-    12: { x: 560, y: 35 },
-    19: { x: 795, y: 385 }
+    // Корпуса (точные координаты от редактора)
+    1: { x: 450, y: 175 },
+    2: { x: 444, y: 376 },
+    3: { x: 510, y: 387 },
+    4: { x: 421, y: 478 },
+    5: { x: 678, y: 174 },
+    6: { x: 149, y: 241 },
+    7: { x: 149, y: 157 },
+    8: { x: 293, y: 198 },
+    9: { x: 640, y: 351 },
+    10: { x: 576, y: 207 },
+    11: { x: 609, y: 418 },
+    12: { x: 510, y: 67 },
+    19: { x: 709, y: 406 }
+};
+    19: { x: 850, y: 390 }
 };
 
 // Узлы для построения путей (ключевые точки пересечений)
@@ -167,6 +169,8 @@ function findPath(start, end) {
 
 // Выбор корпуса
 function selectBuilding(buildingId) {
+    console.log('selectBuilding called with:', buildingId);
+    
     // Снять выделение с предыдущего
     document.querySelectorAll('.building-marker').forEach(b => b.classList.remove('selected'));
     
@@ -178,11 +182,18 @@ function selectBuilding(buildingId) {
         
         // Показать информацию
         const data = buildingData[buildingId];
-        document.getElementById('building-name').textContent = data.name;
-        document.getElementById('building-description').textContent = data.description;
-        document.getElementById('building-info').classList.remove('hidden');
+        if (data) {
+            document.getElementById('building-name').textContent = data.name;
+            document.getElementById('building-description').textContent = data.description;
+            document.getElementById('building-info').classList.remove('hidden');
+            console.log('Building info shown for:', buildingId);
+        } else {
+            console.error('Building data not found for:', buildingId);
+        }
         
         haptic();
+    } else {
+        console.error('Building element not found for:', buildingId);
     }
 }
 
@@ -294,24 +305,32 @@ function closeInfo() {
 function zoomIn() {
     currentZoom = Math.min(currentZoom + 0.2, 3);
     applyZoom();
+    console.log('Zoom in:', currentZoom);
     haptic();
 }
 
 function zoomOut() {
     currentZoom = Math.max(currentZoom - 0.2, 0.5);
     applyZoom();
+    console.log('Zoom out:', currentZoom);
     haptic();
 }
 
 function resetView() {
     currentZoom = 1;
     applyZoom();
+    console.log('Reset zoom:', currentZoom);
     haptic();
 }
 
 function applyZoom() {
     const map = document.getElementById('campus-map');
-    map.style.transform = `scale(${currentZoom})`;
+    if (map) {
+        map.style.transform = `scale(${currentZoom})`;
+        console.log('Applied zoom:', currentZoom);
+    } else {
+        console.error('Map element not found');
+    }
 }
 
 // Возврат назад
