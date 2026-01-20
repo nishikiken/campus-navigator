@@ -348,34 +348,30 @@ function closeInfo() {
 function arrivedAtDestination() {
     haptic('success');
     
-    // Показываем конфетти
+    // Сразу переходим на главную с серпантином
     showConfetti();
-    
-    // Через 2 секунды возвращаемся на главную
-    setTimeout(() => {
-        closeInfo();
-        window.location.href = 'index.html';
-    }, 2000);
+    window.location.href = 'index.html';
 }
 
-// Функция конфетти
+// Функция конфетти (оригинальная)
 function showConfetti() {
-    const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff', '#ffa500'];
-    const confettiCount = 100;
+    const container = document.createElement('div');
+    container.className = 'confetti-container';
+    document.body.appendChild(container);
     
-    for (let i = 0; i < confettiCount; i++) {
-        setTimeout(() => {
-            const confetti = document.createElement('div');
-            confetti.className = 'confetti';
-            confetti.style.left = Math.random() * 100 + '%';
-            confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-            confetti.style.animationDelay = Math.random() * 0.5 + 's';
-            confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
-            document.body.appendChild(confetti);
-            
-            setTimeout(() => confetti.remove(), 4000);
-        }, i * 20);
+    const colors = ['#ff6b6b', '#4ecdc4', '#ffe66d', '#a855f7', '#0a84ff', '#22c55e'];
+    
+    for (let i = 0; i < 40; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        confetti.style.left = Math.random() * 100 + '%';
+        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        confetti.style.animationDelay = Math.random() * 0.3 + 's';
+        confetti.style.animationDuration = (1 + Math.random() * 0.5) + 's';
+        container.appendChild(confetti);
     }
+    
+    setTimeout(() => container.remove(), 2000);
 }
 
 // Управление зумом
