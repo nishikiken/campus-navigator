@@ -12,6 +12,33 @@ if (tg) {
     document.documentElement.style.setProperty('--tg-theme-secondary-bg-color', tg.themeParams.secondary_bg_color || '#2c2c2e');
 }
 
+// Загрузка данных пользователя из Telegram
+function loadUserData() {
+    if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+        const user = tg.initDataUnsafe.user;
+        
+        // Устанавливаем имя пользователя
+        const userName = user.first_name || user.username || 'Пользователь';
+        document.getElementById('user-name').textContent = userName;
+        
+        // Устанавливаем аватар (если есть)
+        if (user.photo_url) {
+            const avatarContainer = document.getElementById('user-avatar');
+            avatarContainer.innerHTML = `<img src="${user.photo_url}" alt="Avatar">`;
+        }
+        
+        // TODO: Загрузка токенов и рейтинга с сервера
+        // Пока что используем заглушки
+        document.getElementById('user-tokens').textContent = '0';
+        document.getElementById('user-rating').textContent = '0';
+    } else {
+        // Если нет данных Telegram (тестирование в браузере)
+        document.getElementById('user-name').textContent = 'Тестовый пользователь';
+        document.getElementById('user-tokens').textContent = '0';
+        document.getElementById('user-rating').textContent = '0';
+    }
+}
+
 // Проверка: если возвращаемся с другой страницы - скрыть splash screen
 if (sessionStorage.getItem('visited')) {
     const splash = document.getElementById('splash');
@@ -281,6 +308,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderEntrances();
     renderBuildings();
     renderFoodBuildings();
+    loadUserData();
 });
 
 
