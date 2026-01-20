@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Navigate Helper</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link rel="stylesheet" href="style.css?v=27">
+    <link rel="stylesheet" href="style.css?v=28">
 </head>
 <body>
     <!-- Splash Screen -->
@@ -55,7 +55,23 @@
                 </div>
             </div>
             
-            <!-- Профиль пользователя (glassmorphism) -->
+            <!-- Черное полотно (открывается протягиванием плашки) -->
+            <div class="dark-overlay" id="dark-overlay">
+                <div class="overlay-content">
+                    <button class="back-capsule back-under-card" onclick="closeOverlay()">
+                        ← Назад
+                    </button>
+                    <div class="menu-card leaderboard-btn-card" id="leaderboard-btn-card" onclick="openLeaderboard()">
+                        <div class="menu-icon">🏆</div>
+                        <div class="menu-info">
+                            <h3>Таблица лидеров</h3>
+                            <p>Топ 50 игроков по рейтингу</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Профиль пользователя (glassmorphism) - протягивается пальцем -->
             <div class="user-profile-card" id="user-profile-card">
                 <div class="swipe-indicator">
                     <div class="swipe-arrows">››</div>
@@ -76,22 +92,6 @@
                     </div>
                     <div class="user-avatar" id="user-avatar">
                         <div class="avatar-placeholder">👤</div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Черное полотно (открывается свайпом) -->
-            <div class="dark-overlay" id="dark-overlay">
-                <div class="overlay-content">
-                    <button class="back-capsule back-under-card" onclick="closeOverlay()">
-                        ← Назад
-                    </button>
-                    <div class="menu-card leaderboard-btn-card" id="leaderboard-btn-card" onclick="openLeaderboard()">
-                        <div class="menu-icon">🏆</div>
-                        <div class="menu-info">
-                            <h3>Таблица лидеров</h3>
-                            <p>Топ 50 игроков по рейтингу</p>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -202,6 +202,6 @@
             <button class="arrived-btn" onclick="arrived()">✅ Дошли!</button>
         </div>
     </div>
-    <script src="app.js?v=26"></script>
+    <script src="app.js?v=28"></script>
 </body>
 </html>

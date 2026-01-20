@@ -314,45 +314,86 @@ document.addEventListener('DOMContentLoaded', () => {
     renderLeaderboard();
 });
 
-// Свайп для открытия черного полотна
+// Протягивание плашки пальцем
 function initSwipeGesture() {
     const profileCard = document.getElementById('user-profile-card');
+    const darkOverlay = document.getElementById('dark-overlay');
     let startY = 0;
+    let currentY = 0;
     let isDragging = false;
+    let isOpen = false;
+    
+    const cardHeight = 90; // высота плашки примерно
+    const screenHeight = window.innerHeight;
+    const maxBottom = screenHeight - 120; // calc(100vh - 120px)
+    const minBottom = 20;
 
     profileCard.addEventListener('touchstart', (e) => {
         startY = e.touches[0].clientY;
+        currentY = startY;
         isDragging = true;
+        
+        // Убираем transition для плавного следования за пальцем
+        profileCard.style.transition = 'none';
+        darkOverlay.style.transition = 'none';
     });
 
     profileCard.addEventListener('touchmove', (e) => {
         if (!isDragging) return;
-        // Не двигаем плашку вручную, только отслеживаем движение
         e.preventDefault();
+        
+        currentY = e.touches[0].clientY;
+        const deltaY = startY - currentY; // положительное = вверх
+        
+        // Вычисляем новую позицию плашки
+        let newBottom = minBottom + deltaY;
+        
+        // Ограничиваем диапазон
+        if (newBottom < minBottom) newBottom = minBottom;
+        if (newBottom > maxBottom) newBottom = maxBottom;
+        
+        // Двигаем плашку
+        profileCard.style.bottom = newBottom + 'px';
+        
+        // Двигаем overlay синхронно (от 100% до 0%)
+        const progress = (newBottom - minBottom) / (maxBottom - minBottom);
+        darkOverlay.style.transform = `translateY(${100 - progress * 100}%)`;
+        
+        // Показываем/скрываем стрелочки
+        if (newBottom > minBottom + 50) {
+            profileCard.querySelector('.swipe-indicator').style.opacity = '0';
+        } else {
+            profileCard.querySelector('.swipe-indicator').style.opacity = '1';
+        }
     });
 
     profileCard.addEventListener('touchend', (e) => {
         if (!isDragging) return;
         isDragging = false;
         
-        const endY = e.changedTouches[0].clientY;
-        const diff = startY - endY;
+        // Возвращаем transition
+        profileCard.style.transition = 'bottom 0.35s cubic-bezier(0.4, 0, 0.2, 1)';
+        darkOverlay.style.transition = 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
         
-        // Только вертикальный свайп вверх открывает
-        if (diff > 80) {
+        const deltaY = startY - currentY;
+        
+        // Если протянули больше чем на 30% экрана - открываем полностью
+        if (deltaY > screenHeight * 0.3) {
             openOverlay();
+        } else {
+            // Иначе возвращаем назад
+            closeOverlay();
         }
-    });
-
-    // Клик тоже открывает
-    profileCard.addEventListener('click', () => {
-        openOverlay();
     });
 }
 
 function openOverlay() {
     const profileCard = document.getElementById('user-profile-card');
     const darkOverlay = document.getElementById('dark-overlay');
+    
+    // Убираем inline стили если были
+    profileCard.style.bottom = '';
+    darkOverlay.style.transform = '';
     
     // Форсируем reflow для корректной анимации
     profileCard.offsetHeight;
@@ -371,6 +412,10 @@ function openOverlay() {
 function closeOverlay() {
     const profileCard = document.getElementById('user-profile-card');
     const darkOverlay = document.getElementById('dark-overlay');
+    
+    // Убираем inline стили если были
+    profileCard.style.bottom = '';
+    darkOverlay.style.transform = '';
     
     profileCard.classList.remove('lifted');
     darkOverlay.classList.remove('active');
