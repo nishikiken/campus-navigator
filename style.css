@@ -691,98 +691,71 @@ body {
     z-index: 100;
     overflow: visible;
     position: fixed;
-    transition: transform 0.3s ease;
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
 }
 
-/* Анимация "смахни меня" - быстрые подпрыгивания каждые 3 сек */
-@keyframes profileHint {
-    0%, 92% {
-        transform: translateY(0);
-    }
-    94% {
-        transform: translateY(-12px);
-    }
-    96% {
-        transform: translateY(-8px);
-    }
-    98% {
-        transform: translateY(-10px);
-    }
-    100% {
-        transform: translateY(0);
-    }
+.user-profile-card.lifted {
+    transform: translateY(-100vh);
 }
 
-.user-profile-card.hint {
-    animation: profileHint 3s ease-in-out infinite;
-}
-
-/* Индикатор свайпа */
+/* Индикатор свайпа - маленькие стрелочки елочкой */
 .swipe-indicator {
     position: absolute;
-    top: -30px;
+    top: -24px;
     left: 50%;
     transform: translateX(-50%);
-    width: 100%;
-    height: 30px;
+    width: 40px;
+    height: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(to top, rgba(40, 40, 45, 0.4), transparent);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border-radius: 20px 20px 0 0;
     pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.user-profile-card.hint .swipe-indicator {
-    opacity: 1;
-    animation: indicatorPulse 3s ease-in-out infinite;
-}
-
-@keyframes indicatorPulse {
-    0%, 92% {
-        opacity: 0;
-    }
-    94%, 98% {
-        opacity: 1;
-    }
-    100% {
-        opacity: 0;
-    }
 }
 
 .swipe-arrows {
-    font-size: 18px;
+    font-size: 12px;
     font-weight: bold;
-    color: rgba(255, 255, 255, 0.6);
+    color: rgba(255, 255, 255, 0.4);
     transform: rotate(90deg);
+    animation: arrowFloat 2s ease-in-out infinite;
 }
 
-/* Нижнее меню */
-.bottom-menu {
+@keyframes arrowFloat {
+    0%, 100% {
+        transform: rotate(90deg) translateY(0);
+        opacity: 0.4;
+    }
+    50% {
+        transform: rotate(90deg) translateY(-4px);
+        opacity: 0.7;
+    }
+}
+
+/* Черное полотно */
+.dark-overlay {
     position: fixed;
-    bottom: 0;
+    top: 0;
     left: 0;
     right: 0;
+    bottom: 0;
     background: var(--tg-theme-bg-color);
-    z-index: 150;
+    z-index: 90;
     transform: translateY(100%);
     transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    padding: 20px 16px 100px 16px;
-    border-radius: 20px 20px 0 0;
-    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.6);
+    padding: 80px 16px 120px 16px;
+    display: flex;
+    flex-direction: column;
 }
 
-.bottom-menu.active {
+.dark-overlay.active {
     transform: translateY(0);
 }
 
-.bottom-menu-content {
-    margin-top: 16px;
+.overlay-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Капсула назад */
@@ -799,7 +772,8 @@ body {
     align-items: center;
     gap: 8px;
     transition: all 0.2s ease;
-    margin-bottom: 12px;
+    margin-bottom: 20px;
+    align-self: flex-start;
 }
 
 .back-capsule:active {

@@ -312,18 +312,12 @@ document.addEventListener('DOMContentLoaded', () => {
     createParticles();
     initSwipeGesture();
     renderLeaderboard();
-    startHintAnimation();
 });
 
-// Запуск анимации подсказки
-function startHintAnimation() {
-    const profileCard = document.getElementById('user-profile-card');
-    profileCard.classList.add('hint');
-}
-
-// Свайп для открытия нижнего меню
+// Свайп для открытия черного полотна
 function initSwipeGesture() {
     const profileCard = document.getElementById('user-profile-card');
+    const darkOverlay = document.getElementById('dark-overlay');
     let startY = 0;
     let currentY = 0;
     let isDragging = false;
@@ -339,7 +333,9 @@ function initSwipeGesture() {
         const diff = startY - currentY;
         
         if (diff > 0) {
-            profileCard.style.transform = `translateY(-${Math.min(diff, 50)}px)`;
+            const progress = Math.min(diff / 100, 1);
+            profileCard.style.transform = `translateY(-${diff}px)`;
+            darkOverlay.style.transform = `translateY(${100 - (progress * 100)}%)`;
         }
     });
 
@@ -350,31 +346,42 @@ function initSwipeGesture() {
         const diff = startY - currentY;
         
         if (diff > 80) {
-            openBottomMenu();
+            openOverlay();
+        } else {
+            profileCard.style.transform = '';
+            darkOverlay.style.transform = 'translateY(100%)';
         }
-        
-        profileCard.style.transform = '';
     });
 
     // Клик тоже открывает
     profileCard.addEventListener('click', () => {
-        openBottomMenu();
+        openOverlay();
     });
 }
 
-function openBottomMenu() {
-    document.getElementById('bottom-menu').classList.add('active');
+function openOverlay() {
+    const profileCard = document.getElementById('user-profile-card');
+    const darkOverlay = document.getElementById('dark-overlay');
+    
+    profileCard.classList.add('lifted');
+    darkOverlay.classList.add('active');
+    
     haptic();
 }
 
-function closeBottomMenu() {
-    document.getElementById('bottom-menu').classList.remove('active');
+function closeOverlay() {
+    const profileCard = document.getElementById('user-profile-card');
+    const darkOverlay = document.getElementById('dark-overlay');
+    
+    profileCard.classList.remove('lifted');
+    darkOverlay.classList.remove('active');
+    
     haptic();
 }
 
 function openLeaderboard() {
-    // Закрываем нижнее меню
-    closeBottomMenu();
+    // Закрываем оверлей
+    closeOverlay();
     
     // Скрываем главное меню вверх
     setTimeout(() => {
