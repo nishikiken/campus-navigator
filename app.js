@@ -22,6 +22,15 @@ if (sessionStorage.getItem('visited')) {
     sessionStorage.setItem('visited', 'true');
 }
 
+// Проверка: если нужно показать серпантин
+if (sessionStorage.getItem('showConfetti') === 'true') {
+    sessionStorage.removeItem('showConfetti');
+    // Показываем серпантин после загрузки страницы
+    setTimeout(() => {
+        showConfetti();
+    }, 100);
+}
+
 // Состояние
 let selectedEntrance = null;
 let selectedBuilding = null;
