@@ -386,6 +386,11 @@ function goToFood() {
     haptic();
 }
 
+function goToFAQ() {
+    showStep('step-faq');
+    haptic();
+}
+
 function goToFoodList() {
     showStep('step-food-list');
     haptic();

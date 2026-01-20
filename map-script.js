@@ -39,12 +39,12 @@ const coordinates = {
     4: { x: 421, y: 478 },
     5: { x: 678, y: 175 },
     6: { x: 149, y: 242 },
-    7: { x: 149, y: 159 },
+    7: { x: 149, y: 160 },
     8: { x: 293, y: 200 },
     9: { x: 640, y: 352 },
     10: { x: 577, y: 208 },
     11: { x: 609, y: 419 },
-    12: { x: 510, y: 68 },
+    12: { x: 510, y: 69 },
     19: { x: 709, y: 407 },
     n6: { x: 75, y: 135 },
     n7: { x: 204, y: 135 },
@@ -77,7 +77,7 @@ const coordinates = {
     n36: { x: 609, y: 337 },
     n37: { x: 609, y: 369 },
     n39: { x: 707, y: 178 },
-    n40: { x: 705, y: 250 },
+    n40: { x: 706, y: 253 },
     n41: { x: 748, y: 178 },
     n42: { x: 677, y: 313 },
     n48: { x: 398, y: 141 },
@@ -312,6 +312,10 @@ function buildRoute(from, to) {
     if (building) {
         building.classList.add('highlighted');
     }
+    
+    // Показать кнопку "Дошли!" и подсказку
+    document.getElementById('route-hint').classList.remove('hidden');
+    document.getElementById('arrived-btn').classList.remove('hidden');
 }
 
 // Отмена выбора
@@ -331,9 +335,20 @@ function closeInfo() {
     // Очистить маршрут
     document.getElementById('route-layer').innerHTML = '';
     
+    // Скрыть кнопку "Дошли!" и подсказку
+    document.getElementById('route-hint').classList.add('hidden');
+    document.getElementById('arrived-btn').classList.add('hidden');
+    
     selectedBuilding = null;
     selectedEntrance = null;
     haptic();
+}
+
+// Кнопка "Дошли!"
+function arrivedAtDestination() {
+    haptic('success');
+    closeInfo();
+    alert('Отлично! Рады что вы добрались 🎉');
 }
 
 // Управление зумом

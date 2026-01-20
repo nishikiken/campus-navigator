@@ -14,6 +14,11 @@
             <h1>Карта кампуса</h1>
         </div>
         
+        <!-- Подсказка при построении маршрута -->
+        <div id="route-hint" class="route-hint hidden">
+            📍 Следуйте по синей линии
+        </div>
+        
         <div class="map-controls">
             <button class="control-btn" onclick="zoomIn()">+</button>
             <button class="control-btn" onclick="zoomOut()">−</button>
@@ -136,6 +141,11 @@
             <button class="route-btn" onclick="showEntrancePanel()">📍 Построить маршрут</button>
             <button class="close-btn" onclick="closeInfo()">Закрыть</button>
         </div>
+        
+        <!-- Кнопка "Дошли!" -->
+        <button id="arrived-btn" class="arrived-btn hidden" onclick="arrivedAtDestination()">
+            ✅ Дошли!
+        </button>
     </div>
     
     <script src="map-script.js?v=19000"></script>

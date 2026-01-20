@@ -264,7 +264,7 @@ body {
     stroke-linejoin: round;
     stroke-dasharray: 1000;
     stroke-dashoffset: 1000;
-    animation: drawPath 4s ease-in-out forwards;
+    animation: drawPath 6s ease-in-out forwards;
     filter: drop-shadow(0 0 6px rgba(10, 132, 255, 0.5));
 }
 
@@ -308,4 +308,71 @@ body {
     stroke-width: 2;
     stroke-dasharray: 5, 5;
     opacity: 0.5;
+}
+
+/* Подсказка при маршруте */
+.route-hint {
+    position: fixed;
+    top: 70px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(10, 132, 255, 0.95);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 20px;
+    font-size: 16px;
+    font-weight: 600;
+    z-index: 100;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    animation: slideDown 0.3s ease-out;
+}
+
+.route-hint.hidden {
+    display: none;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+/* Кнопка "Дошли!" */
+.arrived-btn {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #34c759;
+    color: white;
+    border: none;
+    padding: 16px 40px;
+    border-radius: 25px;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    z-index: 100;
+    box-shadow: 0 6px 20px rgba(52, 199, 89, 0.4);
+    transition: all 0.3s ease;
+}
+
+.arrived-btn:active {
+    transform: translateX(-50%) scale(0.95);
+}
+
+.arrived-btn.hidden {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .arrived-btn {
+        bottom: 20px;
+        padding: 14px 32px;
+        font-size: 16px;
+    }
 }

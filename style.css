@@ -636,3 +636,35 @@ body {
 .hours-value {
     line-height: 1.5;
 }
+
+/* FAQ стили */
+.faq-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 0 20px 20px;
+}
+
+.faq-item {
+    background: var(--tg-theme-secondary-bg-color);
+    border-radius: 16px;
+    padding: 20px;
+    transition: all 0.3s ease;
+}
+
+.faq-item:active {
+    transform: scale(0.98);
+}
+
+.faq-question {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--tg-theme-text-color);
+    margin-bottom: 12px;
+}
+
+.faq-answer {
+    font-size: 16px;
+    color: var(--tg-theme-hint-color);
+    line-height: 1.5;
+}
