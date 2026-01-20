@@ -744,7 +744,6 @@ body {
     z-index: 90;
     transform: translateY(100%);
     transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    padding: 20px 16px 120px 16px;
     display: flex;
     flex-direction: column;
 }
@@ -757,6 +756,7 @@ body {
     flex: 1;
     display: flex;
     flex-direction: column;
+    padding: 140px 16px 40px 16px;
 }
 
 /* Капсула назад */
