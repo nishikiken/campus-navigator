@@ -317,7 +317,7 @@ function createParticles() {
     const particlesContainer = document.querySelector('.particles-bg');
     if (!particlesContainer) return;
     
-    const particleCount = 12;
+    const particleCount = 20;
     const colors = [
         'rgba(135, 206, 250, 0.4)',
         'rgba(173, 216, 230, 0.35)',
