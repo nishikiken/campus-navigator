@@ -684,7 +684,9 @@ body {
     box-shadow: 
         0 0 30px rgba(0, 0, 0, 0.8),
         0 0 60px rgba(0, 0, 0, 0.5),
-        0 8px 32px rgba(0, 0, 0, 0.6);
+        0 8px 32px rgba(0, 0, 0, 0.6),
+        inset 0 1px 1px rgba(255, 255, 255, 0.15),
+        inset 0 -1px 2px rgba(0, 0, 0, 0.3);
     z-index: 100;
     overflow: hidden;
     position: fixed;
@@ -794,8 +796,12 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.25);
+    box-shadow: 
+        0 4px 12px rgba(0, 0, 0, 0.5),
+        0 2px 6px rgba(0, 0, 0, 0.3),
+        inset 0 -2px 4px rgba(0, 0, 0, 0.2),
+        inset 0 1px 1px rgba(255, 255, 255, 0.2);
 }
 
 .user-avatar img {
