@@ -176,11 +176,27 @@
             font-size: 14px;
             color: #8e8e93;
         }
+        .coordinates-display {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #0a84ff;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            font-weight: bold;
+            z-index: 1000;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>🛣️ Редактор дорог кампуса</h1>
+        
+        <div class="coordinates-display" id="coords-display">X: 0, Y: 0</div>
         
         <div class="instructions">
             <h3>Инструкция:</h3>
@@ -244,6 +260,7 @@
             <button class="btn-danger" onclick="setMode('deletePoint')">❌ Удалить точку</button>
             <button class="btn-secondary" onclick="setMode('view')">👁️ Просмотр</button>
             <button class="btn-secondary" onclick="toggleGrid()">📐 Сетка</button>
+            <button class="btn-secondary" onclick="toggleSnap()">🧲 Привязка</button>
             <button class="btn-secondary" onclick="clearAll()">🗑️ Очистить всё</button>
             <button class="btn-success" onclick="exportData()">📤 Экспортировать</button>
         </div>
@@ -286,9 +303,16 @@
         let medicalPointCounter = 1;
         let buildingCounter = 1;
         let gridVisible = true;
+        let snapToGrid = true;
+        const gridSize = 10;
 
         // Координаты корпусов
         const buildings = {};
+        
+        function snapCoordinate(value) {
+            if (!snapToGrid) return value;
+            return Math.round(value / gridSize) * gridSize;
+        }
 
         function setMode(newMode) {
             mode = newMode;
@@ -319,8 +343,17 @@
             pt.x = event.clientX;
             pt.y = event.clientY;
             const svgP = pt.matrixTransform(svg.getScreenCTM().inverse());
-            return { x: Math.round(svgP.x), y: Math.round(svgP.y) };
+            return { 
+                x: snapCoordinate(Math.round(svgP.x)), 
+                y: snapCoordinate(Math.round(svgP.y)) 
+            };
         }
+        
+        // Отображение координат курсора
+        document.getElementById('editor-svg').addEventListener('mousemove', function(e) {
+            const coords = getSVGCoordinates(e);
+            document.getElementById('coords-display').textContent = `X: ${coords.x}, Y: ${coords.y}`;
+        });
 
         document.getElementById('editor-svg').addEventListener('click', function(e) {
             if (e.target.id === 'editor-svg' || e.target.tagName === 'image') {
@@ -760,6 +793,13 @@
         function toggleGrid() {
             gridVisible = !gridVisible;
             drawGrid();
+        }
+        
+        function toggleSnap() {
+            snapToGrid = !snapToGrid;
+            const btn = event.target;
+            btn.style.background = snapToGrid ? '#34c759' : '#8e8e93';
+            alert(snapToGrid ? 'Привязка к сетке включена' : 'Привязка к сетке выключена');
         }
         
         function importData() {
