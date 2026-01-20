@@ -712,6 +712,12 @@ body {
     align-items: center;
     justify-content: center;
     pointer-events: none;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.user-profile-card.lifted .swipe-indicator {
+    opacity: 0;
 }
 
 .swipe-arrows {
@@ -757,6 +763,12 @@ body {
     display: flex;
     flex-direction: column;
     padding: 140px 16px 40px 16px;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.overlay-content.hiding {
+    opacity: 0;
 }
 
 /* Кнопка назад под плашкой */
@@ -824,12 +836,14 @@ body {
     bottom: 0;
     background: var(--tg-theme-bg-color);
     z-index: 200;
-    transform: translateY(100%);
-    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
 .leaderboard-view.active {
-    transform: translateY(0);
+    opacity: 1;
+    visibility: visible;
 }
 
 /* Главное меню уезжает вверх */

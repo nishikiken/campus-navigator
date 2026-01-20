@@ -376,16 +376,14 @@ function closeOverlay() {
 }
 
 function openLeaderboard() {
-    const leaderboardBtn = document.getElementById('leaderboard-btn-card');
+    const overlayContent = document.querySelector('.overlay-content');
     const leaderboardView = document.getElementById('step-leaderboard');
     
-    // 1. Скрываем кнопку плавно
-    leaderboardBtn.style.opacity = '0';
-    leaderboardBtn.style.pointerEvents = 'none';
+    // 1. Скрываем контент меню плавно
+    overlayContent.classList.add('hiding');
     
-    // 2. Через 300ms показываем список (выезжает снизу)
+    // 2. Через 300ms показываем лидерборд
     setTimeout(() => {
-        document.getElementById('step-main').style.display = 'none';
         leaderboardView.classList.add('active');
         
         // Копируем данные пользователя
@@ -409,20 +407,14 @@ function openLeaderboard() {
 
 function closeLeaderboard() {
     const leaderboardView = document.getElementById('step-leaderboard');
-    const leaderboardBtn = document.getElementById('leaderboard-btn-card');
+    const overlayContent = document.querySelector('.overlay-content');
     
-    // 1. Список заезжает вверх
+    // 1. Скрываем лидерборд
     leaderboardView.classList.remove('active');
     
-    // 2. Через 300ms показываем главное меню и кнопку
+    // 2. Через 300ms показываем контент меню
     setTimeout(() => {
-        document.getElementById('step-main').style.display = 'block';
-        
-        // Плавно показываем кнопку
-        setTimeout(() => {
-            leaderboardBtn.style.opacity = '1';
-            leaderboardBtn.style.pointerEvents = 'auto';
-        }, 100);
+        overlayContent.classList.remove('hiding');
     }, 300);
     
     haptic();
