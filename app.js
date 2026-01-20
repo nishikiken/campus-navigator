@@ -444,7 +444,7 @@ function renderLeaderboard() {
         let rankClass = '';
         
         if (leader.rank === 1) {
-            medal = '🔷';
+            medal = '💎';
             rankClass = 'rank-1';
         } else if (leader.rank === 2) {
             medal = '🥇';
