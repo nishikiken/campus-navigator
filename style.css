@@ -696,8 +696,8 @@ body {
 }
 
 .user-profile-card.lifted {
-    bottom: calc(100vh - 180px);
-    z-index: 95;
+    bottom: calc(100vh - 120px);
+    z-index: 101;
 }
 
 /* Индикатор свайпа - маленькие стрелочки елочкой */
@@ -746,25 +746,27 @@ body {
     transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     flex-direction: column;
-    padding: 20px 16px 40px 16px;
 }
 
 .dark-overlay.active {
     transform: translateY(0);
 }
 
-/* Кнопка назад над плашкой */
-.back-top {
-    margin-bottom: 16px;
-    z-index: 96;
-    position: relative;
-}
-
 .overlay-content {
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding-top: 160px;
+    padding: 140px 16px 40px 16px;
+}
+
+/* Кнопка назад под плашкой */
+.back-under-card {
+    margin-bottom: 20px;
+}
+
+/* Кнопка лидерборда с анимацией */
+.leaderboard-btn-card {
+    transition: opacity 0.3s ease;
 }
 
 /* Капсула назад */
@@ -805,7 +807,12 @@ body {
         inset 0 1px 1px rgba(255, 255, 255, 0.15),
         inset 0 -1px 2px rgba(0, 0, 0, 0.3);
     overflow: hidden;
-    margin-bottom: 16px;
+    margin-bottom: 20px;
+    position: fixed;
+    top: 20px;
+    left: 16px;
+    right: 16px;
+    z-index: 201;
 }
 
 /* Таблица лидеров */
@@ -818,7 +825,7 @@ body {
     background: var(--tg-theme-bg-color);
     z-index: 200;
     transform: translateY(100%);
-    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .leaderboard-view.active {
@@ -832,7 +839,7 @@ body {
 }
 
 .leaderboard-header {
-    padding: 16px;
+    padding: 140px 16px 16px 16px;
     background: var(--tg-theme-bg-color);
     position: sticky;
     top: 0;

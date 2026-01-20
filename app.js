@@ -354,10 +354,10 @@ function openOverlay() {
     const profileCard = document.getElementById('user-profile-card');
     const darkOverlay = document.getElementById('dark-overlay');
     
+    // Одновременно поднимаем плашку и открываем меню
     profileCard.classList.add('lifted');
     darkOverlay.classList.add('active');
     
-    // Скрываем стрелочки когда меню открыто
     profileCard.style.cursor = 'default';
     
     haptic();
@@ -370,45 +370,60 @@ function closeOverlay() {
     profileCard.classList.remove('lifted');
     darkOverlay.classList.remove('active');
     
-    // Возвращаем курсор
     profileCard.style.cursor = 'pointer';
     
     haptic();
 }
 
 function openLeaderboard() {
-    // Скрываем главное меню мгновенно
-    document.getElementById('step-main').style.display = 'none';
+    const leaderboardBtn = document.getElementById('leaderboard-btn-card');
+    const leaderboardView = document.getElementById('step-leaderboard');
     
-    // Показываем таблицу лидеров
-    document.getElementById('step-leaderboard').classList.add('active');
+    // 1. Скрываем кнопку плавно
+    leaderboardBtn.style.opacity = '0';
+    leaderboardBtn.style.pointerEvents = 'none';
     
-    // Копируем данные пользователя в топ
-    document.getElementById('user-tokens-top').textContent = document.getElementById('user-tokens').textContent;
-    document.getElementById('user-name-top').textContent = document.getElementById('user-name').textContent;
-    document.getElementById('user-rating-top').textContent = document.getElementById('user-rating').textContent;
-    
-    const avatarTop = document.getElementById('user-avatar-top');
-    const avatarBottom = document.getElementById('user-avatar');
-    avatarTop.innerHTML = avatarBottom.innerHTML;
-    
-    // Создаем частицы для верхней карточки
-    const particlesTop = document.querySelector('#step-leaderboard .particles-bg');
-    if (particlesTop && particlesTop.children.length === 0) {
-        createParticlesForContainer(particlesTop);
-    }
+    // 2. Через 300ms показываем список (выезжает снизу)
+    setTimeout(() => {
+        document.getElementById('step-main').style.display = 'none';
+        leaderboardView.classList.add('active');
+        
+        // Копируем данные пользователя
+        document.getElementById('user-tokens-top').textContent = document.getElementById('user-tokens').textContent;
+        document.getElementById('user-name-top').textContent = document.getElementById('user-name').textContent;
+        document.getElementById('user-rating-top').textContent = document.getElementById('user-rating').textContent;
+        
+        const avatarTop = document.getElementById('user-avatar-top');
+        const avatarBottom = document.getElementById('user-avatar');
+        avatarTop.innerHTML = avatarBottom.innerHTML;
+        
+        // Создаем частицы
+        const particlesTop = document.querySelector('#step-leaderboard .particles-bg');
+        if (particlesTop && particlesTop.children.length === 0) {
+            createParticlesForContainer(particlesTop);
+        }
+    }, 300);
     
     haptic();
 }
 
 function closeLeaderboard() {
-    // Скрываем таблицу лидеров
-    document.getElementById('step-leaderboard').classList.remove('active');
+    const leaderboardView = document.getElementById('step-leaderboard');
+    const leaderboardBtn = document.getElementById('leaderboard-btn-card');
     
-    // Показываем главное меню обратно
+    // 1. Список заезжает вверх
+    leaderboardView.classList.remove('active');
+    
+    // 2. Через 300ms показываем главное меню и кнопку
     setTimeout(() => {
         document.getElementById('step-main').style.display = 'block';
-    }, 100);
+        
+        // Плавно показываем кнопку
+        setTimeout(() => {
+            leaderboardBtn.style.opacity = '1';
+            leaderboardBtn.style.pointerEvents = 'auto';
+        }, 100);
+    }, 300);
     
     haptic();
 }
