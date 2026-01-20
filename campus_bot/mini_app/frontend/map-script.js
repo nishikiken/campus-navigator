@@ -199,12 +199,22 @@ function selectBuilding(buildingId) {
     console.log('selectBuilding called with:', buildingId);
     
     // Снять выделение с предыдущего
-    document.querySelectorAll('.building-marker').forEach(b => b.classList.remove('selected'));
+    document.querySelectorAll('.building-marker').forEach(b => {
+        b.classList.remove('selected');
+        b.classList.remove('clicked');
+    });
     
-    // Выделить текущий
+    // Выделить текущий и добавить анимацию волны
     const building = document.querySelector(`.building-marker[data-building="${buildingId}"]`);
     if (building) {
         building.classList.add('selected');
+        building.classList.add('clicked');
+        
+        // Убрать класс clicked через 600ms (длительность анимации)
+        setTimeout(() => {
+            building.classList.remove('clicked');
+        }, 600);
+        
         selectedBuilding = buildingId;
         
         // Показать информацию

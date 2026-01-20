@@ -396,8 +396,11 @@
 
         function addBuildingEntrance(event) {
             const coords = getSVGCoordinates(event);
-            const id = 'be' + buildingEntranceCounter++;
-            buildingEntrances.push({ id, x: coords.x, y: coords.y });
+            const buildingNum = prompt('Введите номер корпуса для этого входа (например: 1, 2, 6, 7, 19):');
+            if (!buildingNum) return;
+            
+            const id = 'be' + buildingNum;
+            buildingEntrances.push({ id, x: coords.x, y: coords.y, building: buildingNum });
             renderPoints();
             updateStats();
         }
@@ -462,7 +465,7 @@
                 layer.appendChild(g);
             });
             
-            // Рисуем входы в корпуса (фиолетовые квадраты)
+            // Рисуем входы в корпуса (фиолетовые квадраты с номерами)
             buildingEntrances.forEach(point => {
                 const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
                 g.classList.add('point-marker');
@@ -470,16 +473,26 @@
                 g.onclick = () => handlePointClick(point.id);
                 
                 const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                rect.setAttribute('x', point.x - 8);
-                rect.setAttribute('y', point.y - 8);
-                rect.setAttribute('width', 16);
-                rect.setAttribute('height', 16);
+                rect.setAttribute('x', point.x - 10);
+                rect.setAttribute('y', point.y - 10);
+                rect.setAttribute('width', 20);
+                rect.setAttribute('height', 20);
                 rect.setAttribute('fill', '#af52de');
                 rect.setAttribute('stroke', '#fff');
                 rect.setAttribute('stroke-width', 2);
-                rect.setAttribute('rx', 2);
+                rect.setAttribute('rx', 3);
+                
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', point.x);
+                text.setAttribute('y', point.y + 4);
+                text.setAttribute('text-anchor', 'middle');
+                text.setAttribute('fill', '#fff');
+                text.setAttribute('font-size', 12);
+                text.setAttribute('font-weight', 'bold');
+                text.textContent = point.building || point.id.replace('be', '');
                 
                 g.appendChild(rect);
+                g.appendChild(text);
                 layer.appendChild(g);
             });
             
