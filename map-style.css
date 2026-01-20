@@ -92,14 +92,20 @@ body {
     overflow: auto;
     background: #f5f5f5;
     position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.map-inner {
+    transition: transform 0.3s ease;
+    transform-origin: center center;
 }
 
 #campus-map {
     width: 100%;
     height: auto;
     display: block;
-    transition: transform 0.3s ease;
-    transform-origin: top left;
 }
 
 /* Стили для маркеров корпусов */

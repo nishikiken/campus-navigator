@@ -324,12 +324,12 @@ function resetView() {
 }
 
 function applyZoom() {
-    const map = document.getElementById('campus-map');
-    if (map) {
-        map.style.transform = `scale(${currentZoom})`;
+    const mapInner = document.getElementById('map-inner');
+    if (mapInner) {
+        mapInner.style.transform = `scale(${currentZoom})`;
         console.log('Applied zoom:', currentZoom);
     } else {
-        console.error('Map element not found');
+        console.error('Map inner element not found');
     }
 }
 
