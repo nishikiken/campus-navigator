@@ -363,16 +363,16 @@ function initSwipeGesture() {
         // Overlay всегда приклеен к нижней грани плашки
         // top = высота экрана - bottom плашки (от низа экрана до низа плашки)
         const overlayTop = screenHeight - newBottom;
-        darkOverlay.style.top = overlayTop + 'px';
+        darkOverlay.style.setProperty('top', overlayTop + 'px', 'important');
         
         // Показываем overlay когда плашка поднимается
         const progress = (newBottom - minBottom) / (maxBottom - minBottom);
         if (progress > 0.05) {
-            darkOverlay.style.opacity = '1';
-            darkOverlay.style.visibility = 'visible';
+            darkOverlay.style.setProperty('opacity', '1', 'important');
+            darkOverlay.style.setProperty('visibility', 'visible', 'important');
         } else {
-            darkOverlay.style.opacity = '0';
-            darkOverlay.style.visibility = 'hidden';
+            darkOverlay.style.setProperty('opacity', '0', 'important');
+            darkOverlay.style.setProperty('visibility', 'hidden', 'important');
         }
         
         // Показываем/скрываем стрелочки
@@ -436,15 +436,18 @@ function openOverlay() {
     const profileCard = document.getElementById('user-profile-card');
     const darkOverlay = document.getElementById('dark-overlay');
     
+    // Получаем текущую позицию overlay из inline стиля (если есть)
+    const currentTop = darkOverlay.style.top ? parseInt(darkOverlay.style.top) : (window.innerHeight - 120);
+    
     // Устанавливаем финальную позицию через CSS переменную
     const finalTop = window.innerHeight - 120; // calc(100vh - 120px)
     darkOverlay.style.setProperty('--overlay-top', finalTop + 'px');
     
-    // Убираем inline стили
+    // Убираем inline стили чтобы CSS transition сработал
     profileCard.style.bottom = '';
-    darkOverlay.style.top = '';
-    darkOverlay.style.opacity = '';
-    darkOverlay.style.visibility = '';
+    darkOverlay.style.removeProperty('top');
+    darkOverlay.style.removeProperty('opacity');
+    darkOverlay.style.removeProperty('visibility');
     
     // Форсируем reflow для корректной анимации
     profileCard.offsetHeight;
@@ -466,9 +469,9 @@ function closeOverlay() {
     
     // Убираем inline стили
     profileCard.style.bottom = '';
-    darkOverlay.style.top = '';
-    darkOverlay.style.opacity = '';
-    darkOverlay.style.visibility = '';
+    darkOverlay.style.removeProperty('top');
+    darkOverlay.style.removeProperty('opacity');
+    darkOverlay.style.removeProperty('visibility');
     
     profileCard.classList.remove('lifted');
     darkOverlay.classList.remove('active');
