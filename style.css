@@ -832,13 +832,13 @@ body {
 
 /* В лидерборде плашка опускается ниже */
 .user-profile-card.in-leaderboard {
-    bottom: calc(100vh - 160px) !important;
+    bottom: calc(100vh - 140px) !important;
     transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Overlay тоже опускается в лидерборде */
 .user-profile-card.in-leaderboard ~ .dark-overlay.active {
-    --overlay-top: calc(100vh - 160px);
+    --overlay-top: calc(100vh - 140px);
     top: var(--overlay-top) !important;
 }
 
@@ -864,7 +864,7 @@ body {
 }
 
 .leaderboard-list {
-    padding: 180px 16px 160px 16px;
+    padding: 160px 16px 160px 16px;
     overflow-y: auto;
     max-height: calc(100vh - 60px);
 }
