@@ -560,32 +560,24 @@ function closeLeaderboard() {
     const profileCard = document.getElementById('user-profile-card');
     const darkOverlay = document.getElementById('dark-overlay');
     
-    // 1. Скрываем лидерборд
-    leaderboardView.classList.remove('active');
+    // 1. Делаем лидерборд невидимым (но не удаляем класс active)
+    leaderboardView.style.opacity = '0';
     
-    // 2. Через 300ms (после скрытия лидерборда) перемещаем плашку и overlay
+    // 2. Сразу перемещаем плашку и overlay
+    profileCard.classList.remove('in-leaderboard');
+    
+    // Устанавливаем нормальную позицию overlay
+    const normalOverlayTop = window.innerHeight - 120;
+    darkOverlay.style.setProperty('top', normalOverlayTop + 'px', 'important');
+    darkOverlay.style.setProperty('opacity', '1', 'important');
+    darkOverlay.style.setProperty('visibility', 'visible', 'important');
+    
+    // 3. Через 350ms (после перемещения) удаляем лидерборд и показываем меню
     setTimeout(() => {
-        // Убираем класс лидерборда у плашки
-        profileCard.classList.remove('in-leaderboard');
-        
-        // Убираем transition для мгновенной установки позиции
-        darkOverlay.style.transition = 'none';
-        
-        // Устанавливаем нормальную позицию overlay
-        const normalOverlayTop = window.innerHeight - 120;
-        darkOverlay.style.setProperty('top', normalOverlayTop + 'px', 'important');
-        darkOverlay.style.setProperty('opacity', '1', 'important');
-        darkOverlay.style.setProperty('visibility', 'visible', 'important');
-        
-        // Форсируем reflow
-        darkOverlay.offsetHeight;
-        
-        // Возвращаем transition
-        darkOverlay.style.transition = 'opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), top 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.3s';
-        
-        // Показываем контент меню
+        leaderboardView.classList.remove('active');
+        leaderboardView.style.opacity = '';
         overlayContent.classList.remove('hiding');
-    }, 300);
+    }, 350);
     
     haptic();
 }
