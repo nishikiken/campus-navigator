@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Редактор дорог кампуса</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1c1c1e;
+            color: #fff;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .instructions {
+            background: #2c2c2e;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .instructions h3 {
+            margin-bottom: 10px;
+            color: #0a84ff;
+        }
+        .instructions ol {
+            margin-left: 20px;
+        }
+        .instructions li {
+            margin: 5px 0;
+        }
+        .map-container {
+            position: relative;
+            background: #f5f5f5;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        #editor-svg {
+            display: block;
+            width: 100%;
+            height: auto;
+            cursor: crosshair;
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: #0a84ff;
+            color: white;
+        }
+        .btn-danger {
+            background: #ff3b30;
+            color: white;
+        }
+        .btn-success {
+            background: #34c759;
+            color: white;
+        }
+        .btn-secondary {
+            background: #8e8e93;
+            color: white;
+        }
+        button:hover {
+            opacity: 0.8;
+        }
+        button:active {
+            transform: scale(0.98);
+        }
+        .mode-indicator {
+            background: #2c2c2e;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .mode-indicator.entrance { color: #34c759; }
+        .mode-indicator.node { color: #0a84ff; }
+        .mode-indicator.road { color: #ff9500; }
+        .output {
+            background: #2c2c2e;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .output h3 {
+            margin-bottom: 10px;
+            color: #0a84ff;
+        }
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            background: #1c1c1e;
+            color: #fff;
+            border: 1px solid #3a3a3c;
+            border-radius: 8px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            resize: vertical;
+        }
+        .road-line {
+            stroke: #ff9500;
+            stroke-width: 3;
+            cursor: pointer;
+        }
+        .road-line:hover {
+            stroke: #ff3b30;
+            stroke-width: 5;
+        }
+        .point-marker {
+            cursor: move;
+        }
+        .point-marker:hover circle,
+        .point-marker:hover rect {
+            fill: #ff3b30;
+            opacity: 0.7;
+        }
+        .point-marker.dragging {
+            opacity: 0.5;
+        }
+        .temp-line {
+            stroke: #0a84ff;
+            stroke-width: 2;
+            stroke-dasharray: 5,5;
+            pointer-events: none;
+        }
+        .grid-line {
+            stroke: rgba(255, 255, 255, 0.15);
+            stroke-width: 1;
+            pointer-events: none;
+        }
+        .grid-line-major {
+            stroke: rgba(255, 255, 255, 0.3);
+            stroke-width: 1;
+            pointer-events: none;
+        }
+        .stats {
+            background: #2c2c2e;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #0a84ff;
+        }
+        .stat-label {
+            font-size: 14px;
+            color: #8e8e93;
+        }
+        .coordinates-display {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #0a84ff;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            font-weight: bold;
+            z-index: 1000;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🛣️ Редактор дорог кампуса</h1>
+        
+        <div class="coordinates-display" id="coords-display">X: 0, Y: 0</div>
+        
+        <div class="instructions">
+            <h3>Инструкция:</h3>
+            <ol>
+                <li><strong>Импорт:</strong> Вставь код из map-script.js в поле ниже и нажми "Импортировать"</li>
+                <li><strong>Добавить вход на кампус:</strong> Нажми "Добавить вход", затем кликни на карте</li>
+                <li><strong>Добавить узел:</strong> Нажми "Добавить узел", затем кликни на карте (для перекрестков)</li>
+                <li><strong>Добавить вход в корпус:</strong> Нажми "Вход в корпус", затем кликни где дверь корпуса</li>
+                <li><strong>Добавить корпус:</strong> Нажми "Добавить корпус", затем кликни на карте</li>
+                <li><strong>Добавить медпункт:</strong> Нажми "Медпункт", затем кликни где находится медпункт</li>
+                <li><strong>Рисовать дорогу:</strong> Нажми "Рисовать дороги", затем кликай по точкам</li>
+                <li><strong>Экспорт:</strong> Нажми "Экспортировать" - скопируй код и вставь в map-script.js</li>
+            </ol>
+        </div>
+        
+        <div class="output">
+            <h3>Импорт данных:</h3>
+            <textarea id="import-code" placeholder="Вставь сюда код coordinates и pathGraph из map-script.js..."></textarea>
+            <button class="btn-success" onclick="importData()" style="margin-top: 10px; width: 100%;">📥 Импортировать</button>
+        </div>
+
+        <div class="mode-indicator" id="mode-indicator">
+            Режим: Просмотр
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-value" id="entrance-count">0</div>
+                <div class="stat-label">Входов на кампус</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="node-count">0</div>
+                <div class="stat-label">Узлов</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="building-entrance-count">0</div>
+                <div class="stat-label">Входов в корпуса</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="building-count">0</div>
+                <div class="stat-label">Корпусов</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="medical-count">0</div>
+                <div class="stat-label">Медпунктов</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="road-count">0</div>
+                <div class="stat-label">Дорог</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn-success" onclick="setMode('entrance')">🚪 Добавить вход</button>
+            <button class="btn-primary" onclick="setMode('node')">➕ Добавить узел</button>
+            <button class="btn-primary" onclick="setMode('buildingEntrance')">🏢 Вход в корпус</button>
+            <button class="btn-primary" onclick="setMode('building')">🏫 Добавить корпус</button>
+            <button class="btn-danger" onclick="setMode('medicalPoint')">🏥 Медпункт</button>
+            <button class="btn-primary" onclick="setMode('road')">🛣️ Рисовать дороги</button>
+            <button class="btn-danger" onclick="setMode('deleteRoad')">❌ Удалить дорогу</button>
+            <button class="btn-danger" onclick="setMode('deletePoint')">❌ Удалить точку</button>
+            <button class="btn-secondary" onclick="setMode('view')">👁️ Просмотр</button>
+            <button class="btn-secondary" onclick="toggleGrid()">📐 Сетка</button>
+            <button class="btn-secondary" onclick="toggleSnap()">🧲 Привязка</button>
+            <button class="btn-secondary" onclick="clearAll()">🗑️ Очистить всё</button>
+            <button class="btn-success" onclick="exportData()">📤 Экспортировать</button>
+        </div>
+
+        <div class="map-container">
+            <svg id="editor-svg" viewBox="0 0 1024 520" xmlns="http://www.w3.org/2000/svg">
+                <image href="https://raw.githubusercontent.com/nishikiken/campus-navigator/main/campus_bot/mini_app/frontend/campus-map.png" width="1024" height="520" preserveAspectRatio="xMidYMid meet"/>
+                
+                <!-- Сетка -->
+                <g id="grid-layer"></g>
+                
+                <!-- Слой для дорог -->
+                <g id="roads-layer"></g>
+                
+                <!-- Слой для точек (входы и узлы) -->
+                <g id="points-layer"></g>
+                
+                <!-- Временная линия при рисовании -->
+                <line id="temp-line" class="temp-line" style="display:none;"/>
+            </svg>
+        </div>
+
+        <div class="output">
+            <h3>Экспортированный код:</h3>
+            <textarea id="output-code" readonly placeholder="Нажми 'Экспортировать' чтобы получить код..."></textarea>
+        </div>
+    </div>
+
+    <script>
+        let mode = 'view';
+        let entrances = [];
+        let nodes = [];
+        let buildingEntrances = [];
+        let medicalPoints = [];
+        let roads = [];
+        let selectedPoint = null;
+        let entranceCounter = 1;
+        let nodeCounter = 1;
+        let buildingEntranceCounter = 1;
+        let medicalPointCounter = 1;
+        let buildingCounter = 1;
+        let gridVisible = true;
+        let snapToGrid = true;
+        const gridSize = 10;
+        let draggedPoint = null;
+        let isDragging = false;
+
+        // Координаты корпусов
+        const buildings = {};
+        
+        function snapCoordinate(value) {
+            if (!snapToGrid) return value;
+            return Math.round(value / gridSize) * gridSize;
+        }
+
+        function setMode(newMode) {
+            mode = newMode;
+            selectedPoint = null;
+            document.getElementById('temp-line').style.display = 'none';
+            
+            const indicator = document.getElementById('mode-indicator');
+            indicator.className = 'mode-indicator ' + newMode;
+            
+            const modeNames = {
+                view: 'Просмотр',
+                entrance: 'Добавление входа на кампус (кликни на карте)',
+                node: 'Добавление узла (кликни на карте)',
+                buildingEntrance: 'Добавление входа в корпус (кликни где дверь)',
+                building: 'Добавление корпуса (кликни на карте)',
+                medicalPoint: 'Добавление медпункта (кликни на карте)',
+                road: 'Рисование дороги (кликай по точкам)',
+                deleteRoad: 'Удаление дороги (кликни на линию)',
+                deletePoint: 'Удаление точки (кликни на точку)'
+            };
+            
+            indicator.textContent = 'Режим: ' + modeNames[newMode];
+        }
+
+        function getSVGCoordinates(event) {
+            const svg = document.getElementById('editor-svg');
+            const pt = svg.createSVGPoint();
+            pt.x = event.clientX;
+            pt.y = event.clientY;
+            const svgP = pt.matrixTransform(svg.getScreenCTM().inverse());
+            return { 
+                x: snapCoordinate(Math.round(svgP.x)), 
+                y: snapCoordinate(Math.round(svgP.y)) 
+            };
+        }
+        
+        // Отображение координат курсора
+        document.getElementById('editor-svg').addEventListener('mousemove', function(e) {
+            const coords = getSVGCoordinates(e);
+            document.getElementById('coords-display').textContent = `X: ${coords.x}, Y: ${coords.y}`;
+            
+            // Обновление позиции при перетаскивании
+            if (isDragging && draggedPoint) {
+                updatePointPosition(draggedPoint, coords.x, coords.y);
+            }
+        });
+        
+        document.getElementById('editor-svg').addEventListener('mouseup', function(e) {
+            if (isDragging) {
+                stopDrag();
+            }
+        });
+        
+        document.getElementById('editor-svg').addEventListener('mouseleave', function(e) {
+            if (isDragging) {
+                stopDrag();
+            }
+        });
+        
+        function startDrag(event, pointId) {
+            if (mode !== 'view') return; // Только в режиме просмотра можно таскать
+            
+            event.stopPropagation();
+            event.preventDefault();
+            
+            isDragging = true;
+            draggedPoint = pointId;
+            
+            // Добавляем класс для визуального эффекта
+            const marker = document.querySelector(`[data-id="${pointId}"]`);
+            if (marker) marker.classList.add('dragging');
+        }
+        
+        function stopDrag() {
+            if (draggedPoint) {
+                const marker = document.querySelector(`[data-id="${draggedPoint}"]`);
+                if (marker) marker.classList.remove('dragging');
+            }
+            
+            isDragging = false;
+            draggedPoint = null;
+            
+            // Перерисовываем дороги
+            renderRoads();
+        }
+        
+        function updatePointPosition(pointId, x, y) {
+            // Находим точку и обновляем её координаты
+            let point = entrances.find(p => p.id === pointId);
+            if (point) {
+                point.x = x;
+                point.y = y;
+                renderPoints();
+                return;
+            }
+            
+            point = nodes.find(p => p.id === pointId);
+            if (point) {
+                point.x = x;
+                point.y = y;
+                renderPoints();
+                return;
+            }
+            
+            point = buildingEntrances.find(p => p.id === pointId);
+            if (point) {
+                point.x = x;
+                point.y = y;
+                renderPoints();
+                return;
+            }
+            
+            point = medicalPoints.find(p => p.id === pointId);
+            if (point) {
+                point.x = x;
+                point.y = y;
+                renderPoints();
+                return;
+            }
+            
+            if (buildings[pointId]) {
+                buildings[pointId].x = x;
+                buildings[pointId].y = y;
+                renderPoints();
+                return;
+            }
+        }
+
+        document.getElementById('editor-svg').addEventListener('click', function(e) {
+            if (e.target.id === 'editor-svg' || e.target.tagName === 'image') {
+                if (mode === 'entrance') {
+                    addEntrance(e);
+                } else if (mode === 'node') {
+                    addNode(e);
+                } else if (mode === 'buildingEntrance') {
+                    addBuildingEntrance(e);
+                } else if (mode === 'medicalPoint') {
+                    addMedicalPoint(e);
+                } else if (mode === 'building') {
+                    moveBuilding(e);
+                }
+            }
+        });
+
+        function moveBuilding(event) {
+            const buildingId = prompt('Введите номер корпуса (1, 2, 3... 19):');
+            if (!buildingId) return;
+            
+            const coords = getSVGCoordinates(event);
+            buildings[buildingId] = { x: coords.x, y: coords.y };
+            renderPoints();
+            updateStats();
+        }
+
+        function addEntrance(event) {
+            const coords = getSVGCoordinates(event);
+            const id = 'entrance' + entranceCounter++;
+            entrances.push({ id, x: coords.x, y: coords.y });
+            renderPoints();
+            updateStats();
+        }
+
+        function addNode(event) {
+            const coords = getSVGCoordinates(event);
+            const id = 'n' + nodeCounter++;
+            nodes.push({ id, x: coords.x, y: coords.y });
+            renderPoints();
+            updateStats();
+        }
+
+        function addBuildingEntrance(event) {
+            const coords = getSVGCoordinates(event);
+            const buildingNum = prompt('Введите номер корпуса для этого входа (например: 1, 2, 6, 7, 19):');
+            if (!buildingNum) return;
+            
+            const id = 'be' + buildingNum;
+            buildingEntrances.push({ id, x: coords.x, y: coords.y, building: buildingNum });
+            renderPoints();
+            updateStats();
+        }
+
+        function addMedicalPoint(event) {
+            const coords = getSVGCoordinates(event);
+            const id = 'med' + medicalPointCounter++;
+            medicalPoints.push({ id, x: coords.x, y: coords.y });
+            renderPoints();
+            updateStats();
+        }
+
+        function renderPoints() {
+            const layer = document.getElementById('points-layer');
+            layer.innerHTML = '';
+            
+            // Рисуем входы (зеленые)
+            entrances.forEach(point => {
+                const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                g.classList.add('point-marker');
+                g.setAttribute('data-id', point.id);
+                g.onclick = () => handlePointClick(point.id);
+                g.onmousedown = (e) => startDrag(e, point.id);
+                
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', point.x);
+                circle.setAttribute('cy', point.y);
+                circle.setAttribute('r', 8);
+                circle.setAttribute('fill', '#34c759');
+                circle.setAttribute('stroke', '#fff');
+                circle.setAttribute('stroke-width', 2);
+                
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', point.x);
+                text.setAttribute('y', point.y + 3);
+                text.setAttribute('text-anchor', 'middle');
+                text.setAttribute('fill', '#fff');
+                text.setAttribute('font-size', 10);
+                text.setAttribute('font-weight', 'bold');
+                text.textContent = point.id.replace('entrance', 'E');
+                
+                g.appendChild(circle);
+                g.appendChild(text);
+                layer.appendChild(g);
+            });
+            
+            // Рисуем узлы (оранжевые)
+            nodes.forEach(point => {
+                const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                g.classList.add('point-marker');
+                g.setAttribute('data-id', point.id);
+                g.onclick = () => handlePointClick(point.id);
+                g.onmousedown = (e) => startDrag(e, point.id);
+                
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', point.x);
+                circle.setAttribute('cy', point.y);
+                circle.setAttribute('r', 6);
+                circle.setAttribute('fill', '#ff9500');
+                circle.setAttribute('stroke', '#fff');
+                circle.setAttribute('stroke-width', 2);
+                
+                g.appendChild(circle);
+                layer.appendChild(g);
+            });
+            
+            // Рисуем входы в корпуса (фиолетовые квадраты с номерами)
+            buildingEntrances.forEach(point => {
+                const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                g.classList.add('point-marker');
+                g.setAttribute('data-id', point.id);
+                g.onclick = () => handlePointClick(point.id);
+                g.onmousedown = (e) => startDrag(e, point.id);
+                
+                const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                rect.setAttribute('x', point.x - 7);
+                rect.setAttribute('y', point.y - 7);
+                rect.setAttribute('width', 14);
+                rect.setAttribute('height', 14);
+                rect.setAttribute('fill', '#af52de');
+                rect.setAttribute('stroke', '#fff');
+                rect.setAttribute('stroke-width', 2);
+                rect.setAttribute('rx', 2);
+                
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', point.x);
+                text.setAttribute('y', point.y + 3);
+                text.setAttribute('text-anchor', 'middle');
+                text.setAttribute('fill', '#fff');
+                text.setAttribute('font-size', 10);
+                text.setAttribute('font-weight', 'bold');
+                text.textContent = point.building || point.id.replace('be', '');
+                
+                g.appendChild(rect);
+                g.appendChild(text);
+                layer.appendChild(g);
+            });
+            
+            // Рисуем медпункты (красные кресты)
+            medicalPoints.forEach(point => {
+                const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                g.classList.add('point-marker');
+                g.setAttribute('data-id', point.id);
+                g.onclick = () => handlePointClick(point.id);
+                g.onmousedown = (e) => startDrag(e, point.id);
+                
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', point.x);
+                circle.setAttribute('cy', point.y);
+                circle.setAttribute('r', 8);
+                circle.setAttribute('fill', '#ff3b30');
+                circle.setAttribute('stroke', '#fff');
+                circle.setAttribute('stroke-width', 2);
+                
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', point.x);
+                text.setAttribute('y', point.y + 4);
+                text.setAttribute('text-anchor', 'middle');
+                text.setAttribute('fill', '#fff');
+                text.setAttribute('font-size', 12);
+                text.setAttribute('font-weight', 'bold');
+                text.textContent = '+';
+                
+                g.appendChild(circle);
+                g.appendChild(text);
+                layer.appendChild(g);
+            });
+            
+            // Рисуем корпуса (прозрачные круги с обводкой и номерами)
+            Object.keys(buildings).forEach(buildingId => {
+                const point = buildings[buildingId];
+                const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                g.classList.add('point-marker');
+                g.setAttribute('data-id', buildingId);
+                g.onclick = () => handlePointClick(buildingId);
+                g.onmousedown = (e) => startDrag(e, buildingId);
+                
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', point.x);
+                circle.setAttribute('cy', point.y);
+                circle.setAttribute('r', 15);
+                circle.setAttribute('fill', 'rgba(13, 110, 253, 0.2)');
+                circle.setAttribute('stroke', '#0d6efd');
+                circle.setAttribute('stroke-width', 2);
+                
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', point.x);
+                text.setAttribute('y', point.y + 4);
+                text.setAttribute('text-anchor', 'middle');
+                text.setAttribute('fill', '#0d6efd');
+                text.setAttribute('font-size', 12);
+                text.setAttribute('font-weight', 'bold');
+                text.textContent = buildingId;
+                
+                g.appendChild(circle);
+                g.appendChild(text);
+                layer.appendChild(g);
+            });
+        }
+
+        function handlePointClick(pointId) {
+            if (mode === 'road') {
+                if (!selectedPoint) {
+                    selectedPoint = pointId;
+                    showTempLine(pointId);
+                } else {
+                    if (selectedPoint !== pointId) {
+                        addRoad(selectedPoint, pointId);
+                    }
+                    selectedPoint = null;
+                    document.getElementById('temp-line').style.display = 'none';
+                }
+            } else if (mode === 'deletePoint') {
+                deletePoint(pointId);
+            }
+        }
+
+        function showTempLine(fromId) {
+            const from = getPointCoords(fromId);
+            const tempLine = document.getElementById('temp-line');
+            tempLine.setAttribute('x1', from.x);
+            tempLine.setAttribute('y1', from.y);
+            tempLine.style.display = 'block';
+            
+            document.getElementById('editor-svg').onmousemove = function(e) {
+                if (mode === 'road' && selectedPoint) {
+                    const coords = getSVGCoordinates(e);
+                    tempLine.setAttribute('x2', coords.x);
+                    tempLine.setAttribute('y2', coords.y);
+                }
+            };
+        }
+
+        function getPointCoords(id) {
+            const entrance = entrances.find(p => p.id === id);
+            if (entrance) return entrance;
+            const node = nodes.find(p => p.id === id);
+            if (node) return node;
+            const buildingEntrance = buildingEntrances.find(p => p.id === id);
+            if (buildingEntrance) return buildingEntrance;
+            const medicalPoint = medicalPoints.find(p => p.id === id);
+            if (medicalPoint) return medicalPoint;
+            const building = Object.keys(buildings).find(b => b === id);
+            if (building) return buildings[building];
+            return null;
+        }
+
+        function addRoad(from, to) {
+            // Проверяем, нет ли уже такой дороги
+            const exists = roads.some(r => 
+                (r.from === from && r.to === to) || (r.from === to && r.to === from)
+            );
+            if (!exists) {
+                roads.push({ from, to });
+                renderRoads();
+                updateStats();
+            }
+        }
+
+        function renderRoads() {
+            const layer = document.getElementById('roads-layer');
+            layer.innerHTML = '';
+            
+            roads.forEach((road, index) => {
+                const fromCoords = getPointCoords(road.from);
+                const toCoords = getPointCoords(road.to);
+                
+                if (fromCoords && toCoords) {
+                    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    line.classList.add('road-line');
+                    line.setAttribute('x1', fromCoords.x);
+                    line.setAttribute('y1', fromCoords.y);
+                    line.setAttribute('x2', toCoords.x);
+                    line.setAttribute('y2', toCoords.y);
+                    line.setAttribute('data-index', index);
+                    line.onclick = () => {
+                        if (mode === 'deleteRoad') {
+                            deleteRoad(index);
+                        }
+                    };
+                    layer.appendChild(line);
+                }
+            });
+        }
+
+        function deleteRoad(index) {
+            roads.splice(index, 1);
+            renderRoads();
+            updateStats();
+        }
+
+        function deletePoint(pointId) {
+            // Удаляем точку
+            entrances = entrances.filter(p => p.id !== pointId);
+            nodes = nodes.filter(p => p.id !== pointId);
+            buildingEntrances = buildingEntrances.filter(p => p.id !== pointId);
+            medicalPoints = medicalPoints.filter(p => p.id !== pointId);
+            
+            // Удаляем все дороги, связанные с этой точкой
+            roads = roads.filter(r => r.from !== pointId && r.to !== pointId);
+            
+            renderPoints();
+            renderRoads();
+            updateStats();
+        }
+
+        function clearAll() {
+            if (confirm('Удалить все точки и дороги?')) {
+                entrances = [];
+                nodes = [];
+                buildingEntrances = [];
+                medicalPoints = [];
+                roads = [];
+                entranceCounter = 1;
+                nodeCounter = 1;
+                buildingEntranceCounter = 1;
+                medicalPointCounter = 1;
+                renderPoints();
+                renderRoads();
+                updateStats();
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('entrance-count').textContent = entrances.length;
+            document.getElementById('node-count').textContent = nodes.length;
+            document.getElementById('building-entrance-count').textContent = buildingEntrances.length;
+            document.getElementById('building-count').textContent = Object.keys(buildings).length;
+            document.getElementById('medical-count').textContent = medicalPoints.length;
+            document.getElementById('road-count').textContent = roads.length;
+        }
+
+        function exportData() {
+            // Создаем объект coordinates
+            let coordsCode = '// Координаты для построения маршрутов\nconst coordinates = {\n';
+            
+            // Входы
+            entrances.forEach(e => {
+                coordsCode += `    ${e.id}: { x: ${e.x}, y: ${e.y} },\n`;
+            });
+            
+            // Корпуса
+            Object.keys(buildings).forEach(b => {
+                coordsCode += `    ${b}: { x: ${buildings[b].x}, y: ${buildings[b].y} },\n`;
+            });
+            
+            // Узлы
+            nodes.forEach(n => {
+                coordsCode += `    ${n.id}: { x: ${n.x}, y: ${n.y} },\n`;
+            });
+            
+            // Входы в корпуса
+            buildingEntrances.forEach(be => {
+                coordsCode += `    ${be.id}: { x: ${be.x}, y: ${be.y} },\n`;
+            });
+            
+            // Медпункты
+            medicalPoints.forEach(med => {
+                coordsCode += `    ${med.id}: { x: ${med.x}, y: ${med.y} },\n`;
+            });
+            
+            coordsCode += '};\n\n';
+            
+            // Создаем граф путей
+            let graphCode = '// Граф путей (какие точки соединены дорогами)\nconst pathGraph = {\n';
+            
+            // Собираем связи для каждой точки
+            const connections = {};
+            
+            // Добавляем все точки
+            entrances.forEach(e => connections[e.id] = []);
+            nodes.forEach(n => connections[n.id] = []);
+            buildingEntrances.forEach(be => connections[be.id] = []);
+            medicalPoints.forEach(med => connections[med.id] = []);
+            Object.keys(buildings).forEach(b => connections[b] = []);
+            
+            // Заполняем связи из дорог
+            roads.forEach(road => {
+                if (!connections[road.from]) connections[road.from] = [];
+                if (!connections[road.to]) connections[road.to] = [];
+                connections[road.from].push(road.to);
+                connections[road.to].push(road.from);
+            });
+            
+            // Генерируем код
+            Object.keys(connections).forEach(point => {
+                const conn = connections[point].map(c => `'${c}'`).join(', ');
+                graphCode += `    ${point}: [${conn}],\n`;
+            });
+            
+            graphCode += '};\n';
+            
+            const fullCode = coordsCode + graphCode;
+            document.getElementById('output-code').value = fullCode;
+            
+            alert('Код экспортирован! Скопируй его и замени соответствующие части в map-script.js');
+        }
+
+        // Инициализация
+        updateStats();
+        drawGrid();
+        
+        function drawGrid() {
+            const gridLayer = document.getElementById('grid-layer');
+            gridLayer.innerHTML = '';
+            
+            if (!gridVisible) return;
+            
+            // Вертикальные линии
+            for (let x = 0; x <= 1024; x += 10) {
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', x);
+                line.setAttribute('y1', 0);
+                line.setAttribute('x2', x);
+                line.setAttribute('y2', 520);
+                line.setAttribute('class', x % 50 === 0 ? 'grid-line-major' : 'grid-line');
+                gridLayer.appendChild(line);
+            }
+            
+            // Горизонтальные линии
+            for (let y = 0; y <= 520; y += 10) {
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', 0);
+                line.setAttribute('y1', y);
+                line.setAttribute('x2', 1024);
+                line.setAttribute('y2', y);
+                line.setAttribute('class', y % 50 === 0 ? 'grid-line-major' : 'grid-line');
+                gridLayer.appendChild(line);
+            }
+        }
+        
+        function toggleGrid() {
+            gridVisible = !gridVisible;
+            drawGrid();
+        }
+        
+        function toggleSnap() {
+            snapToGrid = !snapToGrid;
+            const btn = event.target;
+            btn.style.background = snapToGrid ? '#34c759' : '#8e8e93';
+            alert(snapToGrid ? 'Привязка к сетке включена' : 'Привязка к сетке выключена');
+        }
+        
+        function importData() {
+            const code = document.getElementById('import-code').value;
+            if (!code) {
+                alert('Вставь код для импорта!');
+                return;
+            }
+            
+            try {
+                // Извлекаем coordinates
+                const coordsMatch = code.match(/const coordinates = \{([^}]+)\}/s);
+                if (coordsMatch) {
+                    const coordsStr = '{' + coordsMatch[1] + '}';
+                    const coordsObj = eval('(' + coordsStr + ')');
+                    
+                    // Очищаем всё
+                    entrances = [];
+                    nodes = [];
+                    buildingEntrances = [];
+                    medicalPoints = [];
+                    Object.keys(buildings).forEach(k => delete buildings[k]);
+                    roads = [];
+                    
+                    // Импортируем координаты
+                    Object.keys(coordsObj).forEach(key => {
+                        const coord = coordsObj[key];
+                        if (key.startsWith('entrance')) {
+                            entrances.push({ id: key, x: coord.x, y: coord.y });
+                            const num = parseInt(key.replace('entrance', ''));
+                            if (num >= entranceCounter) entranceCounter = num + 1;
+                        } else if (key.startsWith('n')) {
+                            nodes.push({ id: key, x: coord.x, y: coord.y });
+                            const num = parseInt(key.replace('n', ''));
+                            if (num >= nodeCounter) nodeCounter = num + 1;
+                        } else if (key.startsWith('be')) {
+                            const buildingNum = key.replace('be', '');
+                            buildingEntrances.push({ id: key, x: coord.x, y: coord.y, building: buildingNum });
+                        } else if (key.startsWith('med')) {
+                            medicalPoints.push({ id: key, x: coord.x, y: coord.y });
+                            const num = parseInt(key.replace('med', ''));
+                            if (num >= medicalPointCounter) medicalPointCounter = num + 1;
+                        } else if (!isNaN(key)) {
+                            buildings[key] = { x: coord.x, y: coord.y };
+                            const num = parseInt(key);
+                            if (num >= buildingCounter) buildingCounter = num + 1;
+                        }
+                    });
+                }
+                
+                // Извлекаем pathGraph
+                const graphMatch = code.match(/const pathGraph = \{([^}]+)\}/s);
+                if (graphMatch) {
+                    const graphStr = '{' + graphMatch[1] + '}';
+                    const graphObj = eval('(' + graphStr + ')');
+                    
+                    // Импортируем дороги
+                    const processed = new Set();
+                    Object.keys(graphObj).forEach(from => {
+                        const neighbors = graphObj[from];
+                        neighbors.forEach(to => {
+                            const roadKey1 = from + '-' + to;
+                            const roadKey2 = to + '-' + from;
+                            if (!processed.has(roadKey1) && !processed.has(roadKey2)) {
+                                roads.push({ from, to });
+                                processed.add(roadKey1);
+                                processed.add(roadKey2);
+                            }
+                        });
+                    });
+                }
+                
+                renderPoints();
+                renderRoads();
+                updateStats();
+                alert('Данные импортированы успешно!');
+            } catch (e) {
+                alert('Ошибка импорта: ' + e.message);
+                console.error(e);
+            }
+        }
+    </script>
+</body>
+</html>
