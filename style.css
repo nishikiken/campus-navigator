@@ -769,7 +769,7 @@ body {
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: 20px 16px 40px 16px;
+    padding: 20px 16px 140px 16px; /* Увеличен нижний padding чтобы контент не перекрывался плашкой */
     opacity: 1;
     transition: opacity 0.3s ease;
 }
@@ -832,13 +832,13 @@ body {
 
 /* В лидерборде плашка опускается ниже */
 .user-profile-card.in-leaderboard {
-    bottom: calc(100vh - 180px) !important;
+    bottom: calc(100vh - 160px) !important;
     transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Overlay тоже опускается в лидерборде */
 .user-profile-card.in-leaderboard ~ .dark-overlay.active {
-    --overlay-top: calc(100vh - 180px);
+    --overlay-top: calc(100vh - 160px);
     top: var(--overlay-top) !important;
 }
 
@@ -864,7 +864,7 @@ body {
 }
 
 .leaderboard-list {
-    padding: 200px 16px 160px 16px;
+    padding: 180px 16px 160px 16px;
     overflow-y: auto;
     max-height: calc(100vh - 60px);
 }
