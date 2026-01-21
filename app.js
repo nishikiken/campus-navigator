@@ -560,27 +560,29 @@ function closeLeaderboard() {
     const profileCard = document.getElementById('user-profile-card');
     const darkOverlay = document.getElementById('dark-overlay');
     
-    // 1. Делаем лидерборд невидимым мгновенно
+    // 1. Мгновенно скрываем лидерборд
     leaderboardView.style.transition = 'none';
     leaderboardView.style.opacity = '0';
+    leaderboardView.offsetHeight; // reflow
     
-    // Форсируем reflow
-    leaderboardView.offsetHeight;
-    
-    // 2. Одновременно перемещаем плашку и overlay (они будут анимироваться синхронно)
+    // 2. Убираем класс лидерборда у плашки (она начнет двигаться вверх)
     profileCard.classList.remove('in-leaderboard');
     
-    // Overlay должен двигаться вместе с плашкой
-    const normalOverlayTop = window.innerHeight - 120;
+    // 3. Синхронно двигаем overlay вместе с плашкой
+    // Вычисляем текущую позицию плашки в лидерборде
+    const leaderboardBottom = window.innerHeight - 165;
+    const normalBottom = window.innerHeight - 120;
     
-    // Важно: НЕ убираем transition у overlay, чтобы он анимировался вместе с плашкой
-    requestAnimationFrame(() => {
-        darkOverlay.style.setProperty('top', normalOverlayTop + 'px', 'important');
-        darkOverlay.style.setProperty('opacity', '1', 'important');
-        darkOverlay.style.setProperty('visibility', 'visible', 'important');
-    });
+    // Overlay должен переехать на ту же дельту что и плашка
+    const currentOverlayTop = window.innerHeight - 165;
+    const targetOverlayTop = window.innerHeight - 120;
     
-    // 3. Через 350ms (после завершения анимации) удаляем лидерборд и показываем меню
+    // Устанавливаем целевую позицию overlay (он будет анимироваться через CSS transition)
+    darkOverlay.style.setProperty('top', targetOverlayTop + 'px', 'important');
+    darkOverlay.style.setProperty('opacity', '1', 'important');
+    darkOverlay.style.setProperty('visibility', 'visible', 'important');
+    
+    // 4. Через 350ms убираем лидерборд и показываем меню
     setTimeout(() => {
         leaderboardView.classList.remove('active');
         leaderboardView.style.transition = '';
