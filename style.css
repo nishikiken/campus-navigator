@@ -744,7 +744,7 @@ body {
 /* Черное полотно - приклеено к нижней грани плашки */
 .dark-overlay {
     position: fixed;
-    top: calc(100vh - 120px + 90px); /* начинается от нижней грани плашки когда lifted */
+    top: calc(100vh - 120px); /* начинается от нижней грани плашки когда lifted */
     left: 0;
     right: 0;
     bottom: 0;

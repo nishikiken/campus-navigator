@@ -361,8 +361,8 @@ function initSwipeGesture() {
         profileCard.style.bottom = newBottom + 'px';
         
         // Overlay всегда приклеен к нижней грани плашки
-        // top = высота экрана - bottom плашки + высота плашки
-        const overlayTop = screenHeight - newBottom + cardHeight;
+        // top = высота экрана - bottom плашки (от низа экрана до низа плашки)
+        const overlayTop = screenHeight - newBottom;
         darkOverlay.style.top = overlayTop + 'px';
         
         // Показываем overlay когда плашка поднимается
