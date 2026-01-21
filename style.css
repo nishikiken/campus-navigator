@@ -831,7 +831,7 @@ body {
 
 /* В лидерборде плашка опускается ниже */
 .leaderboard-view.active ~ .user-profile-card {
-    bottom: calc(100vh - 180px) !important;
+    bottom: calc(100vh - 240px) !important;
 }
 
 /* Главное меню уезжает вверх */
@@ -856,7 +856,7 @@ body {
 }
 
 .leaderboard-list {
-    padding: 200px 16px 160px 16px;
+    padding: 260px 16px 160px 16px;
     overflow-y: auto;
     max-height: calc(100vh - 60px);
 }
