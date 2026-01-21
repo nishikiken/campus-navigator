@@ -436,9 +436,15 @@ function openOverlay() {
     const profileCard = document.getElementById('user-profile-card');
     const darkOverlay = document.getElementById('dark-overlay');
     
-    // Убираем inline стили только у плашки
+    // Устанавливаем финальную позицию через CSS переменную
+    const finalTop = window.innerHeight - 120; // calc(100vh - 120px)
+    darkOverlay.style.setProperty('--overlay-top', finalTop + 'px');
+    
+    // Убираем inline стили
     profileCard.style.bottom = '';
-    // НЕ очищаем стили overlay - пусть анимируется от текущей позиции
+    darkOverlay.style.top = '';
+    darkOverlay.style.opacity = '';
+    darkOverlay.style.visibility = '';
     
     // Форсируем reflow для корректной анимации
     profileCard.offsetHeight;

@@ -759,7 +759,8 @@ body {
 }
 
 .dark-overlay.active {
-    top: calc(100vh - 120px); /* приклеено к нижней грани плашки когда lifted */
+    /* Используем CSS переменную вместо фиксированного значения */
+    top: var(--overlay-top, calc(100vh - 120px));
     opacity: 1;
     visibility: visible;
 }
@@ -836,8 +837,9 @@ body {
 }
 
 /* Overlay тоже опускается в лидерборде */
-.user-profile-card.in-leaderboard ~ .dark-overlay {
-    top: calc(100vh - 240px) !important;
+.user-profile-card.in-leaderboard ~ .dark-overlay.active {
+    --overlay-top: calc(100vh - 240px);
+    top: var(--overlay-top) !important;
 }
 
 /* Главное меню уезжает вверх */
@@ -1043,12 +1045,6 @@ body {
     gap: 4px;
 }
 
-.user-name-version {
-    display: flex;
-    align-items: baseline;
-    gap: 6px;
-}
-
 .user-name {
     font-size: 16px;
     font-weight: 600;
@@ -1056,10 +1052,18 @@ body {
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
+.user-avatar-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
 .user-version {
     font-size: 9px;
-    color: rgba(142, 142, 147, 0.4);
+    color: rgba(142, 142, 147, 0.35);
     font-weight: 400;
+    text-align: center;
 }
 
 .user-rating {
