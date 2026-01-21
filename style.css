@@ -758,11 +758,9 @@ body {
     will-change: top, opacity;
 }
 
+/* Класс .active больше не управляет позицией - только через inline стили */
 .dark-overlay.active {
-    /* Используем CSS переменную вместо фиксированного значения */
-    top: var(--overlay-top, calc(100vh - 120px));
-    opacity: 1;
-    visibility: visible;
+    /* Позиция управляется через inline стили с !important */
 }
 
 .overlay-content {
@@ -832,15 +830,11 @@ body {
 
 /* В лидерборде плашка опускается ниже */
 .user-profile-card.in-leaderboard {
-    bottom: calc(100vh - 150px) !important;
+    bottom: calc(100vh - 165px) !important;
     transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Overlay тоже опускается в лидерборде */
-.user-profile-card.in-leaderboard ~ .dark-overlay.active {
-    --overlay-top: calc(100vh - 150px);
-    top: var(--overlay-top) !important;
-}
+/* Overlay в лидерборде тоже опускается - управляется через JS */
 
 /* Главное меню уезжает вверх */
 #step-main.hidden-up {
@@ -864,7 +858,7 @@ body {
 }
 
 .leaderboard-list {
-    padding: 170px 16px 160px 16px;
+    padding: 185px 16px 160px 16px;
     overflow-y: auto;
     max-height: calc(100vh - 60px);
 }
