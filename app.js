@@ -564,9 +564,11 @@ function closeLeaderboard() {
     leaderboardView.classList.remove('active');
     profileCard.classList.remove('in-leaderboard');
     
-    // Поднимаем overlay обратно
+    // Поднимаем overlay обратно к нормальной позиции (приклеено к плашке)
     const normalOverlayTop = window.innerHeight - 120;
     darkOverlay.style.setProperty('top', normalOverlayTop + 'px', 'important');
+    darkOverlay.style.setProperty('opacity', '1', 'important');
+    darkOverlay.style.setProperty('visibility', 'visible', 'important');
     
     // 2. Через 300ms показываем контент меню
     setTimeout(() => {
