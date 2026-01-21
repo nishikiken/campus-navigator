@@ -449,10 +449,6 @@ function openOverlay() {
     requestAnimationFrame(() => {
         profileCard.classList.add('lifted');
         darkOverlay.classList.add('active');
-        // FIX: Устанавливаем правильную позицию overlay - приклеено к нижней грани плашки
-        const screenHeight = window.innerHeight;
-        const cardBottom = screenHeight - 120; // позиция плашки когда lifted
-        darkOverlay.style.top = cardBottom + 'px';
     });
     
     profileCard.style.cursor = 'default';
