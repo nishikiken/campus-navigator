@@ -476,11 +476,13 @@ function closeOverlay() {
     const profileCard = document.getElementById('user-profile-card');
     const darkOverlay = document.getElementById('dark-overlay');
     
-    // Убираем inline стили
+    // Убираем inline стили у плашки
     profileCard.style.bottom = '';
-    darkOverlay.style.removeProperty('top');
-    darkOverlay.style.removeProperty('opacity');
-    darkOverlay.style.removeProperty('visibility');
+    
+    // НЕ очищаем стили overlay - устанавливаем позицию "закрыто" через inline стили
+    darkOverlay.style.setProperty('top', '100vh', 'important');
+    darkOverlay.style.setProperty('opacity', '0', 'important');
+    darkOverlay.style.setProperty('visibility', 'hidden', 'important');
     
     profileCard.classList.remove('lifted');
     darkOverlay.classList.remove('active');
