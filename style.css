@@ -830,8 +830,14 @@ body {
 }
 
 /* В лидерборде плашка опускается ниже */
-.leaderboard-view.active ~ .user-profile-card {
+.user-profile-card.in-leaderboard {
     bottom: calc(100vh - 240px) !important;
+    transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Overlay тоже опускается в лидерборде */
+.user-profile-card.in-leaderboard ~ .dark-overlay {
+    top: calc(100vh - 240px) !important;
 }
 
 /* Главное меню уезжает вверх */
@@ -1037,6 +1043,12 @@ body {
     gap: 4px;
 }
 
+.user-name-version {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+}
+
 .user-name {
     font-size: 16px;
     font-weight: 600;
@@ -1045,11 +1057,9 @@ body {
 }
 
 .user-version {
-    font-size: 10px;
-    color: rgba(142, 142, 147, 0.5);
+    font-size: 9px;
+    color: rgba(142, 142, 147, 0.4);
     font-weight: 400;
-    margin-top: -2px;
-    margin-bottom: 2px;
 }
 
 .user-rating {

@@ -438,7 +438,7 @@ function openOverlay() {
     
     // Убираем inline стили только у плашки
     profileCard.style.bottom = '';
-    // НЕ очищаем darkOverlay.style.top - пусть анимируется от текущей позиции
+    // НЕ очищаем стили overlay - пусть анимируется от текущей позиции
     
     // Форсируем reflow для корректной анимации
     profileCard.offsetHeight;
@@ -475,13 +475,15 @@ function closeOverlay() {
 function openLeaderboard() {
     const overlayContent = document.querySelector('.overlay-content');
     const leaderboardView = document.getElementById('step-leaderboard');
+    const profileCard = document.getElementById('user-profile-card');
     
     // 1. Скрываем контент меню плавно
     overlayContent.classList.add('hiding');
     
-    // 2. Через 300ms показываем лидерборд
+    // 2. Через 300ms показываем лидерборд и опускаем плашку
     setTimeout(() => {
         leaderboardView.classList.add('active');
+        profileCard.classList.add('in-leaderboard');
     }, 300);
     
     haptic();
@@ -490,9 +492,11 @@ function openLeaderboard() {
 function closeLeaderboard() {
     const leaderboardView = document.getElementById('step-leaderboard');
     const overlayContent = document.querySelector('.overlay-content');
+    const profileCard = document.getElementById('user-profile-card');
     
-    // 1. Скрываем лидерборд
+    // 1. Скрываем лидерборд и поднимаем плашку обратно
     leaderboardView.classList.remove('active');
+    profileCard.classList.remove('in-leaderboard');
     
     // 2. Через 300ms показываем контент меню
     setTimeout(() => {
