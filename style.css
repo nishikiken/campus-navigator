@@ -858,7 +858,7 @@ body {
 }
 
 .leaderboard-list {
-    padding: 90px 16px 160px 16px;
+    padding: 95px 16px 160px 16px;
     overflow-y: auto;
     max-height: calc(100vh - 60px);
 }
