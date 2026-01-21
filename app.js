@@ -563,21 +563,19 @@ function closeLeaderboard() {
     // 1. Сначала скрываем лидерборд с fade-out
     leaderboardView.classList.remove('active');
     
-    // 2. Через 150ms (половина анимации) перемещаем плашку и overlay
-    setTimeout(() => {
-        profileCard.classList.remove('in-leaderboard');
-        
-        // Поднимаем overlay к нормальной позиции
-        const normalOverlayTop = window.innerHeight - 120;
-        darkOverlay.style.setProperty('top', normalOverlayTop + 'px', 'important');
-        darkOverlay.style.setProperty('opacity', '1', 'important');
-        darkOverlay.style.setProperty('visibility', 'visible', 'important');
-    }, 150);
+    // 2. Сразу же начинаем перемещать плашку и overlay
+    profileCard.classList.remove('in-leaderboard');
     
-    // 3. Через 300ms показываем контент меню
+    // Поднимаем overlay к нормальной позиции синхронно с плашкой
+    const normalOverlayTop = window.innerHeight - 120;
+    darkOverlay.style.setProperty('top', normalOverlayTop + 'px', 'important');
+    darkOverlay.style.setProperty('opacity', '1', 'important');
+    darkOverlay.style.setProperty('visibility', 'visible', 'important');
+    
+    // 3. Через 400ms (после завершения всех анимаций) показываем контент меню
     setTimeout(() => {
         overlayContent.classList.remove('hiding');
-    }, 300);
+    }, 400);
     
     haptic();
 }
