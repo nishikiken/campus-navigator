@@ -436,38 +436,35 @@ function openOverlay() {
     const profileCard = document.getElementById('user-profile-card');
     const darkOverlay = document.getElementById('dark-overlay');
     
-    // Получаем текущую позицию overlay (если есть inline стиль)
-    const currentTop = darkOverlay.style.top ? parseInt(darkOverlay.style.top) : null;
+    // Финальная позиция overlay
+    const finalTop = window.innerHeight - 120;
     
-    // Финальная позиция
-    const finalTop = window.innerHeight - 120; // calc(100vh - 120px)
+    // Убираем CSS transition чтобы установить начальную позицию
+    darkOverlay.style.transition = 'none';
     
-    // Если есть текущая позиция из drag - устанавливаем её как стартовую для анимации
-    if (currentTop !== null) {
-        darkOverlay.style.setProperty('top', currentTop + 'px', 'important');
+    // Если есть текущая позиция - оставляем её, иначе ставим финальную
+    if (!darkOverlay.style.top) {
+        darkOverlay.style.setProperty('top', finalTop + 'px', 'important');
     }
-    
-    // Устанавливаем финальную позицию через CSS переменную
-    darkOverlay.style.setProperty('--overlay-top', finalTop + 'px');
     
     // Убираем inline стили у плашки
     profileCard.style.bottom = '';
     
     // Форсируем reflow
-    profileCard.offsetHeight;
+    darkOverlay.offsetHeight;
     
-    // Добавляем классы для анимации
+    // Возвращаем transition
+    darkOverlay.style.transition = 'opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), top 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.3s';
+    
+    // Добавляем классы и устанавливаем финальную позицию
     requestAnimationFrame(() => {
         profileCard.classList.add('lifted');
         darkOverlay.classList.add('active');
         
-        // После добавления класса .active, устанавливаем финальную позицию через inline стиль с !important
-        // Это гарантирует что overlay анимируется к правильной позиции
-        setTimeout(() => {
-            darkOverlay.style.setProperty('top', finalTop + 'px', 'important');
-            darkOverlay.style.setProperty('opacity', '1', 'important');
-            darkOverlay.style.setProperty('visibility', 'visible', 'important');
-        }, 10);
+        // Устанавливаем финальную позицию через inline стиль
+        darkOverlay.style.setProperty('top', finalTop + 'px', 'important');
+        darkOverlay.style.setProperty('opacity', '1', 'important');
+        darkOverlay.style.setProperty('visibility', 'visible', 'important');
     });
     
     profileCard.style.cursor = 'default';
