@@ -393,24 +393,52 @@ function initSwipeGesture() {
         
         const deltaY = startY - currentY;
         
+        // Финальные позиции
+        const finalBottomOpen = maxBottom; // calc(100vh - 120px)
+        const finalBottomClosed = minBottom; // 20px
+        const finalOverlayTopOpen = screenHeight - maxBottom;
+        const finalOverlayTopClosed = screenHeight;
+        
         // Если протянули больше чем на 20% экрана - открываем/закрываем полностью
         if (Math.abs(deltaY) > screenHeight * 0.2) {
             if (deltaY > 0) {
                 // Протянули вверх - открываем
-                openOverlay();
+                profileCard.classList.add('lifted');
+                darkOverlay.classList.add('active');
+                profileCard.style.bottom = '';
+                darkOverlay.style.setProperty('top', finalOverlayTopOpen + 'px', 'important');
+                darkOverlay.style.setProperty('opacity', '1', 'important');
+                darkOverlay.style.setProperty('visibility', 'visible', 'important');
+                profileCard.style.cursor = 'default';
             } else {
                 // Протянули вниз - закрываем
-                closeOverlay();
+                profileCard.classList.remove('lifted');
+                darkOverlay.classList.remove('active');
+                profileCard.style.bottom = '';
+                darkOverlay.style.setProperty('top', finalOverlayTopClosed + 'px', 'important');
+                darkOverlay.style.setProperty('opacity', '0', 'important');
+                darkOverlay.style.setProperty('visibility', 'hidden', 'important');
+                profileCard.style.cursor = 'pointer';
             }
         } else {
             // Иначе возвращаем в исходное состояние
             const isLifted = profileCard.classList.contains('lifted');
             if (isLifted) {
-                openOverlay(); // Возвращаем наверх
+                // Возвращаем наверх
+                profileCard.style.bottom = '';
+                darkOverlay.style.setProperty('top', finalOverlayTopOpen + 'px', 'important');
+                darkOverlay.style.setProperty('opacity', '1', 'important');
+                darkOverlay.style.setProperty('visibility', 'visible', 'important');
             } else {
-                closeOverlay(); // Возвращаем вниз
+                // Возвращаем вниз
+                profileCard.style.bottom = '';
+                darkOverlay.style.setProperty('top', finalOverlayTopClosed + 'px', 'important');
+                darkOverlay.style.setProperty('opacity', '0', 'important');
+                darkOverlay.style.setProperty('visibility', 'hidden', 'important');
             }
         }
+        
+        haptic();
     });
 
     // Отменяем touchcancel
@@ -422,12 +450,24 @@ function initSwipeGesture() {
         profileCard.style.transition = 'bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
         darkOverlay.style.transition = 'opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), top 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.3s';
         
+        // Финальные позиции
+        const finalOverlayTopOpen = screenHeight - maxBottom;
+        const finalOverlayTopClosed = screenHeight;
+        
         // Возвращаем в исходное состояние
         const isLifted = profileCard.classList.contains('lifted');
         if (isLifted) {
-            openOverlay();
+            // Возвращаем наверх
+            profileCard.style.bottom = '';
+            darkOverlay.style.setProperty('top', finalOverlayTopOpen + 'px', 'important');
+            darkOverlay.style.setProperty('opacity', '1', 'important');
+            darkOverlay.style.setProperty('visibility', 'visible', 'important');
         } else {
-            closeOverlay();
+            // Возвращаем вниз
+            profileCard.style.bottom = '';
+            darkOverlay.style.setProperty('top', finalOverlayTopClosed + 'px', 'important');
+            darkOverlay.style.setProperty('opacity', '0', 'important');
+            darkOverlay.style.setProperty('visibility', 'hidden', 'important');
         }
     });
 }
