@@ -564,11 +564,20 @@ function closeLeaderboard() {
     leaderboardView.classList.remove('active');
     profileCard.classList.remove('in-leaderboard');
     
+    // Убираем transition чтобы синхронно установить позицию
+    darkOverlay.style.transition = 'none';
+    
     // Поднимаем overlay обратно к нормальной позиции (приклеено к плашке)
     const normalOverlayTop = window.innerHeight - 120;
     darkOverlay.style.setProperty('top', normalOverlayTop + 'px', 'important');
     darkOverlay.style.setProperty('opacity', '1', 'important');
     darkOverlay.style.setProperty('visibility', 'visible', 'important');
+    
+    // Форсируем reflow
+    darkOverlay.offsetHeight;
+    
+    // Возвращаем transition
+    darkOverlay.style.transition = 'opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), top 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.3s';
     
     // 2. Через 300ms показываем контент меню
     setTimeout(() => {
