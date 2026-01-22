@@ -360,9 +360,10 @@ function initSwipeGesture() {
         // Двигаем плашку
         profileCard.style.bottom = newBottom + 'px';
         
-        // Overlay высота = от низа плашки до верха экрана
-        // Плашка на высоте newBottom от низа, высота плашки ~90px
-        const overlayHeight = screenHeight - newBottom - cardHeight;
+        // Overlay высота = расстояние от верха плашки до верха экрана
+        // Когда плашка внизу (bottom=20) - overlay маленький
+        // Когда плашка вверху (bottom=большое) - overlay большой
+        const overlayHeight = newBottom + cardHeight - minBottom;
         darkOverlay.style.setProperty('height', overlayHeight + 'px', 'important');
         
         // Показываем overlay когда плашка поднимается
@@ -394,7 +395,7 @@ function initSwipeGesture() {
         const deltaY = startY - currentY;
         
         // Финальные высоты overlay
-        const finalOverlayHeightOpen = screenHeight - maxBottom - cardHeight; // когда плашка наверху
+        const finalOverlayHeightOpen = maxBottom + cardHeight - minBottom; // когда плашка наверху
         const finalOverlayHeightClosed = 0; // когда плашка внизу
         
         // Если протянули больше чем на 20% экрана - открываем/закрываем полностью
@@ -449,7 +450,7 @@ function initSwipeGesture() {
         darkOverlay.style.transition = 'opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), height 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), visibility 0.4s';
         
         // Финальные высоты
-        const finalOverlayHeightOpen = screenHeight - maxBottom - cardHeight;
+        const finalOverlayHeightOpen = maxBottom + cardHeight - minBottom;
         const finalOverlayHeightClosed = 0;
         
         // Возвращаем в исходное состояние
@@ -476,7 +477,9 @@ function openOverlay() {
     
     const screenHeight = window.innerHeight;
     const cardHeight = 90;
-    const finalOverlayHeight = screenHeight - (screenHeight - 120) - cardHeight;
+    const maxBottom = screenHeight - 120;
+    const minBottom = 20;
+    const finalOverlayHeight = maxBottom + cardHeight - minBottom;
     
     // Убираем inline стили у плашки
     profileCard.style.bottom = '';
@@ -526,10 +529,12 @@ function openLeaderboard() {
         leaderboardView.classList.add('active');
         profileCard.classList.add('in-leaderboard');
         
-        // Опускаем overlay вместе с плашкой (увеличиваем высоту)
+        // Опускаем overlay вместе с плашкой (уменьшаем высоту)
         const screenHeight = window.innerHeight;
         const cardHeight = 90;
-        const leaderboardOverlayHeight = screenHeight - (screenHeight - 165) - cardHeight;
+        const minBottom = 20;
+        const leaderboardBottom = screenHeight - 165;
+        const leaderboardOverlayHeight = leaderboardBottom + cardHeight - minBottom;
         darkOverlay.style.setProperty('height', leaderboardOverlayHeight + 'px', 'important');
     }, 300);
     
@@ -550,7 +555,9 @@ function closeLeaderboard() {
     
     const screenHeight = window.innerHeight;
     const cardHeight = 90;
-    const normalOverlayHeight = screenHeight - (screenHeight - 120) - cardHeight;
+    const minBottom = 20;
+    const maxBottom = screenHeight - 120;
+    const normalOverlayHeight = maxBottom + cardHeight - minBottom;
     
     darkOverlay.style.setProperty('height', normalOverlayHeight + 'px', 'important');
     darkOverlay.style.setProperty('opacity', '1', 'important');
