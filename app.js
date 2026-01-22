@@ -567,20 +567,28 @@ function closeLeaderboard() {
     // 2. Убираем класс лидерборда у плашки
     profileCard.classList.remove('in-leaderboard');
     
-    // 3. Мгновенно перемещаем overlay к нормальной позиции (без анимации)
+    // 3. ПОЛНОСТЬЮ очищаем все inline стили overlay и устанавливаем заново
     darkOverlay.style.transition = 'none';
+    darkOverlay.style.removeProperty('top');
+    darkOverlay.style.removeProperty('opacity');
+    darkOverlay.style.removeProperty('visibility');
+    
+    // Форсируем reflow
+    darkOverlay.offsetHeight;
+    
+    // Устанавливаем правильную позицию заново
     const normalOverlayTop = window.innerHeight - 120;
     darkOverlay.style.setProperty('top', normalOverlayTop + 'px', 'important');
     darkOverlay.style.setProperty('opacity', '1', 'important');
     darkOverlay.style.setProperty('visibility', 'visible', 'important');
     
-    // Форсируем reflow чтобы изменения применились
+    // Еще один reflow для гарантии
     darkOverlay.offsetHeight;
     
-    // 4. Возвращаем transition для будущих анимаций
+    // Возвращаем transition
     darkOverlay.style.transition = 'opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), top 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.3s';
     
-    // 5. Через 100ms убираем лидерборд и показываем меню
+    // 4. Через 100ms убираем лидерборд и показываем меню
     setTimeout(() => {
         leaderboardView.classList.remove('active');
         leaderboardView.style.transition = '';
