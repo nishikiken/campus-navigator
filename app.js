@@ -541,23 +541,58 @@ function closeLeaderboard() {
     const profileCard = document.getElementById('user-profile-card');
     const darkOverlay = document.getElementById('dark-overlay');
     
-    // 1. Скрываем лидерборд
-    leaderboardView.classList.remove('active');
+    // Создаем черный экран для плавного перехода
+    const blackScreen = document.createElement('div');
+    blackScreen.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: #000;
+        z-index: 9999;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    `;
+    document.body.appendChild(blackScreen);
     
-    // 2. СРАЗУ делаем overlay видимым и ставим в финальную позицию
-    const normalOverlayTop = window.innerHeight - 120;
-    darkOverlay.style.setProperty('transition', 'opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), top 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), visibility 0.4s', 'important');
-    darkOverlay.style.setProperty('top', normalOverlayTop + 'px', 'important');
-    darkOverlay.style.setProperty('opacity', '1', 'important');
-    darkOverlay.style.setProperty('visibility', 'visible', 'important');
+    // Показываем черный экран
+    requestAnimationFrame(() => {
+        blackScreen.style.opacity = '1';
+    });
     
-    // 3. ОДНОВРЕМЕННО убираем класс у плашки - теперь они двигаются синхронно
-    profileCard.classList.remove('in-leaderboard');
-    
-    // 4. Показываем меню обратно (но overlay уже видим)
+    // Через 200ms (когда экран черный) - делаем все перестановки
     setTimeout(() => {
+        // 1. Скрываем лидерборд
+        leaderboardView.classList.remove('active');
+        
+        // 2. Убираем класс у плашки
+        profileCard.classList.remove('in-leaderboard');
+        
+        // 3. ПРИНУДИТЕЛЬНО ставим overlay в правильную позицию
+        const normalOverlayTop = window.innerHeight - 120;
+        darkOverlay.style.transition = 'none'; // Без анимации
+        darkOverlay.style.setProperty('top', normalOverlayTop + 'px', 'important');
+        darkOverlay.style.setProperty('opacity', '1', 'important');
+        darkOverlay.style.setProperty('visibility', 'visible', 'important');
+        
+        // Форсируем reflow
+        darkOverlay.offsetHeight;
+        
+        // Возвращаем transition
+        darkOverlay.style.transition = 'opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), top 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), visibility 0.4s';
+        
+        // 4. Показываем меню
         overlayContent.classList.remove('hiding');
-    }, 300);
+        
+        // 5. Убираем черный экран
+        blackScreen.style.opacity = '0';
+        
+        // 6. Удаляем черный экран через 200ms
+        setTimeout(() => {
+            blackScreen.remove();
+        }, 200);
+    }, 200);
     
     haptic();
 }
