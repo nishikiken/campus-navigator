@@ -541,19 +541,19 @@ function closeLeaderboard() {
     const profileCard = document.getElementById('user-profile-card');
     const darkOverlay = document.getElementById('dark-overlay');
     
-    // 1. СРАЗУ скрываем лидерборд
-    leaderboardView.classList.remove('active');
-    
-    // 2. ОДНОВРЕМЕННО убираем класс у плашки И ставим overlay в финальную позицию
-    // Это должно произойти в один момент
+    // 1. ПЕРВЫМ ДЕЛОМ ставим overlay в финальную позицию (ДО движения плашки)
     const normalOverlayTop = window.innerHeight - 120;
-    
-    profileCard.classList.remove('in-leaderboard');
     darkOverlay.style.setProperty('top', normalOverlayTop + 'px', 'important');
     darkOverlay.style.setProperty('opacity', '1', 'important');
     darkOverlay.style.setProperty('visibility', 'visible', 'important');
     
-    // 3. Показываем меню обратно
+    // 2. Скрываем лидерборд
+    leaderboardView.classList.remove('active');
+    
+    // 3. ТЕПЕРЬ убираем класс у плашки - она поедет к overlay который уже на месте
+    profileCard.classList.remove('in-leaderboard');
+    
+    // 4. Показываем меню обратно
     setTimeout(() => {
         overlayContent.classList.remove('hiding');
     }, 300);
