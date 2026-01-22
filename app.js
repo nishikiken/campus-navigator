@@ -560,27 +560,20 @@ function closeLeaderboard() {
     const profileCard = document.getElementById('user-profile-card');
     const darkOverlay = document.getElementById('dark-overlay');
     
-    // 1. СНАЧАЛА скрываем лидерборд
+    // 1. Скрываем лидерборд
     leaderboardView.classList.remove('active');
     
-    // 2. СРАЗУ ставим overlay в финальную позицию (но пока невидимым)
+    // 2. СРАЗУ делаем overlay видимым и ставим в финальную позицию
     const normalOverlayTop = window.innerHeight - 120;
+    darkOverlay.style.setProperty('transition', 'opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), top 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), visibility 0.4s', 'important');
     darkOverlay.style.setProperty('top', normalOverlayTop + 'px', 'important');
-    darkOverlay.style.setProperty('opacity', '0', 'important'); // Пока невидим
+    darkOverlay.style.setProperty('opacity', '1', 'important');
     darkOverlay.style.setProperty('visibility', 'visible', 'important');
     
-    // 3. Форсируем reflow чтобы браузер применил позицию
-    darkOverlay.offsetHeight;
-    
-    // 4. ТЕПЕРЬ убираем класс у плашки и показываем overlay одновременно
+    // 3. ОДНОВРЕМЕННО убираем класс у плашки - теперь они двигаются синхронно
     profileCard.classList.remove('in-leaderboard');
     
-    // 5. В следующем кадре показываем overlay (он уже на месте)
-    requestAnimationFrame(() => {
-        darkOverlay.style.setProperty('opacity', '1', 'important');
-    });
-    
-    // 6. Показываем меню обратно
+    // 4. Показываем меню обратно (но overlay уже видим)
     setTimeout(() => {
         overlayContent.classList.remove('hiding');
     }, 300);
