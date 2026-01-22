@@ -541,11 +541,16 @@ function closeLeaderboard() {
     const profileCard = document.getElementById('user-profile-card');
     const darkOverlay = document.getElementById('dark-overlay');
     
+    // Функция для принудительного приклеивания overlay к плашке
+    const stickOverlayToCard = () => {
+        const normalOverlayTop = window.innerHeight - 120;
+        darkOverlay.style.setProperty('top', normalOverlayTop + 'px', 'important');
+        darkOverlay.style.setProperty('opacity', '1', 'important');
+        darkOverlay.style.setProperty('visibility', 'visible', 'important');
+    };
+    
     // 1. ПЕРВЫМ ДЕЛОМ ставим overlay в финальную позицию (ДО движения плашки)
-    const normalOverlayTop = window.innerHeight - 120;
-    darkOverlay.style.setProperty('top', normalOverlayTop + 'px', 'important');
-    darkOverlay.style.setProperty('opacity', '1', 'important');
-    darkOverlay.style.setProperty('visibility', 'visible', 'important');
+    stickOverlayToCard();
     
     // 2. Скрываем лидерборд
     leaderboardView.classList.remove('active');
@@ -553,7 +558,12 @@ function closeLeaderboard() {
     // 3. ТЕПЕРЬ убираем класс у плашки - она поедет к overlay который уже на месте
     profileCard.classList.remove('in-leaderboard');
     
-    // 4. Показываем меню обратно
+    // 4. Повторные приклеивания через интервалы (на случай если что-то пошло не так)
+    setTimeout(stickOverlayToCard, 100);  // Через 100ms
+    setTimeout(stickOverlayToCard, 250);  // Через 250ms
+    setTimeout(stickOverlayToCard, 500);  // Через 500ms
+    
+    // 5. Показываем меню обратно
     setTimeout(() => {
         overlayContent.classList.remove('hiding');
     }, 300);
