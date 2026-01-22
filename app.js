@@ -566,21 +566,29 @@ function closeLeaderboard() {
     // 2. Убираем класс лидерборда у плашки - она поднимется к позиции lifted
     profileCard.classList.remove('in-leaderboard');
     
-    // 3. Функция для принудительной синхронизации overlay с плашкой
-    const forceOverlaySync = () => {
-        const normalOverlayTop = window.innerHeight - 120;
-        darkOverlay.style.setProperty('top', normalOverlayTop + 'px', 'important');
+    // 3. Функция для синхронизации overlay на основе РЕАЛЬНОЙ позиции плашки
+    const syncOverlayToCard = () => {
+        // Получаем реальную позицию плашки из DOM
+        const cardRect = profileCard.getBoundingClientRect();
+        const cardBottomFromTop = cardRect.top + cardRect.height; // где заканчивается плашка от верха экрана
+        
+        // Overlay должен начинаться там где заканчивается плашка
+        darkOverlay.style.setProperty('top', cardBottomFromTop + 'px', 'important');
         darkOverlay.style.setProperty('opacity', '1', 'important');
         darkOverlay.style.setProperty('visibility', 'visible', 'important');
     };
     
-    // 4. Синхронизируем overlay несколько раз с задержками
-    // Это гарантирует что overlay "догонит" плашку даже если что-то пошло не так
-    forceOverlaySync(); // Сразу
-    setTimeout(forceOverlaySync, 50); // Через 50ms
-    setTimeout(forceOverlaySync, 100); // Через 100ms
-    setTimeout(forceOverlaySync, 150); // Через 150ms
-    setTimeout(forceOverlaySync, 300); // Через 300ms (когда transition закончится)
+    // 4. Синхронизируем несколько раз чтобы "догнать" анимацию плашки
+    syncOverlayToCard(); // Сразу
+    requestAnimationFrame(() => {
+        syncOverlayToCard(); // В следующем кадре
+        setTimeout(syncOverlayToCard, 50);
+        setTimeout(syncOverlayToCard, 100);
+        setTimeout(syncOverlayToCard, 150);
+        setTimeout(syncOverlayToCard, 200);
+        setTimeout(syncOverlayToCard, 250);
+        setTimeout(syncOverlayToCard, 300); // Когда transition закончится
+    });
     
     // 5. Показываем меню обратно
     setTimeout(() => {
