@@ -387,9 +387,9 @@ function initSwipeGesture() {
         if (!isDragging) return;
         isDragging = false;
         
-        // Возвращаем transition
-        profileCard.style.transition = 'bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
-        darkOverlay.style.transition = 'opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), top 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.3s';
+        // Возвращаем transition с более плавной easing функцией
+        profileCard.style.transition = 'bottom 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+        darkOverlay.style.transition = 'opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), top 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), visibility 0.4s';
         
         const deltaY = startY - currentY;
         
@@ -446,9 +446,9 @@ function initSwipeGesture() {
         if (!isDragging) return;
         isDragging = false;
         
-        // Возвращаем transition
-        profileCard.style.transition = 'bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
-        darkOverlay.style.transition = 'opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), top 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.3s';
+        // Возвращаем transition с более плавной easing функцией
+        profileCard.style.transition = 'bottom 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+        darkOverlay.style.transition = 'opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), top 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), visibility 0.4s';
         
         // Финальные позиции
         const finalOverlayTopOpen = screenHeight - maxBottom;
@@ -560,37 +560,27 @@ function closeLeaderboard() {
     const profileCard = document.getElementById('user-profile-card');
     const darkOverlay = document.getElementById('dark-overlay');
     
-    // 1. Скрываем лидерборд
+    // 1. СНАЧАЛА скрываем лидерборд
     leaderboardView.classList.remove('active');
     
-    // 2. Убираем класс лидерборда у плашки - она поднимется к позиции lifted
+    // 2. СРАЗУ ставим overlay в финальную позицию (но пока невидимым)
+    const normalOverlayTop = window.innerHeight - 120;
+    darkOverlay.style.setProperty('top', normalOverlayTop + 'px', 'important');
+    darkOverlay.style.setProperty('opacity', '0', 'important'); // Пока невидим
+    darkOverlay.style.setProperty('visibility', 'visible', 'important');
+    
+    // 3. Форсируем reflow чтобы браузер применил позицию
+    darkOverlay.offsetHeight;
+    
+    // 4. ТЕПЕРЬ убираем класс у плашки и показываем overlay одновременно
     profileCard.classList.remove('in-leaderboard');
     
-    // 3. Функция для синхронизации overlay на основе РЕАЛЬНОЙ позиции плашки
-    const syncOverlayToCard = () => {
-        // Получаем реальную позицию плашки из DOM
-        const cardRect = profileCard.getBoundingClientRect();
-        const cardBottomFromTop = cardRect.top + cardRect.height; // где заканчивается плашка от верха экрана
-        
-        // Overlay должен начинаться там где заканчивается плашка
-        darkOverlay.style.setProperty('top', cardBottomFromTop + 'px', 'important');
-        darkOverlay.style.setProperty('opacity', '1', 'important');
-        darkOverlay.style.setProperty('visibility', 'visible', 'important');
-    };
-    
-    // 4. Синхронизируем несколько раз чтобы "догнать" анимацию плашки
-    syncOverlayToCard(); // Сразу
+    // 5. В следующем кадре показываем overlay (он уже на месте)
     requestAnimationFrame(() => {
-        syncOverlayToCard(); // В следующем кадре
-        setTimeout(syncOverlayToCard, 50);
-        setTimeout(syncOverlayToCard, 100);
-        setTimeout(syncOverlayToCard, 150);
-        setTimeout(syncOverlayToCard, 200);
-        setTimeout(syncOverlayToCard, 250);
-        setTimeout(syncOverlayToCard, 300); // Когда transition закончится
+        darkOverlay.style.setProperty('opacity', '1', 'important');
     });
     
-    // 5. Показываем меню обратно
+    // 6. Показываем меню обратно
     setTimeout(() => {
         overlayContent.classList.remove('hiding');
     }, 300);

@@ -691,7 +691,7 @@ body {
     z-index: 100;
     overflow: visible;
     cursor: pointer;
-    transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: bottom 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     will-change: bottom;
     touch-action: none;
 }
@@ -699,7 +699,7 @@ body {
 .user-profile-card.lifted {
     bottom: calc(100vh - 120px);
     z-index: 101;
-    transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: bottom 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 /* Индикатор свайпа - маленькие стрелочки елочкой */
@@ -752,7 +752,7 @@ body {
     z-index: 89;
     opacity: 0;
     visibility: hidden;
-    transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), top 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.3s;
+    transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), top 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), visibility 0.4s;
     display: flex;
     flex-direction: column;
     will-change: top, opacity;
@@ -831,7 +831,7 @@ body {
 /* В лидерборде плашка опускается ниже */
 .user-profile-card.in-leaderboard {
     bottom: calc(100vh - 165px) !important;
-    transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: bottom 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 /* Overlay в лидерборде тоже опускается - управляется через JS */
