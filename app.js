@@ -560,41 +560,23 @@ function closeLeaderboard() {
     const profileCard = document.getElementById('user-profile-card');
     const darkOverlay = document.getElementById('dark-overlay');
     
-    // 1. Мгновенно скрываем лидерборд
-    leaderboardView.style.transition = 'none';
-    leaderboardView.style.opacity = '0';
+    // 1. Скрываем лидерборд
+    leaderboardView.classList.remove('active');
     
-    // 2. Убираем класс лидерборда у плашки
+    // 2. Убираем класс лидерборда у плашки - она поднимется к позиции lifted
     profileCard.classList.remove('in-leaderboard');
     
-    // 3. ПОЛНОСТЬЮ очищаем все inline стили overlay и устанавливаем заново
-    darkOverlay.style.transition = 'none';
-    darkOverlay.style.removeProperty('top');
-    darkOverlay.style.removeProperty('opacity');
-    darkOverlay.style.removeProperty('visibility');
-    
-    // Форсируем reflow
-    darkOverlay.offsetHeight;
-    
-    // Устанавливаем правильную позицию заново
+    // 3. Синхронно двигаем overlay вместе с плашкой
+    // Плашка идет в позицию lifted (calc(100vh - 120px))
     const normalOverlayTop = window.innerHeight - 120;
     darkOverlay.style.setProperty('top', normalOverlayTop + 'px', 'important');
     darkOverlay.style.setProperty('opacity', '1', 'important');
     darkOverlay.style.setProperty('visibility', 'visible', 'important');
     
-    // Еще один reflow для гарантии
-    darkOverlay.offsetHeight;
-    
-    // Возвращаем transition
-    darkOverlay.style.transition = 'opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), top 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.3s';
-    
-    // 4. Через 100ms убираем лидерборд и показываем меню
+    // 4. Показываем меню обратно
     setTimeout(() => {
-        leaderboardView.classList.remove('active');
-        leaderboardView.style.transition = '';
-        leaderboardView.style.opacity = '';
         overlayContent.classList.remove('hiding');
-    }, 100);
+    }, 300);
     
     haptic();
 }
