@@ -6,8 +6,56 @@
     <title>Navigate Helper</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="style.css?v=35">
+    <style>
+        /* Встроенная консоль для отладки */
+        #debug-console {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            max-height: 200px;
+            background: rgba(0, 0, 0, 0.95);
+            color: #0f0;
+            font-family: monospace;
+            font-size: 10px;
+            padding: 8px;
+            overflow-y: auto;
+            z-index: 99999;
+            display: none;
+            border-top: 2px solid #0f0;
+        }
+        #debug-console.active {
+            display: block;
+        }
+        #debug-toggle {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            color: #0f0;
+            border: 1px solid #0f0;
+            padding: 5px 10px;
+            font-size: 12px;
+            z-index: 99998;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .log-entry {
+            margin: 2px 0;
+            padding: 2px 0;
+            border-bottom: 1px solid #333;
+        }
+        .log-error { color: #f00; }
+        .log-warn { color: #ff0; }
+        .log-info { color: #0ff; }
+    </style>
 </head>
 <body>
+    <!-- Кнопка для показа/скрытия консоли -->
+    <button id="debug-toggle" onclick="toggleDebugConsole()">🐛 Console</button>
+    
+    <!-- Консоль отладки -->
+    <div id="debug-console"></div>
     <!-- Splash Screen -->
     <div id="splash" class="splash">
         <div class="splash-content">
@@ -94,7 +142,7 @@
                         <div class="user-avatar" id="user-avatar">
                             <div class="avatar-placeholder">👤</div>
                         </div>
-                        <div class="user-version">v50</div>
+                        <div class="user-version">v51</div>
                     </div>
                 </div>
             </div>

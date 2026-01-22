@@ -12,6 +12,70 @@ if (tg) {
     document.documentElement.style.setProperty('--tg-theme-secondary-bg-color', tg.themeParams.secondary_bg_color || '#2c2c2e');
 }
 
+// === ВСТРОЕННАЯ КОНСОЛЬ ДЛЯ ОТЛАДКИ ===
+const debugLogs = [];
+const maxLogs = 50;
+
+function addDebugLog(message, type = 'info') {
+    const timestamp = new Date().toLocaleTimeString();
+    const logEntry = `[${timestamp}] ${message}`;
+    debugLogs.push({ message: logEntry, type });
+    
+    if (debugLogs.length > maxLogs) {
+        debugLogs.shift();
+    }
+    
+    updateDebugConsole();
+}
+
+function updateDebugConsole() {
+    const consoleEl = document.getElementById('debug-console');
+    if (!consoleEl) return;
+    
+    consoleEl.innerHTML = debugLogs.map(log => 
+        `<div class="log-entry log-${log.type}">${log.message}</div>`
+    ).join('');
+    
+    consoleEl.scrollTop = consoleEl.scrollHeight;
+}
+
+function toggleDebugConsole() {
+    const consoleEl = document.getElementById('debug-console');
+    consoleEl.classList.toggle('active');
+}
+
+// Перехватываем console.log, console.error, console.warn
+const originalLog = console.log;
+const originalError = console.error;
+const originalWarn = console.warn;
+
+console.log = function(...args) {
+    addDebugLog(args.join(' '), 'info');
+    originalLog.apply(console, args);
+};
+
+console.error = function(...args) {
+    addDebugLog('ERROR: ' + args.join(' '), 'error');
+    originalError.apply(console, args);
+};
+
+console.warn = function(...args) {
+    addDebugLog('WARN: ' + args.join(' '), 'warn');
+    originalWarn.apply(console, args);
+};
+
+// Перехватываем необработанные ошибки
+window.addEventListener('error', (e) => {
+    addDebugLog(`UNCAUGHT ERROR: ${e.message} at ${e.filename}:${e.lineno}`, 'error');
+});
+
+window.addEventListener('unhandledrejection', (e) => {
+    addDebugLog(`UNHANDLED PROMISE: ${e.reason}`, 'error');
+});
+
+console.log('Debug console initialized');
+// === КОНЕЦ КОНСОЛИ ===
+
 // Загрузка данных пользователя из Telegram
 function loadUserData() {
     if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
@@ -536,38 +600,64 @@ function openLeaderboard() {
 }
 
 function closeLeaderboard() {
+    console.log('closeLeaderboard: START');
     const leaderboardView = document.getElementById('step-leaderboard');
     const overlayContent = document.querySelector('.overlay-content');
     const profileCard = document.getElementById('user-profile-card');
     const darkOverlay = document.getElementById('dark-overlay');
     
+    console.log('closeLeaderboard: Elements found', {
+        leaderboardView: !!leaderboardView,
+        overlayContent: !!overlayContent,
+        profileCard: !!profileCard,
+        darkOverlay: !!darkOverlay
+    });
+    
     // Функция для принудительного приклеивания overlay к плашке
     const stickOverlayToCard = () => {
         const normalOverlayTop = window.innerHeight - 120;
+        console.log('stickOverlayToCard: Setting overlay top to', normalOverlayTop);
         darkOverlay.style.setProperty('top', normalOverlayTop + 'px', 'important');
         darkOverlay.style.setProperty('opacity', '1', 'important');
         darkOverlay.style.setProperty('visibility', 'visible', 'important');
+        console.log('stickOverlayToCard: Overlay styles set', darkOverlay.style.top);
     };
     
     // 1. ПЕРВЫМ ДЕЛОМ ставим overlay в финальную позицию (ДО движения плашки)
+    console.log('closeLeaderboard: Sticking overlay (attempt 1)');
     stickOverlayToCard();
     
     // 2. Скрываем лидерборд
+    console.log('closeLeaderboard: Hiding leaderboard');
     leaderboardView.classList.remove('active');
     
     // 3. ТЕПЕРЬ убираем класс у плашки - она поедет к overlay который уже на месте
+    console.log('closeLeaderboard: Removing in-leaderboard class from card');
     profileCard.classList.remove('in-leaderboard');
     
     // 4. Повторные приклеивания через интервалы (на случай если что-то пошло не так)
-    setTimeout(stickOverlayToCard, 100);  // Через 100ms
-    setTimeout(stickOverlayToCard, 250);  // Через 250ms
-    setTimeout(stickOverlayToCard, 500);  // Через 500ms
+    setTimeout(() => {
+        console.log('closeLeaderboard: Sticking overlay (attempt 2)');
+        stickOverlayToCard();
+    }, 100);
+    
+    setTimeout(() => {
+        console.log('closeLeaderboard: Sticking overlay (attempt 3)');
+        stickOverlayToCard();
+    }, 250);
+    
+    setTimeout(() => {
+        console.log('closeLeaderboard: Sticking overlay (attempt 4)');
+        stickOverlayToCard();
+    }, 500);
     
     // 5. Показываем меню обратно
     setTimeout(() => {
+        console.log('closeLeaderboard: Showing menu content');
         overlayContent.classList.remove('hiding');
     }, 300);
     
+    console.log('closeLeaderboard: END');
     haptic();
 }
 
