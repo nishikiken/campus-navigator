@@ -360,10 +360,10 @@ function initSwipeGesture() {
         // Двигаем плашку
         profileCard.style.bottom = newBottom + 'px';
         
-        // Overlay всегда приклеен к нижней грани плашки
-        // top = высота экрана - bottom плашки (от низа экрана до низа плашки)
-        const overlayTop = screenHeight - newBottom;
-        darkOverlay.style.setProperty('top', overlayTop + 'px', 'important');
+        // Overlay высота = от низа плашки до верха экрана
+        // Плашка на высоте newBottom от низа, высота плашки ~90px
+        const overlayHeight = screenHeight - newBottom - cardHeight;
+        darkOverlay.style.setProperty('height', overlayHeight + 'px', 'important');
         
         // Показываем overlay когда плашка поднимается
         const progress = (newBottom - minBottom) / (maxBottom - minBottom);
@@ -389,15 +389,13 @@ function initSwipeGesture() {
         
         // Возвращаем transition с более плавной easing функцией
         profileCard.style.transition = 'bottom 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-        darkOverlay.style.transition = 'opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), top 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), visibility 0.4s';
+        darkOverlay.style.transition = 'opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), height 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), visibility 0.4s';
         
         const deltaY = startY - currentY;
         
-        // Финальные позиции
-        const finalBottomOpen = maxBottom; // calc(100vh - 120px)
-        const finalBottomClosed = minBottom; // 20px
-        const finalOverlayTopOpen = screenHeight - maxBottom;
-        const finalOverlayTopClosed = screenHeight;
+        // Финальные высоты overlay
+        const finalOverlayHeightOpen = screenHeight - maxBottom - cardHeight; // когда плашка наверху
+        const finalOverlayHeightClosed = 0; // когда плашка внизу
         
         // Если протянули больше чем на 20% экрана - открываем/закрываем полностью
         if (Math.abs(deltaY) > screenHeight * 0.2) {
@@ -406,7 +404,7 @@ function initSwipeGesture() {
                 profileCard.classList.add('lifted');
                 darkOverlay.classList.add('active');
                 profileCard.style.bottom = '';
-                darkOverlay.style.setProperty('top', finalOverlayTopOpen + 'px', 'important');
+                darkOverlay.style.setProperty('height', finalOverlayHeightOpen + 'px', 'important');
                 darkOverlay.style.setProperty('opacity', '1', 'important');
                 darkOverlay.style.setProperty('visibility', 'visible', 'important');
                 profileCard.style.cursor = 'default';
@@ -415,7 +413,7 @@ function initSwipeGesture() {
                 profileCard.classList.remove('lifted');
                 darkOverlay.classList.remove('active');
                 profileCard.style.bottom = '';
-                darkOverlay.style.setProperty('top', finalOverlayTopClosed + 'px', 'important');
+                darkOverlay.style.setProperty('height', finalOverlayHeightClosed + 'px', 'important');
                 darkOverlay.style.setProperty('opacity', '0', 'important');
                 darkOverlay.style.setProperty('visibility', 'hidden', 'important');
                 profileCard.style.cursor = 'pointer';
@@ -426,13 +424,13 @@ function initSwipeGesture() {
             if (isLifted) {
                 // Возвращаем наверх
                 profileCard.style.bottom = '';
-                darkOverlay.style.setProperty('top', finalOverlayTopOpen + 'px', 'important');
+                darkOverlay.style.setProperty('height', finalOverlayHeightOpen + 'px', 'important');
                 darkOverlay.style.setProperty('opacity', '1', 'important');
                 darkOverlay.style.setProperty('visibility', 'visible', 'important');
             } else {
                 // Возвращаем вниз
                 profileCard.style.bottom = '';
-                darkOverlay.style.setProperty('top', finalOverlayTopClosed + 'px', 'important');
+                darkOverlay.style.setProperty('height', finalOverlayHeightClosed + 'px', 'important');
                 darkOverlay.style.setProperty('opacity', '0', 'important');
                 darkOverlay.style.setProperty('visibility', 'hidden', 'important');
             }
@@ -448,24 +446,24 @@ function initSwipeGesture() {
         
         // Возвращаем transition с более плавной easing функцией
         profileCard.style.transition = 'bottom 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-        darkOverlay.style.transition = 'opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), top 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), visibility 0.4s';
+        darkOverlay.style.transition = 'opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), height 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), visibility 0.4s';
         
-        // Финальные позиции
-        const finalOverlayTopOpen = screenHeight - maxBottom;
-        const finalOverlayTopClosed = screenHeight;
+        // Финальные высоты
+        const finalOverlayHeightOpen = screenHeight - maxBottom - cardHeight;
+        const finalOverlayHeightClosed = 0;
         
         // Возвращаем в исходное состояние
         const isLifted = profileCard.classList.contains('lifted');
         if (isLifted) {
             // Возвращаем наверх
             profileCard.style.bottom = '';
-            darkOverlay.style.setProperty('top', finalOverlayTopOpen + 'px', 'important');
+            darkOverlay.style.setProperty('height', finalOverlayHeightOpen + 'px', 'important');
             darkOverlay.style.setProperty('opacity', '1', 'important');
             darkOverlay.style.setProperty('visibility', 'visible', 'important');
         } else {
             // Возвращаем вниз
             profileCard.style.bottom = '';
-            darkOverlay.style.setProperty('top', finalOverlayTopClosed + 'px', 'important');
+            darkOverlay.style.setProperty('height', finalOverlayHeightClosed + 'px', 'important');
             darkOverlay.style.setProperty('opacity', '0', 'important');
             darkOverlay.style.setProperty('visibility', 'hidden', 'important');
         }
@@ -476,36 +474,19 @@ function openOverlay() {
     const profileCard = document.getElementById('user-profile-card');
     const darkOverlay = document.getElementById('dark-overlay');
     
-    // Финальная позиция overlay
-    const finalTop = window.innerHeight - 120;
-    
-    // Убираем CSS transition чтобы установить начальную позицию
-    darkOverlay.style.transition = 'none';
-    
-    // Если есть текущая позиция - оставляем её, иначе ставим финальную
-    if (!darkOverlay.style.top) {
-        darkOverlay.style.setProperty('top', finalTop + 'px', 'important');
-    }
+    const screenHeight = window.innerHeight;
+    const cardHeight = 90;
+    const finalOverlayHeight = screenHeight - (screenHeight - 120) - cardHeight;
     
     // Убираем inline стили у плашки
     profileCard.style.bottom = '';
     
-    // Форсируем reflow
-    darkOverlay.offsetHeight;
+    profileCard.classList.add('lifted');
+    darkOverlay.classList.add('active');
     
-    // Возвращаем transition
-    darkOverlay.style.transition = 'opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), top 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.3s';
-    
-    // Добавляем классы и устанавливаем финальную позицию
-    requestAnimationFrame(() => {
-        profileCard.classList.add('lifted');
-        darkOverlay.classList.add('active');
-        
-        // Устанавливаем финальную позицию через inline стиль
-        darkOverlay.style.setProperty('top', finalTop + 'px', 'important');
-        darkOverlay.style.setProperty('opacity', '1', 'important');
-        darkOverlay.style.setProperty('visibility', 'visible', 'important');
-    });
+    darkOverlay.style.setProperty('height', finalOverlayHeight + 'px', 'important');
+    darkOverlay.style.setProperty('opacity', '1', 'important');
+    darkOverlay.style.setProperty('visibility', 'visible', 'important');
     
     profileCard.style.cursor = 'default';
     
@@ -519,8 +500,7 @@ function closeOverlay() {
     // Убираем inline стили у плашки
     profileCard.style.bottom = '';
     
-    // НЕ очищаем стили overlay - устанавливаем позицию "закрыто" через inline стили
-    darkOverlay.style.setProperty('top', '100vh', 'important');
+    darkOverlay.style.setProperty('height', '0px', 'important');
     darkOverlay.style.setProperty('opacity', '0', 'important');
     darkOverlay.style.setProperty('visibility', 'hidden', 'important');
     
@@ -546,9 +526,11 @@ function openLeaderboard() {
         leaderboardView.classList.add('active');
         profileCard.classList.add('in-leaderboard');
         
-        // Опускаем overlay вместе с плашкой
-        const leaderboardOverlayTop = window.innerHeight - 165;
-        darkOverlay.style.setProperty('top', leaderboardOverlayTop + 'px', 'important');
+        // Опускаем overlay вместе с плашкой (увеличиваем высоту)
+        const screenHeight = window.innerHeight;
+        const cardHeight = 90;
+        const leaderboardOverlayHeight = screenHeight - (screenHeight - 165) - cardHeight;
+        darkOverlay.style.setProperty('height', leaderboardOverlayHeight + 'px', 'important');
     }, 300);
     
     haptic();
@@ -563,17 +545,18 @@ function closeLeaderboard() {
     // 1. Скрываем лидерборд
     leaderboardView.classList.remove('active');
     
-    // 2. СРАЗУ делаем overlay видимым и ставим в финальную позицию
-    const normalOverlayTop = window.innerHeight - 120;
-    darkOverlay.style.setProperty('transition', 'opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), top 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), visibility 0.4s', 'important');
-    darkOverlay.style.setProperty('top', normalOverlayTop + 'px', 'important');
+    // 2. Убираем класс у плашки и СРАЗУ устанавливаем правильную высоту overlay
+    profileCard.classList.remove('in-leaderboard');
+    
+    const screenHeight = window.innerHeight;
+    const cardHeight = 90;
+    const normalOverlayHeight = screenHeight - (screenHeight - 120) - cardHeight;
+    
+    darkOverlay.style.setProperty('height', normalOverlayHeight + 'px', 'important');
     darkOverlay.style.setProperty('opacity', '1', 'important');
     darkOverlay.style.setProperty('visibility', 'visible', 'important');
     
-    // 3. ОДНОВРЕМЕННО убираем класс у плашки - теперь они двигаются синхронно
-    profileCard.classList.remove('in-leaderboard');
-    
-    // 4. Показываем меню обратно (но overlay уже видим)
+    // 3. Показываем меню обратно
     setTimeout(() => {
         overlayContent.classList.remove('hiding');
     }, 300);
