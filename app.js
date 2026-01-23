@@ -605,18 +605,10 @@ function openLeaderboard() {
 }
 
 function closeLeaderboard() {
-    console.log('closeLeaderboard: START');
     const leaderboardView = document.getElementById('step-leaderboard');
     const overlayContent = document.querySelector('.overlay-content');
     const profileCard = document.getElementById('user-profile-card');
     const darkOverlay = document.getElementById('dark-overlay');
-    
-    console.log('closeLeaderboard: Elements found', {
-        leaderboardView: !!leaderboardView,
-        overlayContent: !!overlayContent,
-        profileCard: !!profileCard,
-        darkOverlay: !!darkOverlay
-    });
     
     // Функция для принудительного приклеивания overlay к плашке
     const stickOverlayToCard = () => {
@@ -624,60 +616,30 @@ function closeLeaderboard() {
         const cardRect = profileCard.getBoundingClientRect();
         const overlayTop = cardRect.bottom; // Overlay начинается где заканчивается плашка
         
-        console.log('stickOverlayToCard: Card bottom position:', cardRect.bottom, 'Setting overlay top to', overlayTop);
         darkOverlay.style.setProperty('top', overlayTop + 'px', 'important');
         darkOverlay.style.setProperty('opacity', '1', 'important');
         darkOverlay.style.setProperty('visibility', 'visible', 'important');
-        console.log('stickOverlayToCard: Overlay styles set', darkOverlay.style.top);
     };
     
     // 1. Скрываем лидерборд
-    console.log('closeLeaderboard: Hiding leaderboard');
     leaderboardView.classList.remove('active');
     
     // 2. Убираем класс у плашки - она начнет двигаться
-    console.log('closeLeaderboard: Removing in-leaderboard class from card');
     profileCard.classList.remove('in-leaderboard');
     
-    // 3. НЕ приклеиваем overlay сразу - ждем пока плашка начнет двигаться
-    // Приклеивания через интервалы - overlay будет следовать за плашкой ПОСЛЕ начала анимации
-    setTimeout(() => {
-        console.log('closeLeaderboard: Sticking overlay (attempt 1)');
-        stickOverlayToCard();
-    }, 50);
+    // 3. Быстрые приклеивания - overlay будет следовать за плашкой
+    setTimeout(stickOverlayToCard, 10);
+    setTimeout(stickOverlayToCard, 30);
+    setTimeout(stickOverlayToCard, 60);
+    setTimeout(stickOverlayToCard, 100);
+    setTimeout(stickOverlayToCard, 150);
+    setTimeout(stickOverlayToCard, 200);
     
+    // 4. Показываем меню обратно
     setTimeout(() => {
-        console.log('closeLeaderboard: Sticking overlay (attempt 2)');
-        stickOverlayToCard();
-    }, 100);
-    
-    setTimeout(() => {
-        console.log('closeLeaderboard: Sticking overlay (attempt 3)');
-        stickOverlayToCard();
-    }, 150);
-    
-    setTimeout(() => {
-        console.log('closeLeaderboard: Sticking overlay (attempt 4)');
-        stickOverlayToCard();
-    }, 200);
-    
-    setTimeout(() => {
-        console.log('closeLeaderboard: Sticking overlay (attempt 5)');
-        stickOverlayToCard();
-    }, 300);
-    
-    setTimeout(() => {
-        console.log('closeLeaderboard: Sticking overlay (attempt 6 - final)');
-        stickOverlayToCard();
-    }, 400);
-    
-    // 5. Показываем меню обратно
-    setTimeout(() => {
-        console.log('closeLeaderboard: Showing menu content');
         overlayContent.classList.remove('hiding');
     }, 300);
     
-    console.log('closeLeaderboard: END');
     haptic();
 }
 

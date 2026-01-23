@@ -75,6 +75,9 @@ body {
     color: var(--tg-theme-text-color);
     min-height: 100vh;
     overflow-x: hidden;
+    /* Оптимизация производительности */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 .container {
@@ -694,6 +697,9 @@ body {
     transition: bottom 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     will-change: bottom;
     touch-action: none;
+    /* Оптимизация производительности */
+    transform: translateZ(0);
+    backface-visibility: hidden;
 }
 
 .user-profile-card.lifted {
@@ -756,6 +762,9 @@ body {
     display: flex;
     flex-direction: column;
     will-change: top, opacity;
+    /* Оптимизация производительности */
+    transform: translateZ(0);
+    backface-visibility: hidden;
 }
 
 /* Класс .active больше не управляет позицией - только через inline стили */
