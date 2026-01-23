@@ -628,7 +628,10 @@ function closeLeaderboard() {
     const stickOverlayToCard = () => {
         // ЧИТАЕМ РЕАЛЬНУЮ позицию плашки из DOM
         const cardRect = profileCard.getBoundingClientRect();
-        const overlayTop = cardRect.bottom - 2; // Вычитаем 2px чтобы убрать промежуток
+        // Overlay должен начинаться от нижней границы плашки
+        // Но елочка торчит на 28px выше плашки, поэтому визуально кажется что есть промежуток
+        // Вычитаем 1px для идеального прилегания
+        const overlayTop = cardRect.bottom - 1;
         
         darkOverlay.style.setProperty('top', overlayTop + 'px', 'important');
         darkOverlay.style.setProperty('opacity', '1', 'important');
