@@ -1,5 +1,5 @@
 // API Configuration
-const API_URL = 'https://campusnavigatorapi1-jx66tg3z.b4a.run';
+const API_URL = 'https://campusnavigatorapi1-g1kox8ni.b4a.run';
 
 // Telegram Web App
 const tg = window.Telegram?.WebApp;
