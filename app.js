@@ -624,14 +624,20 @@ function closeLeaderboard() {
     const profileCard = document.getElementById('user-profile-card');
     const darkOverlay = document.getElementById('dark-overlay');
     
+    console.log('=== closeLeaderboard START ===');
+    
     // Функция для принудительного приклеивания overlay к плашке
     const stickOverlayToCard = () => {
         // ЧИТАЕМ РЕАЛЬНУЮ позицию плашки из DOM
         const cardRect = profileCard.getBoundingClientRect();
-        // Overlay должен начинаться от нижней границы плашки
-        // Но елочка торчит на 28px выше плашки, поэтому визуально кажется что есть промежуток
-        // Вычитаем 1px для идеального прилегания
-        const overlayTop = cardRect.bottom - 1;
+        const overlayTop = cardRect.bottom;
+        
+        console.log('Card position:', {
+            top: cardRect.top,
+            bottom: cardRect.bottom,
+            height: cardRect.height
+        });
+        console.log('Setting overlay top to:', overlayTop);
         
         darkOverlay.style.setProperty('top', overlayTop + 'px', 'important');
         darkOverlay.style.setProperty('opacity', '1', 'important');
@@ -657,6 +663,7 @@ function closeLeaderboard() {
         overlayContent.classList.remove('hiding');
     }, 300);
     
+    console.log('=== closeLeaderboard END ===');
     haptic();
 }
 
