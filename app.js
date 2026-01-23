@@ -1,5 +1,7 @@
-// API Configuration
-const API_URL = 'https://campusnavigatorapi1-g1kox8ni.b4a.run';
+// Supabase Configuration
+const SUPABASE_URL = 'https://hyxyablgkjtoxcxnurkk.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh5eHlhYmxna2p0b3hjeG51cmtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkxODE5NjksImV4cCI6MjA4NDc1Nzk2OX0._3HQYSymZ2ArXIN143gAiwulCL1yt7i5fiHaTd4bp5U';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // Telegram Web App
 const tg = window.Telegram?.WebApp;
@@ -94,13 +96,18 @@ function loadUserData() {
         document.getElementById('user-name').textContent = userName;
         
         // Устанавливаем аватар (если есть)
+        const avatarContainer = document.getElementById('user-avatar');
         if (user.photo_url) {
-            const avatarContainer = document.getElementById('user-avatar');
             avatarContainer.innerHTML = `<img src="${user.photo_url}" alt="Avatar">`;
+        } else {
+            // Если нет аватарки - показываем placeholder
+            avatarContainer.innerHTML = '<div class="avatar-placeholder">👤</div>';
         }
         
         // Загрузка данных пользователя с сервера
-        loadUserDataFromAPI(user.id, userName, user.photo_url);
+        // Всегда передаем актуальную аватарку из Telegram (или null)
+        const actualAvatarUrl = user.photo_url || null;
+        loadUserDataFromAPI(user.id, userName, actualAvatarUrl);
     } else {
         // Если нет данных Telegram (тестирование в браузере)
         document.getElementById('user-name').textContent = 'Тестовый пользователь';
@@ -116,29 +123,49 @@ async function loadUserDataFromAPI(telegramId, name, avatarUrl) {
         console.log(`Loading user data for ${telegramId}...`);
         
         // Пытаемся получить данные пользователя
-        let response = await fetch(`${API_URL}/api/user/${telegramId}`);
+        const { data: existingUser, error: fetchError } = await supabase
+            .from('users')
+            .select('*')
+            .eq('telegram_id', telegramId)
+            .single();
         
-        if (response.status === 404) {
+        if (fetchError && fetchError.code !== 'PGRST116') {
+            throw fetchError;
+        }
+        
+        let userData;
+        
+        if (!existingUser) {
             // Пользователь не найден - создаем нового
             console.log('User not found, creating new user...');
-            response = await fetch(`${API_URL}/api/user`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
+            const { data: newUser, error: createError } = await supabase
+                .from('users')
+                .insert([{
                     telegram_id: telegramId,
                     name: name,
                     avatar_url: avatarUrl
+                }])
+                .select()
+                .single();
+            
+            if (createError) throw createError;
+            userData = newUser;
+        } else {
+            // Обновляем данные существующего пользователя
+            const { data: updatedUser, error: updateError } = await supabase
+                .from('users')
+                .update({
+                    name: name,
+                    avatar_url: avatarUrl
                 })
-            });
+                .eq('telegram_id', telegramId)
+                .select()
+                .single();
+            
+            if (updateError) throw updateError;
+            userData = updatedUser;
         }
         
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const userData = await response.json();
         console.log('User data loaded:', userData);
         
         // Обновляем UI
@@ -160,15 +187,16 @@ async function loadUserDataFromAPI(telegramId, name, avatarUrl) {
 async function loadLeaderboardFromAPI() {
     try {
         console.log('Loading leaderboard...');
-        const response = await fetch(`${API_URL}/api/leaderboard`);
+        const { data: leaders, error } = await supabase
+            .from('users')
+            .select('*')
+            .order('rating', { ascending: false })
+            .order('tokens', { ascending: false })
+            .limit(50);
         
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
+        if (error) throw error;
         
-        const leaders = await response.json();
         console.log('Leaderboard loaded:', leaders);
-        
         return leaders;
     } catch (error) {
         console.error('Error loading leaderboard:', error);
