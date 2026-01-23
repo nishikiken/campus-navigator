@@ -41,8 +41,13 @@ function updateDebugConsole() {
 
 function toggleDebugConsole() {
     const consoleEl = document.getElementById('debug-console');
-    consoleEl.classList.toggle('active');
+    if (consoleEl) {
+        consoleEl.classList.toggle('active');
+    }
 }
+
+// Делаем функцию глобальной чтобы работала из HTML
+window.toggleDebugConsole = toggleDebugConsole;
 
 // Перехватываем console.log, console.error, console.warn
 const originalLog = console.log;
@@ -615,9 +620,12 @@ function closeLeaderboard() {
     
     // Функция для принудительного приклеивания overlay к плашке
     const stickOverlayToCard = () => {
-        const normalOverlayTop = window.innerHeight - 120;
-        console.log('stickOverlayToCard: Setting overlay top to', normalOverlayTop);
-        darkOverlay.style.setProperty('top', normalOverlayTop + 'px', 'important');
+        // ЧИТАЕМ РЕАЛЬНУЮ позицию плашки из DOM
+        const cardRect = profileCard.getBoundingClientRect();
+        const overlayTop = cardRect.bottom; // Overlay начинается где заканчивается плашка
+        
+        console.log('stickOverlayToCard: Card bottom position:', cardRect.bottom, 'Setting overlay top to', overlayTop);
+        darkOverlay.style.setProperty('top', overlayTop + 'px', 'important');
         darkOverlay.style.setProperty('opacity', '1', 'important');
         darkOverlay.style.setProperty('visibility', 'visible', 'important');
         console.log('stickOverlayToCard: Overlay styles set', darkOverlay.style.top);
@@ -635,21 +643,26 @@ function closeLeaderboard() {
     console.log('closeLeaderboard: Removing in-leaderboard class from card');
     profileCard.classList.remove('in-leaderboard');
     
-    // 4. Повторные приклеивания через интервалы (на случай если что-то пошло не так)
+    // 4. Повторные приклеивания через интервалы - overlay будет следовать за плашкой
     setTimeout(() => {
         console.log('closeLeaderboard: Sticking overlay (attempt 2)');
         stickOverlayToCard();
-    }, 100);
+    }, 50);
     
     setTimeout(() => {
         console.log('closeLeaderboard: Sticking overlay (attempt 3)');
         stickOverlayToCard();
-    }, 250);
+    }, 100);
     
     setTimeout(() => {
         console.log('closeLeaderboard: Sticking overlay (attempt 4)');
         stickOverlayToCard();
-    }, 500);
+    }, 200);
+    
+    setTimeout(() => {
+        console.log('closeLeaderboard: Sticking overlay (attempt 5)');
+        stickOverlayToCard();
+    }, 400);
     
     // 5. Показываем меню обратно
     setTimeout(() => {
