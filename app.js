@@ -657,6 +657,8 @@ function closeLeaderboard() {
     setTimeout(stickOverlayToCard, 100);
     setTimeout(stickOverlayToCard, 150);
     setTimeout(stickOverlayToCard, 200);
+    setTimeout(stickOverlayToCard, 300); // Добавляем попытки после 200ms
+    setTimeout(stickOverlayToCard, 400); // Когда анимация точно закончится
     
     // 4. Показываем меню обратно
     setTimeout(() => {
