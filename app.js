@@ -631,28 +631,30 @@ function closeLeaderboard() {
         console.log('stickOverlayToCard: Overlay styles set', darkOverlay.style.top);
     };
     
-    // 1. ПЕРВЫМ ДЕЛОМ ставим overlay в финальную позицию (ДО движения плашки)
-    console.log('closeLeaderboard: Sticking overlay (attempt 1)');
-    stickOverlayToCard();
-    
-    // 2. Скрываем лидерборд
+    // 1. Скрываем лидерборд
     console.log('closeLeaderboard: Hiding leaderboard');
     leaderboardView.classList.remove('active');
     
-    // 3. ТЕПЕРЬ убираем класс у плашки - она поедет к overlay который уже на месте
+    // 2. Убираем класс у плашки - она начнет двигаться
     console.log('closeLeaderboard: Removing in-leaderboard class from card');
     profileCard.classList.remove('in-leaderboard');
     
-    // 4. Повторные приклеивания через интервалы - overlay будет следовать за плашкой
+    // 3. НЕ приклеиваем overlay сразу - ждем пока плашка начнет двигаться
+    // Приклеивания через интервалы - overlay будет следовать за плашкой ПОСЛЕ начала анимации
     setTimeout(() => {
-        console.log('closeLeaderboard: Sticking overlay (attempt 2)');
+        console.log('closeLeaderboard: Sticking overlay (attempt 1)');
         stickOverlayToCard();
     }, 50);
     
     setTimeout(() => {
-        console.log('closeLeaderboard: Sticking overlay (attempt 3)');
+        console.log('closeLeaderboard: Sticking overlay (attempt 2)');
         stickOverlayToCard();
     }, 100);
+    
+    setTimeout(() => {
+        console.log('closeLeaderboard: Sticking overlay (attempt 3)');
+        stickOverlayToCard();
+    }, 150);
     
     setTimeout(() => {
         console.log('closeLeaderboard: Sticking overlay (attempt 4)');
@@ -661,6 +663,11 @@ function closeLeaderboard() {
     
     setTimeout(() => {
         console.log('closeLeaderboard: Sticking overlay (attempt 5)');
+        stickOverlayToCard();
+    }, 300);
+    
+    setTimeout(() => {
+        console.log('closeLeaderboard: Sticking overlay (attempt 6 - final)');
         stickOverlayToCard();
     }, 400);
     
