@@ -479,6 +479,8 @@ function initSwipeGesture() {
                 darkOverlay.style.setProperty('opacity', '1', 'important');
                 darkOverlay.style.setProperty('visibility', 'visible', 'important');
                 profileCard.style.cursor = 'default';
+                // Скрываем елочку
+                profileCard.querySelector('.swipe-indicator').style.opacity = '0';
             } else {
                 // Протянули вниз - закрываем
                 profileCard.classList.remove('lifted');
@@ -488,6 +490,8 @@ function initSwipeGesture() {
                 darkOverlay.style.setProperty('opacity', '0', 'important');
                 darkOverlay.style.setProperty('visibility', 'hidden', 'important');
                 profileCard.style.cursor = 'pointer';
+                // Показываем елочку
+                profileCard.querySelector('.swipe-indicator').style.opacity = '1';
             }
         } else {
             // Иначе возвращаем в исходное состояние
@@ -498,12 +502,16 @@ function initSwipeGesture() {
                 darkOverlay.style.setProperty('top', finalOverlayTopOpen + 'px', 'important');
                 darkOverlay.style.setProperty('opacity', '1', 'important');
                 darkOverlay.style.setProperty('visibility', 'visible', 'important');
+                // Скрываем елочку
+                profileCard.querySelector('.swipe-indicator').style.opacity = '0';
             } else {
                 // Возвращаем вниз
                 profileCard.style.bottom = '';
                 darkOverlay.style.setProperty('top', finalOverlayTopClosed + 'px', 'important');
                 darkOverlay.style.setProperty('opacity', '0', 'important');
                 darkOverlay.style.setProperty('visibility', 'hidden', 'important');
+                // Показываем елочку
+                profileCard.querySelector('.swipe-indicator').style.opacity = '1';
             }
         }
         
@@ -578,6 +586,12 @@ function closeOverlay() {
     darkOverlay.classList.remove('active');
     
     profileCard.style.cursor = 'pointer';
+    
+    // Показываем елочки обратно
+    const swipeIndicator = profileCard.querySelector('.swipe-indicator');
+    if (swipeIndicator) {
+        swipeIndicator.style.opacity = '1';
+    }
     
     haptic();
 }
