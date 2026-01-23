@@ -1,7 +1,14 @@
 // Supabase Configuration
 const SUPABASE_URL = 'https://hyxyablgkjtoxcxnurkk.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh5eHlhYmxna2p0b3hjeG51cmtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkxODE5NjksImV4cCI6MjA4NDc1Nzk2OX0._3HQYSymZ2ArXIN143gAiwulCL1yt7i5fiHaTd4bp5U';
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// Инициализация Supabase после загрузки библиотеки
+let supabase;
+if (window.supabase) {
+    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+} else {
+    console.error('Supabase library not loaded!');
+}
 
 // Telegram Web App
 const tg = window.Telegram?.WebApp;
