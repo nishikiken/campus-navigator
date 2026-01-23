@@ -1,3 +1,6 @@
+// API Configuration
+const API_URL = 'https://campusnavigatorapi1-jx66tg3z.b4a.run';
+
 // Telegram Web App
 const tg = window.Telegram?.WebApp;
 if (tg) {
@@ -96,10 +99,8 @@ function loadUserData() {
             avatarContainer.innerHTML = `<img src="${user.photo_url}" alt="Avatar">`;
         }
         
-        // TODO: Загрузка токенов и рейтинга с сервера
-        // Пока что используем заглушки
-        document.getElementById('user-tokens').textContent = '0';
-        document.getElementById('user-rating').textContent = '0';
+        // Загрузка данных пользователя с сервера
+        loadUserDataFromAPI(user.id, userName, user.photo_url);
     } else {
         // Если нет данных Telegram (тестирование в браузере)
         document.getElementById('user-name').textContent = 'Тестовый пользователь';
@@ -107,6 +108,74 @@ function loadUserData() {
         document.getElementById('user-rating').textContent = '0';
     }
 }
+
+// === API FUNCTIONS ===
+// Загрузка данных пользователя с сервера
+async function loadUserDataFromAPI(telegramId, name, avatarUrl) {
+    try {
+        console.log(`Loading user data for ${telegramId}...`);
+        
+        // Пытаемся получить данные пользователя
+        let response = await fetch(`${API_URL}/api/user/${telegramId}`);
+        
+        if (response.status === 404) {
+            // Пользователь не найден - создаем нового
+            console.log('User not found, creating new user...');
+            response = await fetch(`${API_URL}/api/user`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    telegram_id: telegramId,
+                    name: name,
+                    avatar_url: avatarUrl
+                })
+            });
+        }
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const userData = await response.json();
+        console.log('User data loaded:', userData);
+        
+        // Обновляем UI
+        document.getElementById('user-tokens').textContent = userData.tokens || '0';
+        document.getElementById('user-rating').textContent = userData.rating || '0';
+        
+        // Сохраняем ID пользователя для дальнейшего использования
+        window.currentUserId = telegramId;
+        
+    } catch (error) {
+        console.error('Error loading user data:', error);
+        // В случае ошибки показываем нули
+        document.getElementById('user-tokens').textContent = '0';
+        document.getElementById('user-rating').textContent = '0';
+    }
+}
+
+// Загрузка таблицы лидеров с сервера
+async function loadLeaderboardFromAPI() {
+    try {
+        console.log('Loading leaderboard...');
+        const response = await fetch(`${API_URL}/api/leaderboard`);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const leaders = await response.json();
+        console.log('Leaderboard loaded:', leaders);
+        
+        return leaders;
+    } catch (error) {
+        console.error('Error loading leaderboard:', error);
+        return [];
+    }
+}
+// === END API FUNCTIONS ===
 
 // Проверка: если возвращаемся с другой страницы - скрыть splash screen
 if (sessionStorage.getItem('visited')) {
@@ -712,43 +781,44 @@ function createParticlesForContainer(container) {
     }
 }
 
-// Генерация таблицы лидеров (заглушка с тестовыми данными)
-function renderLeaderboard() {
+// Генерация таблицы лидеров с реальными данными с сервера
+async function renderLeaderboard() {
     const container = document.getElementById('leaderboard-list');
     
-    // Тестовые данные (потом заменишь на реальные с сервера)
-    const leaders = [];
-    for (let i = 1; i <= 50; i++) {
-        leaders.push({
-            rank: i,
-            name: `Пользователь ${i}`,
-            rating: 5000 - (i * 50) + Math.floor(Math.random() * 40),
-            avatar: null
-        });
+    // Показываем загрузку
+    container.innerHTML = '<div style="text-align: center; padding: 20px; color: #8e8e93;">Загрузка...</div>';
+    
+    // Загружаем данные с сервера
+    const leaders = await loadLeaderboardFromAPI();
+    
+    if (leaders.length === 0) {
+        container.innerHTML = '<div style="text-align: center; padding: 20px; color: #8e8e93;">Нет данных</div>';
+        return;
     }
     
-    container.innerHTML = leaders.map(leader => {
+    container.innerHTML = leaders.map((leader, index) => {
+        const rank = index + 1;
         let medal = '';
         let rankClass = '';
         
-        if (leader.rank === 1) {
+        if (rank === 1) {
             medal = '💎';
             rankClass = 'rank-1';
-        } else if (leader.rank === 2) {
+        } else if (rank === 2) {
             medal = '🥇';
             rankClass = 'rank-2';
-        } else if (leader.rank === 3) {
+        } else if (rank === 3) {
             medal = '🥈';
             rankClass = 'rank-3';
         }
         
         return `
             <div class="leader-item ${rankClass}">
-                <div class="leader-rank">${leader.rank}</div>
+                <div class="leader-rank">${rank}</div>
                 ${medal ? `<div class="leader-medal">${medal}</div>` : ''}
                 <div class="leader-avatar">
-                    ${leader.avatar ? 
-                        `<img src="${leader.avatar}" alt="Avatar">` : 
+                    ${leader.avatar_url ? 
+                        `<img src="${leader.avatar_url}" alt="Avatar">` : 
                         '<div class="leader-avatar-placeholder">👤</div>'
                     }
                 </div>
