@@ -108,7 +108,11 @@ function loadUserData() {
     document.getElementById('user-rating').textContent = '0';
     
     console.log('Telegram WebApp available:', !!tg);
-    console.log('User data available:', !!(tg && tg.initDataUnsafe && tg.initDataUnsafe.user));
+    
+    if (tg) {
+        console.log('initDataUnsafe:', tg.initDataUnsafe);
+        console.log('User data available:', !!(tg.initDataUnsafe && tg.initDataUnsafe.user));
+    }
     
     if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
         const user = tg.initDataUnsafe.user;
@@ -137,9 +141,23 @@ function loadUserData() {
             // Интерфейс все равно работает с нулями
         });
     } else {
-        console.log('No Telegram user data - test mode');
-        // Если нет данных Telegram (тестирование в браузере)
-        document.getElementById('user-name').textContent = 'Тестовый пользователь';
+        console.warn('No Telegram user data available!');
+        console.warn('This might be because:');
+        console.warn('1. Bot is opened outside Telegram');
+        console.warn('2. Telegram WebApp not initialized');
+        console.warn('3. User data not passed by Telegram');
+        
+        // Показываем placeholder данные
+        document.getElementById('user-name').textContent = 'Гость';
+        document.getElementById('user-avatar').innerHTML = '<div class="avatar-placeholder">👤</div>';
+        
+        // Если есть Telegram но нет данных - пробуем получить хоть что-то
+        if (tg) {
+            console.log('Telegram object exists, trying to get any data...');
+            console.log('Platform:', tg.platform);
+            console.log('Version:', tg.version);
+            console.log('initData:', tg.initData);
+        }
     }
     
     console.log('=== loadUserData END ===');
