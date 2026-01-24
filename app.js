@@ -565,6 +565,32 @@ document.addEventListener('DOMContentLoaded', () => {
     createParticles();
     initSwipeGesture();
     renderLeaderboard();
+    
+    // Восстанавливаем кастомизацию если возвращаемся с другой страницы
+    const savedCustomization = sessionStorage.getItem('userCustomization');
+    if (savedCustomization) {
+        try {
+            const customization = JSON.parse(savedCustomization);
+            console.log('Restoring customization from session:', customization);
+            
+            // Применяем сохраненную кастомизацию
+            if (customization.equippedColor) {
+                const colorItem = shopItems.colors.find(i => i.id === customization.equippedColor);
+                if (colorItem) {
+                    setTimeout(() => applyNameColor(colorItem.class), 500);
+                }
+            }
+            
+            if (customization.equippedBadge) {
+                const badgeItem = shopItems.badges.find(i => i.id === customization.equippedBadge);
+                if (badgeItem) {
+                    setTimeout(() => applyBadgeColor(badgeItem.class), 500);
+                }
+            }
+        } catch (e) {
+            console.error('Error restoring customization:', e);
+        }
+    }
 });
 
 // Протягивание плашки пальцем (вверх и вниз)
@@ -1122,6 +1148,12 @@ function goToMain() {
 }
 
 function goToMap() {
+    // Сохраняем текущую кастомизацию в sessionStorage перед переходом
+    sessionStorage.setItem('userCustomization', JSON.stringify({
+        equippedColor: userInventory.equippedColor,
+        equippedBadge: userInventory.equippedBadge
+    }));
+    
     window.location.href = 'map.html';
     haptic();
 }
@@ -1516,6 +1548,15 @@ async function purchaseItem(type, itemId, price) {
         const currentTokens = parseInt(document.getElementById('user-tokens').textContent) || 0;
         const newTokens = currentTokens - price;
         
+        // Проверяем что предмет еще не куплен
+        if (userInventory[type].includes(itemId)) {
+            console.log('Item already owned');
+            if (tg?.showAlert) {
+                tg.showAlert('Этот предмет уже куплен!');
+            }
+            return;
+        }
+        
         // Добавляем в инвентарь
         userInventory[type].push(itemId);
         
@@ -1529,6 +1570,13 @@ async function purchaseItem(type, itemId, price) {
         // Получаем item для применения стиля
         const item = shopItems[type].find(i => i.id === itemId);
         
+        console.log('Saving to Supabase:', {
+            tokens: newTokens,
+            inventory: userInventory[type],
+            equippedColor: userInventory.equippedColor,
+            equippedBadge: userInventory.equippedBadge
+        });
+        
         // Сохраняем в Supabase
         const columnName = type === 'colors' ? 'owned_colors' : 'owned_badges';
         const { error } = await supabaseClient
@@ -1541,7 +1589,12 @@ async function purchaseItem(type, itemId, price) {
             })
             .eq('telegram_id', window.currentUserId);
         
-        if (error) throw error;
+        if (error) {
+            console.error('Supabase error:', error);
+            throw error;
+        }
+        
+        console.log('Saved successfully');
         
         // Применяем кастомизацию сразу
         if (type === 'colors' && item) {
@@ -1571,7 +1624,7 @@ async function purchaseItem(type, itemId, price) {
     } catch (error) {
         console.error('Purchase error:', error);
         if (tg?.showAlert) {
-            tg.showAlert('Ошибка покупки. Попробуй позже.');
+            tg.showAlert('Ошибка покупки: ' + error.message);
         }
     }
 }
@@ -1611,20 +1664,25 @@ async function saveCustomization() {
 async function loadCustomization(userData) {
     if (!userData) return;
     
+    console.log('Loading customization:', userData);
+    
     // Загружаем инвентарь из базы
     if (userData.owned_colors && Array.isArray(userData.owned_colors)) {
-        userInventory.colors = userData.owned_colors;
+        userInventory.colors = [...userData.owned_colors];
+        console.log('Loaded colors:', userInventory.colors);
     }
     
     if (userData.owned_badges && Array.isArray(userData.owned_badges)) {
-        userInventory.badges = userData.owned_badges;
+        userInventory.badges = [...userData.owned_badges];
+        console.log('Loaded badges:', userInventory.badges);
     }
     
-    // Загружаем кастомизацию из базы
+    // Загружаем и применяем кастомизацию из базы
     if (userData.name_color) {
         userInventory.equippedColor = userData.name_color;
         const item = shopItems.colors.find(i => i.id === userData.name_color);
         if (item) {
+            console.log('Applying name color:', item.class);
             applyNameColor(item.class);
         }
     }
@@ -1633,9 +1691,12 @@ async function loadCustomization(userData) {
         userInventory.equippedBadge = userData.badge_color;
         const item = shopItems.badges.find(i => i.id === userData.badge_color);
         if (item) {
+            console.log('Applying badge color:', item.class);
             applyBadgeColor(item.class);
         }
     }
+    
+    console.log('Customization loaded:', userInventory);
 }
 
 // === ОБМЕННИК ===
