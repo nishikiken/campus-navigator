@@ -927,6 +927,15 @@ async function renderLeaderboard() {
             rankClass = 'rank-3';
         }
         
+        // Применяем цвет ника если есть
+        let nameClass = '';
+        if (leader.name_color) {
+            const colorItem = shopItems.colors.find(i => i.id === leader.name_color);
+            if (colorItem) {
+                nameClass = colorItem.class;
+            }
+        }
+        
         return `
             <div class="leader-item ${rankClass}">
                 <div class="leader-rank">${rank}</div>
@@ -938,7 +947,7 @@ async function renderLeaderboard() {
                     }
                 </div>
                 <div class="leader-info">
-                    <div class="leader-name">${leader.name}</div>
+                    <div class="leader-name ${nameClass}">${leader.name}</div>
                     <div class="leader-rating">
                         <span class="leader-rating-icon">⭐</span>
                         <span class="leader-rating-value">${leader.rating}</span>
@@ -1427,15 +1436,20 @@ async function purchaseItem(type, itemId, price) {
         const currentTokens = parseInt(document.getElementById('user-tokens').textContent) || 0;
         const newTokens = currentTokens - price;
         
+        // Добавляем в инвентарь
+        userInventory[type].push(itemId);
+        
+        // Сохраняем в Supabase
+        const columnName = type === 'colors' ? 'owned_colors' : 'owned_badges';
         const { error } = await supabaseClient
             .from('users')
-            .update({ tokens: newTokens })
+            .update({ 
+                tokens: newTokens,
+                [columnName]: userInventory[type]
+            })
             .eq('telegram_id', window.currentUserId);
         
         if (error) throw error;
-        
-        // Добавляем в инвентарь
-        userInventory[type].push(itemId);
         
         // Обновляем UI
         document.getElementById('user-tokens').textContent = newTokens;
@@ -1491,12 +1505,20 @@ async function saveCustomization() {
 async function loadCustomization(userData) {
     if (!userData) return;
     
+    // Загружаем инвентарь из базы
+    if (userData.owned_colors && Array.isArray(userData.owned_colors)) {
+        userInventory.colors = userData.owned_colors;
+    }
+    
+    if (userData.owned_badges && Array.isArray(userData.owned_badges)) {
+        userInventory.badges = userData.owned_badges;
+    }
+    
     // Загружаем кастомизацию из базы
     if (userData.name_color) {
         userInventory.equippedColor = userData.name_color;
         const item = shopItems.colors.find(i => i.id === userData.name_color);
         if (item) {
-            userInventory.colors.push(userData.name_color);
             applyNameColor(item.class);
         }
     }
@@ -1505,7 +1527,6 @@ async function loadCustomization(userData) {
         userInventory.equippedBadge = userData.badge_color;
         const item = shopItems.badges.find(i => i.id === userData.badge_color);
         if (item) {
-            userInventory.badges.push(userData.badge_color);
             applyBadgeColor(item.class);
         }
     }

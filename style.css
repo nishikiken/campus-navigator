@@ -776,9 +776,15 @@ body {
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: 20px 16px 140px 16px; /* Увеличен нижний padding чтобы контент не перекрывался плашкой */
+    padding: 20px 16px 140px 16px;
     opacity: 1;
     transition: opacity 0.3s ease;
+}
+
+.overlay-menu-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
 }
 
 .overlay-content.hiding {

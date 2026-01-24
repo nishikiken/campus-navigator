@@ -6,7 +6,7 @@
     <title>Navigate Helper</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link rel="stylesheet" href="style.css?v=70">
+    <link rel="stylesheet" href="style.css?v=71">
     <style>
         /* Встроенная консоль для отладки */
         #debug-console {
@@ -103,25 +103,27 @@
                     <button class="back-capsule back-under-card" onclick="closeOverlay()">
                         ← Назад
                     </button>
-                    <div class="menu-card leaderboard-btn-card" id="leaderboard-btn-card" onclick="openLeaderboard()">
-                        <div class="menu-icon">🏆</div>
-                        <div class="menu-info">
-                            <h3>Таблица лидеров</h3>
-                            <p>Топ 50 игроков по рейтингу</p>
+                    <div class="overlay-menu-cards">
+                        <div class="menu-card leaderboard-btn-card" id="leaderboard-btn-card" onclick="openLeaderboard()">
+                            <div class="menu-icon">🏆</div>
+                            <div class="menu-info">
+                                <h3>Таблица лидеров</h3>
+                                <p>Топ 50 игроков по рейтингу</p>
+                            </div>
                         </div>
-                    </div>
-                    <div class="menu-card" onclick="goToShop()">
-                        <div class="menu-icon">🎨</div>
-                        <div class="menu-info">
-                            <h3>Магазин кастомизации</h3>
-                            <p>Персонализируй свой профиль</p>
+                        <div class="menu-card" onclick="goToShop()">
+                            <div class="menu-icon">🎨</div>
+                            <div class="menu-info">
+                                <h3>Магазин кастомизации</h3>
+                                <p>Персонализируй свой профиль</p>
+                            </div>
                         </div>
-                    </div>
-                    <div class="menu-card" onclick="goToExchange()">
-                        <div class="menu-icon">💱</div>
-                        <div class="menu-info">
-                            <h3>Обменник</h3>
-                            <p>Обменяй рейтинг на токены</p>
+                        <div class="menu-card" onclick="goToExchange()">
+                            <div class="menu-icon">💱</div>
+                            <div class="menu-info">
+                                <h3>Обменник</h3>
+                                <p>Обменяй рейтинг на токены</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -150,7 +152,7 @@
                         <div class="user-avatar" id="user-avatar">
                             <div class="avatar-placeholder">👤</div>
                         </div>
-                        <div class="user-version">v70</div>
+                        <div class="user-version">v71</div>
                     </div>
                 </div>
             </div>
@@ -313,6 +315,6 @@
             <button class="arrived-btn" onclick="arrived()">✅ Дошли!</button>
         </div>
     </div>
-    <script src="app.js?v=70"></script>
+    <script src="app.js?v=71"></script>
 </body>
 </html>
