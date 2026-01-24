@@ -1274,6 +1274,31 @@ body {
         0 0 40px #22ff00;
 }
 
+/* Уменьшенное свечение для ников в лидерборде */
+.leader-name.neon-blue {
+    text-shadow: 
+        0 0 5px #00d9ff,
+        0 0 10px #00d9ff;
+}
+
+.leader-name.neon-red {
+    text-shadow: 
+        0 0 5px #ff0055,
+        0 0 10px #ff0055;
+}
+
+.leader-name.neon-purple {
+    text-shadow: 
+        0 0 5px #d946ef,
+        0 0 10px #d946ef;
+}
+
+.leader-name.neon-green {
+    text-shadow: 
+        0 0 5px #22ff00,
+        0 0 10px #22ff00;
+}
+
 .shop-item-info {
     flex: 1;
 }

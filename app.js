@@ -1151,7 +1151,9 @@ function goToMap() {
     // Сохраняем текущую кастомизацию в sessionStorage перед переходом
     sessionStorage.setItem('userCustomization', JSON.stringify({
         equippedColor: userInventory.equippedColor,
-        equippedBadge: userInventory.equippedBadge
+        equippedBadge: userInventory.equippedBadge,
+        ownedColors: userInventory.colors,
+        ownedBadges: userInventory.badges
     }));
     
     window.location.href = 'map.html';
