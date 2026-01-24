@@ -2,10 +2,16 @@
 const SUPABASE_URL = 'https://hyxyablgkjtoxcxnurkk.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh5eHlhYmxna2p0b3hjeG51cmtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkxODE5NjksImV4cCI6MjA4NDc1Nzk2OX0._3HQYSymZ2ArXIN143gAiwulCL1yt7i5fiHaTd4bp5U';
 
+console.log('=== SCRIPT LOADED ===');
+console.log('Supabase URL:', SUPABASE_URL);
+console.log('window.supabase available:', !!window.supabase);
+
 // Инициализация Supabase после загрузки библиотеки
 let supabase;
 if (window.supabase) {
+    console.log('Initializing Supabase...');
     supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    console.log('Supabase initialized:', !!supabase);
 } else {
     console.error('Supabase library not loaded!');
 }
@@ -95,12 +101,19 @@ console.log('Debug console initialized');
 
 // Загрузка данных пользователя из Telegram
 function loadUserData() {
+    console.log('=== loadUserData START ===');
+    
     // СРАЗУ показываем нули чтобы интерфейс не зависал
     document.getElementById('user-tokens').textContent = '0';
     document.getElementById('user-rating').textContent = '0';
     
+    console.log('Telegram WebApp available:', !!tg);
+    console.log('User data available:', !!(tg && tg.initDataUnsafe && tg.initDataUnsafe.user));
+    
     if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
         const user = tg.initDataUnsafe.user;
+        console.log('User ID:', user.id);
+        console.log('User name:', user.first_name);
         
         // Устанавливаем имя пользователя
         const userName = user.first_name || user.username || 'Пользователь';
@@ -118,19 +131,28 @@ function loadUserData() {
         // Загрузка данных пользователя с сервера В ФОНЕ (не блокирует интерфейс)
         // Всегда передаем актуальную аватарку из Telegram (или null)
         const actualAvatarUrl = user.photo_url || null;
+        console.log('Calling loadUserDataFromAPI...');
         loadUserDataFromAPI(user.id, userName, actualAvatarUrl).catch(err => {
             console.error('Failed to load user data:', err);
             // Интерфейс все равно работает с нулями
         });
     } else {
+        console.log('No Telegram user data - test mode');
         // Если нет данных Telegram (тестирование в браузере)
         document.getElementById('user-name').textContent = 'Тестовый пользователь';
     }
+    
+    console.log('=== loadUserData END ===');
 }
 
 // === API FUNCTIONS ===
 // Загрузка данных пользователя с сервера
 async function loadUserDataFromAPI(telegramId, name, avatarUrl) {
+    console.log('=== loadUserDataFromAPI START ===');
+    console.log('Telegram ID:', telegramId);
+    console.log('Name:', name);
+    console.log('Avatar URL:', avatarUrl);
+    
     // Показываем нули сразу, чтобы интерфейс не зависал
     document.getElementById('user-tokens').textContent = '0';
     document.getElementById('user-rating').textContent = '0';
@@ -141,6 +163,8 @@ async function loadUserDataFromAPI(telegramId, name, avatarUrl) {
         return;
     }
     
+    console.log('Supabase is ready');
+    
     try {
         console.log(`Loading user data for ${telegramId}...`);
         
@@ -148,6 +172,8 @@ async function loadUserDataFromAPI(telegramId, name, avatarUrl) {
         const timeoutPromise = new Promise((_, reject) => 
             setTimeout(() => reject(new Error('Timeout')), 5000)
         );
+        
+        console.log('Fetching user from database...');
         
         // Пытаемся получить данные пользователя
         const fetchPromise = supabase
@@ -157,6 +183,8 @@ async function loadUserDataFromAPI(telegramId, name, avatarUrl) {
             .single();
         
         const { data: existingUser, error: fetchError } = await Promise.race([fetchPromise, timeoutPromise]);
+        
+        console.log('Fetch result:', { existingUser, fetchError });
         
         if (fetchError && fetchError.code !== 'PGRST116') {
             throw fetchError;
@@ -177,10 +205,13 @@ async function loadUserDataFromAPI(telegramId, name, avatarUrl) {
                 .select()
                 .single();
             
+            console.log('Create result:', { newUser, createError });
+            
             if (createError) throw createError;
             userData = newUser;
         } else {
             // Обновляем данные существующего пользователя
+            console.log('User found, updating...');
             const { data: updatedUser, error: updateError } = await supabase
                 .from('users')
                 .update({
@@ -190,6 +221,8 @@ async function loadUserDataFromAPI(telegramId, name, avatarUrl) {
                 .eq('telegram_id', telegramId)
                 .select()
                 .single();
+            
+            console.log('Update result:', { updatedUser, updateError });
             
             if (updateError) throw updateError;
             userData = updatedUser;
@@ -204,8 +237,12 @@ async function loadUserDataFromAPI(telegramId, name, avatarUrl) {
         // Сохраняем ID пользователя для дальнейшего использования
         window.currentUserId = telegramId;
         
+        console.log('=== loadUserDataFromAPI SUCCESS ===');
+        
     } catch (error) {
+        console.error('=== loadUserDataFromAPI ERROR ===');
         console.error('Error loading user data:', error);
+        console.error('Error details:', error.message, error.code, error.details);
         // В случае ошибки показываем нули
         document.getElementById('user-tokens').textContent = '0';
         document.getElementById('user-rating').textContent = '0';
