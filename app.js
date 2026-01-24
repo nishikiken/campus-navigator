@@ -1403,6 +1403,12 @@ async function buyOrEquipItem(type, itemId) {
         // Сохранить в Supabase
         await saveCustomization();
         
+        // Обновить лидерборд если открыт
+        const leaderboardView = document.getElementById('step-leaderboard');
+        if (leaderboardView.classList.contains('active')) {
+            await renderLeaderboard();
+        }
+        
         renderShop();
         haptic('success');
     } else {
@@ -1421,11 +1427,11 @@ async function buyOrEquipItem(type, itemId) {
         if (tg?.showConfirm) {
             tg.showConfirm(`Купить "${item.name}" за ${item.price} 🎟️?`, async (confirmed) => {
                 if (confirmed) {
-                    await purchaseItem(type, itemId, item.price);
+                    await purchaseItem(type, itemId, item.price, item);
                 }
             });
         } else {
-            await purchaseItem(type, itemId, item.price);
+            await purchaseItem(type, itemId, item.price, item);
         }
     }
 }
@@ -1439,20 +1445,46 @@ async function purchaseItem(type, itemId, price) {
         // Добавляем в инвентарь
         userInventory[type].push(itemId);
         
+        // Автоматически надеваем купленный предмет
+        if (type === 'colors') {
+            userInventory.equippedColor = itemId;
+        } else {
+            userInventory.equippedBadge = itemId;
+        }
+        
+        // Получаем item для применения стиля
+        const item = shopItems[type].find(i => i.id === itemId);
+        
         // Сохраняем в Supabase
         const columnName = type === 'colors' ? 'owned_colors' : 'owned_badges';
         const { error } = await supabaseClient
             .from('users')
             .update({ 
                 tokens: newTokens,
-                [columnName]: userInventory[type]
+                [columnName]: userInventory[type],
+                name_color: userInventory.equippedColor,
+                badge_color: userInventory.equippedBadge
             })
             .eq('telegram_id', window.currentUserId);
         
         if (error) throw error;
         
+        // Применяем кастомизацию сразу
+        if (type === 'colors' && item) {
+            applyNameColor(item.class);
+        } else if (type === 'badges' && item) {
+            applyBadgeColor(item.class);
+        }
+        
         // Обновляем UI
         document.getElementById('user-tokens').textContent = newTokens;
+        
+        // Обновить лидерборд если открыт
+        const leaderboardView = document.getElementById('step-leaderboard');
+        if (leaderboardView.classList.contains('active')) {
+            await renderLeaderboard();
+        }
+        
         renderShop();
         
         if (tg?.showAlert) {
