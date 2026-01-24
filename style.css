@@ -1175,24 +1175,19 @@ body {
     border-radius: 16px;
     padding: 16px;
     display: flex;
-    align-items: center;
-    gap: 16px;
-    cursor: pointer;
+    flex-direction: column;
+    gap: 12px;
     transition: all 0.3s;
-}
-
-.shop-item:active {
-    transform: scale(0.98);
 }
 
 .shop-item.owned {
     border-color: rgba(76, 217, 100, 0.5);
-    background: rgba(76, 217, 100, 0.1);
+    background: rgba(76, 217, 100, 0.05);
 }
 
 .shop-item.equipped {
     border-color: var(--tg-theme-button-color);
-    background: rgba(10, 132, 255, 0.1);
+    background: rgba(10, 132, 255, 0.05);
 }
 
 .shop-item-preview {
@@ -1200,9 +1195,46 @@ body {
     font-size: 18px;
     font-weight: 700;
     text-align: center;
-    padding: 12px;
+    padding: 16px;
     border-radius: 12px;
     background: rgba(0, 0, 0, 0.3);
+}
+
+.shop-item-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.shop-action-btn {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-buy {
+    background: var(--tg-theme-button-color);
+    color: var(--tg-theme-button-text-color);
+}
+
+.btn-equip {
+    background: rgba(76, 217, 100, 0.2);
+    color: #4cd964;
+    border: 1px solid #4cd964;
+}
+
+.btn-unequip {
+    background: rgba(255, 149, 0, 0.2);
+    color: #ff9500;
+    border: 1px solid #ff9500;
+}
+
+.shop-action-btn:active {
+    transform: scale(0.95);
 }
 
 /* Неоновые эффекты для ников */

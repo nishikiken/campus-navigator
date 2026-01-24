@@ -936,8 +936,17 @@ async function renderLeaderboard() {
             }
         }
         
+        // Применяем бейдж если есть
+        let badgeClass = '';
+        if (leader.badge_color) {
+            const badgeItem = shopItems.badges.find(i => i.id === leader.badge_color);
+            if (badgeItem) {
+                badgeClass = badgeItem.class;
+            }
+        }
+        
         return `
-            <div class="leader-item ${rankClass}">
+            <div class="leader-item ${rankClass} ${badgeClass}">
                 <div class="leader-rank">${rank}</div>
                 ${medal ? `<div class="leader-medal">${medal}</div>` : ''}
                 <div class="leader-avatar">
@@ -1340,20 +1349,20 @@ function renderShopColors() {
         const equipped = userInventory.equippedColor === item.id;
         
         return `
-            <div class="shop-item ${owned ? 'owned' : ''} ${equipped ? 'equipped' : ''}" 
-                 onclick="buyOrEquipItem('colors', '${item.id}')">
+            <div class="shop-item ${owned ? 'owned' : ''} ${equipped ? 'equipped' : ''}">
                 <div class="shop-item-preview ${item.class}">
                     ${userName}
                 </div>
-                <div class="shop-item-info">
-                    <div class="shop-item-name">${item.name}</div>
-                    <div class="shop-item-price">
-                        ${owned ? (equipped ? 'Надето' : 'Надеть') : `${item.price} 🎟️`}
-                    </div>
+                <div class="shop-item-actions">
+                    ${owned ? 
+                        `<button class="shop-action-btn ${equipped ? 'btn-unequip' : 'btn-equip'}" onclick="toggleEquipItem('colors', '${item.id}')">
+                            ${equipped ? '✓ Снять' : 'Надеть'}
+                        </button>` :
+                        `<button class="shop-action-btn btn-buy" onclick="buyItem('colors', '${item.id}', ${item.price})">
+                            Купить ${item.price} 🎟️
+                        </button>`
+                    }
                 </div>
-                ${owned ? `<div class="shop-item-status ${equipped ? 'status-equipped' : 'status-owned'}">
-                    ${equipped ? '✓ Надето' : '✓ Куплено'}
-                </div>` : ''}
             </div>
         `;
     }).join('');
@@ -1367,23 +1376,88 @@ function renderShopBadges() {
         const equipped = userInventory.equippedBadge === item.id;
         
         return `
-            <div class="shop-item ${owned ? 'owned' : ''} ${equipped ? 'equipped' : ''}" 
-                 onclick="buyOrEquipItem('badges', '${item.id}')">
+            <div class="shop-item ${owned ? 'owned' : ''} ${equipped ? 'equipped' : ''}">
                 <div class="shop-item-preview ${item.class}" style="padding: 20px; border-radius: 16px;">
                     Плашка профиля
                 </div>
-                <div class="shop-item-info">
-                    <div class="shop-item-name">${item.name}</div>
-                    <div class="shop-item-price">
-                        ${owned ? (equipped ? 'Надето' : 'Надеть') : `${item.price} 🎟️`}
-                    </div>
+                <div class="shop-item-actions">
+                    ${owned ? 
+                        `<button class="shop-action-btn ${equipped ? 'btn-unequip' : 'btn-equip'}" onclick="toggleEquipItem('badges', '${item.id}')">
+                            ${equipped ? '✓ Снять' : 'Надеть'}
+                        </button>` :
+                        `<button class="shop-action-btn btn-buy" onclick="buyItem('badges', '${item.id}', ${item.price})">
+                            Купить ${item.price} 🎟️
+                        </button>`
+                    }
                 </div>
-                ${owned ? `<div class="shop-item-status ${equipped ? 'status-equipped' : 'status-owned'}">
-                    ${equipped ? '✓ Надето' : '✓ Куплено'}
-                </div>` : ''}
             </div>
         `;
     }).join('');
+}
+
+async function buyItem(type, itemId, price) {
+    const currentTokens = parseInt(document.getElementById('user-tokens').textContent) || 0;
+    
+    if (currentTokens < price) {
+        if (tg?.showAlert) {
+            tg.showAlert(`Недостаточно токенов! Нужно ${price} 🎟️`);
+        }
+        haptic();
+        return;
+    }
+    
+    // Подтверждение покупки
+    const item = shopItems[type].find(i => i.id === itemId);
+    if (tg?.showConfirm) {
+        tg.showConfirm(`Купить "${item.name}" за ${price} 🎟️?`, async (confirmed) => {
+            if (confirmed) {
+                await purchaseItem(type, itemId, price);
+            }
+        });
+    } else {
+        await purchaseItem(type, itemId, price);
+    }
+}
+
+async function toggleEquipItem(type, itemId) {
+    const item = shopItems[type].find(i => i.id === itemId);
+    const isEquipped = (type === 'colors' ? userInventory.equippedColor : userInventory.equippedBadge) === itemId;
+    
+    if (isEquipped) {
+        // Снять предмет
+        if (type === 'colors') {
+            userInventory.equippedColor = null;
+            // Убираем все классы цветов
+            const nameEl = document.getElementById('user-name');
+            nameEl.className = '';
+        } else {
+            userInventory.equippedBadge = null;
+            // Убираем все классы бейджей
+            const card = document.getElementById('user-profile-card');
+            card.classList.remove('badge-blue', 'badge-red', 'badge-purple', 'badge-green');
+        }
+    } else {
+        // Надеть предмет
+        if (type === 'colors') {
+            userInventory.equippedColor = itemId;
+            applyNameColor(item.class);
+        } else {
+            userInventory.equippedBadge = itemId;
+            applyBadgeColor(item.class);
+        }
+    }
+    
+    // Сохранить в Supabase
+    await saveCustomization();
+    
+    // Обновить лидерборд если открыт
+    const leaderboardView = document.getElementById('step-leaderboard');
+    if (leaderboardView.classList.contains('active')) {
+        await renderLeaderboard();
+    }
+    
+    renderShop();
+    haptic('success');
 }
 
 async function buyOrEquipItem(type, itemId) {
