@@ -255,6 +255,9 @@ async function loadUserDataFromAPI(telegramId, name, avatarUrl) {
         // Сохраняем ID пользователя для дальнейшего использования
         window.currentUserId = telegramId;
         
+        // Загружаем кастомизацию
+        await loadCustomization(userData);
+        
         console.log('=== loadUserDataFromAPI SUCCESS ===');
         
     } catch (error) {
@@ -1121,11 +1124,22 @@ function goToFAQ() {
 }
 
 function goToShop() {
-    // TODO: Реализовать магазин кастомизации
-    if (tg?.showAlert) {
-        tg.showAlert('Магазин кастомизации скоро откроется! 🎨');
-    }
+    renderShop();
+    showStep('step-shop');
     haptic();
+}
+
+function goToExchange() {
+    showStep('step-exchange');
+    haptic();
+    
+    // Обновляем расчет при вводе
+    const input = document.getElementById('exchange-amount');
+    input.addEventListener('input', () => {
+        const amount = parseInt(input.value) || 0;
+        const tokens = Math.floor(amount / 100);
+        document.getElementById('exchange-tokens').textContent = tokens;
+    });
 }
 
 function goToFoodList() {
@@ -1265,6 +1279,313 @@ function haptic(type = 'selection') {
             tg.HapticFeedback.notificationOccurred('success');
         } else {
             tg.HapticFeedback.selectionChanged();
+        }
+    }
+}
+
+
+// === МАГАЗИН КАСТОМИЗАЦИИ ===
+const shopItems = {
+    colors: [
+        { id: 'blue', name: 'Синий неон', price: 50, class: 'neon-blue' },
+        { id: 'red', name: 'Красный неон', price: 50, class: 'neon-red' },
+        { id: 'purple', name: 'Фиолетовый неон', price: 75, class: 'neon-purple' },
+        { id: 'green', name: 'Зеленый неон', price: 75, class: 'neon-green' }
+    ],
+    badges: [
+        { id: 'blue', name: 'Синее стекло', price: 100, class: 'badge-blue' },
+        { id: 'red', name: 'Красное стекло', price: 100, class: 'badge-red' },
+        { id: 'purple', name: 'Фиолетовое стекло', price: 150, class: 'badge-purple' },
+        { id: 'green', name: 'Зеленое стекло', price: 150, class: 'badge-green' }
+    ]
+};
+
+let userInventory = {
+    colors: [],
+    badges: [],
+    equippedColor: null,
+    equippedBadge: null
+};
+
+function switchShopTab(tab) {
+    document.querySelectorAll('.shop-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.shop-content').forEach(c => c.classList.remove('active'));
+    
+    event.target.classList.add('active');
+    document.getElementById(`shop-${tab}`).classList.add('active');
+    
+    haptic();
+}
+
+function renderShop() {
+    renderShopColors();
+    renderShopBadges();
+}
+
+function renderShopColors() {
+    const container = document.getElementById('color-items');
+    const userName = document.getElementById('user-name').textContent;
+    
+    container.innerHTML = shopItems.colors.map(item => {
+        const owned = userInventory.colors.includes(item.id);
+        const equipped = userInventory.equippedColor === item.id;
+        
+        return `
+            <div class="shop-item ${owned ? 'owned' : ''} ${equipped ? 'equipped' : ''}" 
+                 onclick="buyOrEquipItem('colors', '${item.id}')">
+                <div class="shop-item-preview ${item.class}">
+                    ${userName}
+                </div>
+                <div class="shop-item-info">
+                    <div class="shop-item-name">${item.name}</div>
+                    <div class="shop-item-price">
+                        ${owned ? (equipped ? 'Надето' : 'Надеть') : `${item.price} 🎟️`}
+                    </div>
+                </div>
+                ${owned ? `<div class="shop-item-status ${equipped ? 'status-equipped' : 'status-owned'}">
+                    ${equipped ? '✓ Надето' : '✓ Куплено'}
+                </div>` : ''}
+            </div>
+        `;
+    }).join('');
+}
+
+function renderShopBadges() {
+    const container = document.getElementById('badge-items');
+    
+    container.innerHTML = shopItems.badges.map(item => {
+        const owned = userInventory.badges.includes(item.id);
+        const equipped = userInventory.equippedBadge === item.id;
+        
+        return `
+            <div class="shop-item ${owned ? 'owned' : ''} ${equipped ? 'equipped' : ''}" 
+                 onclick="buyOrEquipItem('badges', '${item.id}')">
+                <div class="shop-item-preview ${item.class}" style="padding: 20px; border-radius: 16px;">
+                    Плашка профиля
+                </div>
+                <div class="shop-item-info">
+                    <div class="shop-item-name">${item.name}</div>
+                    <div class="shop-item-price">
+                        ${owned ? (equipped ? 'Надето' : 'Надеть') : `${item.price} 🎟️`}
+                    </div>
+                </div>
+                ${owned ? `<div class="shop-item-status ${equipped ? 'status-equipped' : 'status-owned'}">
+                    ${equipped ? '✓ Надето' : '✓ Куплено'}
+                </div>` : ''}
+            </div>
+        `;
+    }).join('');
+}
+
+async function buyOrEquipItem(type, itemId) {
+    const item = shopItems[type].find(i => i.id === itemId);
+    const owned = userInventory[type].includes(itemId);
+    
+    if (owned) {
+        // Надеть предмет
+        if (type === 'colors') {
+            userInventory.equippedColor = itemId;
+            applyNameColor(item.class);
+        } else {
+            userInventory.equippedBadge = itemId;
+            applyBadgeColor(item.class);
+        }
+        
+        // Сохранить в Supabase
+        await saveCustomization();
+        
+        renderShop();
+        haptic('success');
+    } else {
+        // Купить предмет
+        const currentTokens = parseInt(document.getElementById('user-tokens').textContent) || 0;
+        
+        if (currentTokens < item.price) {
+            if (tg?.showAlert) {
+                tg.showAlert(`Недостаточно токенов! Нужно ${item.price} 🎟️`);
+            }
+            haptic();
+            return;
+        }
+        
+        // Подтверждение покупки
+        if (tg?.showConfirm) {
+            tg.showConfirm(`Купить "${item.name}" за ${item.price} 🎟️?`, async (confirmed) => {
+                if (confirmed) {
+                    await purchaseItem(type, itemId, item.price);
+                }
+            });
+        } else {
+            await purchaseItem(type, itemId, item.price);
+        }
+    }
+}
+
+async function purchaseItem(type, itemId, price) {
+    try {
+        // Списываем токены
+        const currentTokens = parseInt(document.getElementById('user-tokens').textContent) || 0;
+        const newTokens = currentTokens - price;
+        
+        const { error } = await supabaseClient
+            .from('users')
+            .update({ tokens: newTokens })
+            .eq('telegram_id', window.currentUserId);
+        
+        if (error) throw error;
+        
+        // Добавляем в инвентарь
+        userInventory[type].push(itemId);
+        
+        // Обновляем UI
+        document.getElementById('user-tokens').textContent = newTokens;
+        renderShop();
+        
+        if (tg?.showAlert) {
+            tg.showAlert('Покупка успешна! 🎉');
+        }
+        
+        haptic('success');
+        showConfetti();
+        
+    } catch (error) {
+        console.error('Purchase error:', error);
+        if (tg?.showAlert) {
+            tg.showAlert('Ошибка покупки. Попробуй позже.');
+        }
+    }
+}
+
+function applyNameColor(colorClass) {
+    const nameEl = document.getElementById('user-name');
+    nameEl.className = colorClass;
+}
+
+function applyBadgeColor(badgeClass) {
+    const card = document.getElementById('user-profile-card');
+    // Удаляем все badge классы
+    card.classList.remove('badge-blue', 'badge-red', 'badge-purple', 'badge-green');
+    // Добавляем новый
+    card.classList.add(badgeClass);
+}
+
+async function saveCustomization() {
+    if (!window.currentUserId) return;
+    
+    try {
+        const { error } = await supabaseClient
+            .from('users')
+            .update({
+                name_color: userInventory.equippedColor,
+                badge_color: userInventory.equippedBadge
+            })
+            .eq('telegram_id', window.currentUserId);
+        
+        if (error) throw error;
+        console.log('Customization saved');
+    } catch (error) {
+        console.error('Save customization error:', error);
+    }
+}
+
+async function loadCustomization(userData) {
+    if (!userData) return;
+    
+    // Загружаем кастомизацию из базы
+    if (userData.name_color) {
+        userInventory.equippedColor = userData.name_color;
+        const item = shopItems.colors.find(i => i.id === userData.name_color);
+        if (item) {
+            userInventory.colors.push(userData.name_color);
+            applyNameColor(item.class);
+        }
+    }
+    
+    if (userData.badge_color) {
+        userInventory.equippedBadge = userData.badge_color;
+        const item = shopItems.badges.find(i => i.id === userData.badge_color);
+        if (item) {
+            userInventory.badges.push(userData.badge_color);
+            applyBadgeColor(item.class);
+        }
+    }
+}
+
+// === ОБМЕННИК ===
+async function performExchange() {
+    const amount = parseInt(document.getElementById('exchange-amount').value) || 0;
+    
+    if (amount < 100) {
+        if (tg?.showAlert) {
+            tg.showAlert('Минимум 100 рейтинга для обмена!');
+        }
+        return;
+    }
+    
+    if (amount % 100 !== 0) {
+        if (tg?.showAlert) {
+            tg.showAlert('Количество должно быть кратно 100!');
+        }
+        return;
+    }
+    
+    const currentRating = parseInt(document.getElementById('user-rating').textContent) || 0;
+    
+    if (currentRating < amount) {
+        if (tg?.showAlert) {
+            tg.showAlert('Недостаточно рейтинга!');
+        }
+        return;
+    }
+    
+    const tokensToAdd = Math.floor(amount / 100);
+    
+    if (tg?.showConfirm) {
+        tg.showConfirm(`Обменять ${amount} ⭐ на ${tokensToAdd} 🎟️?`, async (confirmed) => {
+            if (confirmed) {
+                await executeExchange(amount, tokensToAdd);
+            }
+        });
+    } else {
+        await executeExchange(amount, tokensToAdd);
+    }
+}
+
+async function executeExchange(ratingAmount, tokensAmount) {
+    try {
+        const currentRating = parseInt(document.getElementById('user-rating').textContent) || 0;
+        const currentTokens = parseInt(document.getElementById('user-tokens').textContent) || 0;
+        
+        const newRating = currentRating - ratingAmount;
+        const newTokens = currentTokens + tokensAmount;
+        
+        const { error } = await supabaseClient
+            .from('users')
+            .update({
+                rating: newRating,
+                tokens: newTokens
+            })
+            .eq('telegram_id', window.currentUserId);
+        
+        if (error) throw error;
+        
+        // Обновляем UI
+        document.getElementById('user-rating').textContent = newRating;
+        document.getElementById('user-tokens').textContent = newTokens;
+        document.getElementById('exchange-amount').value = '';
+        document.getElementById('exchange-tokens').textContent = '0';
+        
+        if (tg?.showAlert) {
+            tg.showAlert(`Успешно! Получено ${tokensAmount} 🎟️`);
+        }
+        
+        haptic('success');
+        showConfetti();
+        
+    } catch (error) {
+        console.error('Exchange error:', error);
+        if (tg?.showAlert) {
+            tg.showAlert('Ошибка обмена. Попробуй позже.');
         }
     }
 }

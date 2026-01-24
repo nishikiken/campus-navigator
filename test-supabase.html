@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supabase Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body style="background: #1a1a1a; color: #fff; font-family: monospace; padding: 20px;">
+    <h1>Supabase Connection Test</h1>
+    <button onclick="testConnection()" style="padding: 10px 20px; font-size: 16px; cursor: pointer;">Test Connection</button>
+    <pre id="result" style="background: #000; padding: 20px; margin-top: 20px; border-radius: 8px;"></pre>
+    
+    <script>
+        const SUPABASE_URL = 'https://hyxyablgkjtoxcxnurkk.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh5eHlhYmxna2p0b3hjeG51cmtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkxODE5NjksImV4cCI6MjA4NDc1Nzk2OX0._3HQYSymZ2ArXIN143gAiwulCL1yt7i5fiHaTd4bp5U';
+        
+        let supabaseClient;
+        const resultEl = document.getElementById('result');
+        
+        // Ждем загрузки библиотеки
+        window.addEventListener('DOMContentLoaded', () => {
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            console.log('Supabase initialized');
+        });
+        
+        async function testConnection() {
+            resultEl.textContent = 'Testing connection...\n';
+            
+            if (!supabaseClient) {
+                resultEl.textContent += '❌ Supabase not initialized!\n';
+                return;
+            }
+            
+            try {
+                // Test 1: Select all users
+                resultEl.textContent += '\n[TEST 1] Fetching all users...\n';
+                const { data: users, error: selectError } = await supabaseClient
+                    .from('users')
+                    .select('*');
+                
+                if (selectError) {
+                    resultEl.textContent += `❌ SELECT ERROR: ${selectError.message}\n`;
+                    resultEl.textContent += `Code: ${selectError.code}\n`;
+                    resultEl.textContent += `Details: ${JSON.stringify(selectError.details)}\n`;
+                } else {
+                    resultEl.textContent += `✅ SELECT SUCCESS! Found ${users.length} users\n`;
+                    resultEl.textContent += `Data: ${JSON.stringify(users, null, 2)}\n`;
+                }
+                
+                // Test 2: Insert test user
+                resultEl.textContent += '\n[TEST 2] Inserting test user...\n';
+                const testUser = {
+                    telegram_id: 999999999,
+                    name: 'Test Insert User',
+                    tokens: 50,
+                    rating: 25,
+                    avatar_url: null
+                };
+                
+                const { data: insertData, error: insertError } = await supabaseClient
+                    .from('users')
+                    .insert([testUser])
+                    .select()
+                    .single();
+                
+                if (insertError) {
+                    resultEl.textContent += `❌ INSERT ERROR: ${insertError.message}\n`;
+                    resultEl.textContent += `Code: ${insertError.code}\n`;
+                } else {
+                    resultEl.textContent += `✅ INSERT SUCCESS!\n`;
+                    resultEl.textContent += `Data: ${JSON.stringify(insertData, null, 2)}\n`;
+                }
+                
+                // Test 3: Update test user
+                resultEl.textContent += '\n[TEST 3] Updating test user...\n';
+                const { data: updateData, error: updateError } = await supabaseClient
+                    .from('users')
+                    .update({ tokens: 100 })
+                    .eq('telegram_id', 999999999)
+                    .select()
+                    .single();
+                
+                if (updateError) {
+                    resultEl.textContent += `❌ UPDATE ERROR: ${updateError.message}\n`;
+                } else {
+                    resultEl.textContent += `✅ UPDATE SUCCESS!\n`;
+                    resultEl.textContent += `Data: ${JSON.stringify(updateData, null, 2)}\n`;
+                }
+                
+                resultEl.textContent += '\n=== ALL TESTS COMPLETED ===\n';
+                
+            } catch (error) {
+                resultEl.textContent += `\n❌ FATAL ERROR: ${error.message}\n`;
+                resultEl.textContent += `Stack: ${error.stack}\n`;
+            }
+        }
+        
+        // Auto-run on load
+        window.addEventListener('load', () => {
+            setTimeout(testConnection, 1000);
+        });
+    </script>
+</body>
+</html>

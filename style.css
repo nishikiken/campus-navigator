@@ -1117,3 +1117,272 @@ body {
 .avatar-placeholder {
     font-size: 28px;
 }
+
+
+/* === МАГАЗИН КАСТОМИЗАЦИИ === */
+.shop-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding: 0 20px;
+}
+
+.shop-tab {
+    flex: 1;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--tg-theme-hint-color);
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.shop-tab.active {
+    background: var(--tg-theme-button-color);
+    color: var(--tg-theme-button-text-color);
+    border-color: var(--tg-theme-button-color);
+}
+
+.shop-content {
+    display: none;
+    padding: 0 20px 100px;
+}
+
+.shop-content.active {
+    display: block;
+}
+
+.shop-items {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.shop-item {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.shop-item:active {
+    transform: scale(0.98);
+}
+
+.shop-item.owned {
+    border-color: rgba(76, 217, 100, 0.5);
+    background: rgba(76, 217, 100, 0.1);
+}
+
+.shop-item.equipped {
+    border-color: var(--tg-theme-button-color);
+    background: rgba(10, 132, 255, 0.1);
+}
+
+.shop-item-preview {
+    flex: 1;
+    font-size: 18px;
+    font-weight: 700;
+    text-align: center;
+    padding: 12px;
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+/* Неоновые эффекты для ников */
+.neon-blue {
+    color: #00d9ff;
+    text-shadow: 
+        0 0 10px #00d9ff,
+        0 0 20px #00d9ff,
+        0 0 30px #00d9ff,
+        0 0 40px #00d9ff;
+}
+
+.neon-red {
+    color: #ff0055;
+    text-shadow: 
+        0 0 10px #ff0055,
+        0 0 20px #ff0055,
+        0 0 30px #ff0055,
+        0 0 40px #ff0055;
+}
+
+.neon-purple {
+    color: #d946ef;
+    text-shadow: 
+        0 0 10px #d946ef,
+        0 0 20px #d946ef,
+        0 0 30px #d946ef,
+        0 0 40px #d946ef;
+}
+
+.neon-green {
+    color: #22ff00;
+    text-shadow: 
+        0 0 10px #22ff00,
+        0 0 20px #22ff00,
+        0 0 30px #22ff00,
+        0 0 40px #22ff00;
+}
+
+.shop-item-info {
+    flex: 1;
+}
+
+.shop-item-name {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.shop-item-price {
+    font-size: 14px;
+    color: var(--tg-theme-hint-color);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.shop-item-status {
+    font-size: 12px;
+    padding: 4px 12px;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+.status-owned {
+    background: rgba(76, 217, 100, 0.2);
+    color: #4cd964;
+}
+
+.status-equipped {
+    background: rgba(10, 132, 255, 0.2);
+    color: var(--tg-theme-button-color);
+}
+
+/* === ОБМЕННИК === */
+.exchange-container {
+    padding: 20px;
+}
+
+.exchange-card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 24px;
+}
+
+.exchange-info {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.exchange-rate {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.rate-icon {
+    font-size: 28px;
+}
+
+.rate-arrow {
+    color: var(--tg-theme-hint-color);
+}
+
+.exchange-desc {
+    color: var(--tg-theme-hint-color);
+    font-size: 14px;
+}
+
+.exchange-input-group {
+    margin-bottom: 20px;
+}
+
+.exchange-input-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--tg-theme-hint-color);
+}
+
+.exchange-input-group input {
+    width: 100%;
+    padding: 16px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    color: var(--tg-theme-text-color);
+    font-size: 18px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.exchange-input-group input:focus {
+    outline: none;
+    border-color: var(--tg-theme-button-color);
+}
+
+.exchange-result {
+    margin-top: 12px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--tg-theme-button-color);
+}
+
+.exchange-btn {
+    width: 100%;
+    padding: 16px;
+    background: var(--tg-theme-button-color);
+    color: var(--tg-theme-button-text-color);
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.exchange-btn:active {
+    transform: scale(0.98);
+}
+
+/* Цветные бейджи для плашки */
+.badge-blue {
+    background: linear-gradient(135deg, rgba(0, 217, 255, 0.15) 0%, rgba(0, 132, 255, 0.15) 100%) !important;
+    border-color: rgba(0, 217, 255, 0.3) !important;
+}
+
+.badge-red {
+    background: linear-gradient(135deg, rgba(255, 0, 85, 0.15) 0%, rgba(255, 45, 85, 0.15) 100%) !important;
+    border-color: rgba(255, 0, 85, 0.3) !important;
+}
+
+.badge-purple {
+    background: linear-gradient(135deg, rgba(217, 70, 239, 0.15) 0%, rgba(168, 85, 247, 0.15) 100%) !important;
+    border-color: rgba(217, 70, 239, 0.3) !important;
+}
+
+.badge-green {
+    background: linear-gradient(135deg, rgba(34, 255, 0, 0.15) 0%, rgba(76, 217, 100, 0.15) 100%) !important;
+    border-color: rgba(34, 255, 0, 0.3) !important;
+}

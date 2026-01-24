@@ -6,7 +6,7 @@
     <title>Navigate Helper</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link rel="stylesheet" href="style.css?v=69">
+    <link rel="stylesheet" href="style.css?v=70">
     <style>
         /* Встроенная консоль для отладки */
         #debug-console {
@@ -95,13 +95,6 @@
                         <p>Столовые, кафе, автоматы</p>
                     </div>
                 </div>
-                <div class="menu-card" onclick="goToShop()">
-                    <div class="menu-icon">🎨</div>
-                    <div class="menu-info">
-                        <h3>Магазин кастомизации</h3>
-                        <p>Персонализируй свой профиль</p>
-                    </div>
-                </div>
             </div>
             
             <!-- Черное полотно (открывается протягиванием плашки) -->
@@ -115,6 +108,20 @@
                         <div class="menu-info">
                             <h3>Таблица лидеров</h3>
                             <p>Топ 50 игроков по рейтингу</p>
+                        </div>
+                    </div>
+                    <div class="menu-card" onclick="goToShop()">
+                        <div class="menu-icon">🎨</div>
+                        <div class="menu-info">
+                            <h3>Магазин кастомизации</h3>
+                            <p>Персонализируй свой профиль</p>
+                        </div>
+                    </div>
+                    <div class="menu-card" onclick="goToExchange()">
+                        <div class="menu-icon">💱</div>
+                        <div class="menu-info">
+                            <h3>Обменник</h3>
+                            <p>Обменяй рейтинг на токены</p>
                         </div>
                     </div>
                 </div>
@@ -143,7 +150,7 @@
                         <div class="user-avatar" id="user-avatar">
                             <div class="avatar-placeholder">👤</div>
                         </div>
-                        <div class="user-version">v69</div>
+                        <div class="user-version">v70</div>
                     </div>
                 </div>
             </div>
@@ -216,6 +223,58 @@
             <div class="food-info-card" id="food-info-content"></div>
         </div>
 
+        <!-- Магазин кастомизации -->
+        <div id="step-shop" class="step">
+            <div class="header">
+                <button class="back-btn" onclick="goToMain()">←</button>
+                <div class="icon">🎨</div>
+                <h1>Магазин</h1>
+                <p class="subtitle">Кастомизация профиля</p>
+            </div>
+            <div class="shop-tabs">
+                <div class="shop-tab active" onclick="switchShopTab('colors')">Покрас никнейма</div>
+                <div class="shop-tab" onclick="switchShopTab('badges')">Бейджики</div>
+            </div>
+            <div id="shop-colors" class="shop-content active">
+                <div class="shop-items" id="color-items"></div>
+            </div>
+            <div id="shop-badges" class="shop-content">
+                <div class="shop-items" id="badge-items"></div>
+            </div>
+        </div>
+
+        <!-- Обменник -->
+        <div id="step-exchange" class="step">
+            <div class="header">
+                <button class="back-btn" onclick="goToMain()">←</button>
+                <div class="icon">💱</div>
+                <h1>Обменник</h1>
+                <p class="subtitle">Обменяй рейтинг на токены</p>
+            </div>
+            <div class="exchange-container">
+                <div class="exchange-card">
+                    <div class="exchange-info">
+                        <div class="exchange-rate">
+                            <span class="rate-icon">⭐</span>
+                            <span class="rate-value">100</span>
+                            <span class="rate-arrow">→</span>
+                            <span class="rate-icon">🎟️</span>
+                            <span class="rate-value">1</span>
+                        </div>
+                        <p class="exchange-desc">Обменяй 100 рейтинга на 1 токен</p>
+                    </div>
+                    <div class="exchange-input-group">
+                        <label>Количество рейтинга</label>
+                        <input type="number" id="exchange-amount" placeholder="100" min="100" step="100">
+                        <div class="exchange-result">
+                            Получишь: <span id="exchange-tokens">0</span> 🎟️
+                        </div>
+                    </div>
+                    <button class="exchange-btn" onclick="performExchange()">Обменять</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Выбор входа -->
         <div id="step-entrance" class="step">
             <div class="header">
@@ -254,6 +313,6 @@
             <button class="arrived-btn" onclick="arrived()">✅ Дошли!</button>
         </div>
     </div>
-    <script src="app.js?v=69"></script>
+    <script src="app.js?v=70"></script>
 </body>
 </html>
