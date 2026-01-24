@@ -1582,46 +1582,40 @@ async function purchaseItem(type, itemId, price) {
         }
         
         console.log('Updated inventory:', userInventory);
+        console.log('Calling RPC function...');
         
-        const columnName = type === 'colors' ? 'owned_colors' : 'owned_badges';
+        // Используем PostgreSQL функцию для добавления в массив
+        const rpcFunction = type === 'colors' ? 'add_owned_color' : 'add_owned_badge';
+        const rpcParam = type === 'colors' ? 'color_id' : 'badge_id';
         
-        // Используем RPC для безопасного добавления в массив
-        // Создаем SQL функцию через обычный UPDATE с COALESCE
-        console.log('Updating database...');
+        const { error: rpcError } = await supabaseClient.rpc(rpcFunction, {
+            user_id: window.currentUserId,
+            [rpcParam]: itemId
+        });
         
-        // Формируем данные для обновления
-        // Используем специальный формат для массивов PostgreSQL
-        const updatePayload = {
-            tokens: newTokens,
-            name_color: userInventory.equippedColor,
-            badge_color: userInventory.equippedBadge
-        };
-        
-        // Для массива используем специальный синтаксис
-        // Отправляем как строку в формате PostgreSQL: {item1,item2,item3}
-        const arrayValue = `{${userInventory[type].join(',')}}`;
-        updatePayload[columnName] = arrayValue;
-        
-        console.log('Update payload:', updatePayload);
-        console.log('Array value:', arrayValue);
-        
-        const { data: updateResult, error } = await supabaseClient
-            .from('users')
-            .update(updatePayload)
-            .eq('telegram_id', window.currentUserId)
-            .select();
-        
-        if (error) {
-            console.error('Supabase error:', error);
-            console.error('Error message:', error.message);
-            console.error('Error code:', error.code);
-            console.error('Error details:', error.details);
-            console.error('Error hint:', error.hint);
-            console.error('Full error:', JSON.stringify(error, null, 2));
-            throw error;
+        if (rpcError) {
+            console.error('RPC error:', rpcError);
+            throw rpcError;
         }
         
-        console.log('Update result:', updateResult);
+        console.log('RPC success - item added to array');
+        
+        // Обновляем токены и экипированные предметы
+        console.log('Updating tokens and equipped items...');
+        const { error: updateError } = await supabaseClient
+            .from('users')
+            .update({
+                tokens: newTokens,
+                name_color: userInventory.equippedColor,
+                badge_color: userInventory.equippedBadge
+            })
+            .eq('telegram_id', window.currentUserId);
+        
+        if (updateError) {
+            console.error('Update error:', updateError);
+            throw updateError;
+        }
+        
         console.log('Saved successfully');
         
         // Применяем кастомизацию сразу
