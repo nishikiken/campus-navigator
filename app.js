@@ -1482,6 +1482,14 @@ async function toggleEquipItem(type, itemId) {
     // Сохранить в Supabase
     await saveCustomization();
     
+    // Сохраняем в sessionStorage для сохранения при навигации
+    sessionStorage.setItem('userCustomization', JSON.stringify({
+        equippedColor: userInventory.equippedColor,
+        equippedBadge: userInventory.equippedBadge,
+        ownedColors: userInventory.colors,
+        ownedBadges: userInventory.badges
+    }));
+    
     // Обновить лидерборд если открыт
     const leaderboardView = document.getElementById('step-leaderboard');
     if (leaderboardView.classList.contains('active')) {
@@ -1544,6 +1552,9 @@ async function buyOrEquipItem(type, itemId) {
 
 async function purchaseItem(type, itemId, price) {
     try {
+        console.log('=== PURCHASE START ===');
+        console.log('Type:', type, 'ItemId:', itemId, 'Price:', price);
+        
         // Списываем токены
         const currentTokens = parseInt(document.getElementById('user-tokens').textContent) || 0;
         const newTokens = currentTokens - price;
@@ -1557,7 +1568,10 @@ async function purchaseItem(type, itemId, price) {
             return;
         }
         
-        // Добавляем в инвентарь
+        // Получаем item для применения стиля
+        const item = shopItems[type].find(i => i.id === itemId);
+        
+        // Добавляем в локальный инвентарь
         userInventory[type].push(itemId);
         
         // Автоматически надеваем купленный предмет
@@ -1567,33 +1581,71 @@ async function purchaseItem(type, itemId, price) {
             userInventory.equippedBadge = itemId;
         }
         
-        // Получаем item для применения стиля
-        const item = shopItems[type].find(i => i.id === itemId);
+        console.log('Updated inventory:', userInventory);
         
-        console.log('Saving to Supabase:', {
-            tokens: newTokens,
-            inventory: userInventory[type],
-            equippedColor: userInventory.equippedColor,
-            equippedBadge: userInventory.equippedBadge
-        });
-        
-        // Сохраняем в Supabase
+        // Используем RPC функцию PostgreSQL для добавления в массив
+        // Это безопаснее чем читать-изменять-писать
         const columnName = type === 'colors' ? 'owned_colors' : 'owned_badges';
-        const { error } = await supabaseClient
+        
+        // Сначала получаем текущие данные
+        const { data: currentData, error: fetchError } = await supabaseClient
             .from('users')
-            .update({ 
-                tokens: newTokens,
-                [columnName]: userInventory[type],
-                name_color: userInventory.equippedColor,
-                badge_color: userInventory.equippedBadge
-            })
-            .eq('telegram_id', window.currentUserId);
+            .select(columnName)
+            .eq('telegram_id', window.currentUserId)
+            .single();
+        
+        if (fetchError) {
+            console.error('Fetch error:', fetchError);
+            throw fetchError;
+        }
+        
+        console.log('Current data from DB:', currentData);
+        
+        // Получаем текущий массив и добавляем новый элемент
+        let currentArray = currentData[columnName] || [];
+        console.log('Current array:', currentArray, 'Type:', typeof currentArray);
+        
+        // Убеждаемся что это массив
+        if (!Array.isArray(currentArray)) {
+            console.warn('Not an array, converting:', currentArray);
+            currentArray = [];
+        }
+        
+        // Добавляем новый элемент если его еще нет
+        if (!currentArray.includes(itemId)) {
+            currentArray.push(itemId);
+        }
+        
+        console.log('Updated array:', currentArray);
+        
+        // Обновляем в базе
+        const updateData = {
+            tokens: newTokens,
+            [columnName]: currentArray,
+            name_color: userInventory.equippedColor,
+            badge_color: userInventory.equippedBadge
+        };
+        
+        console.log('Updating with:', updateData);
+        console.log('Update data JSON:', JSON.stringify(updateData, null, 2));
+        
+        const { data: updateResult, error } = await supabaseClient
+            .from('users')
+            .update(updateData)
+            .eq('telegram_id', window.currentUserId)
+            .select();
         
         if (error) {
             console.error('Supabase error:', error);
+            console.error('Error message:', error.message);
+            console.error('Error code:', error.code);
+            console.error('Error details:', error.details);
+            console.error('Error hint:', error.hint);
+            console.error('Full error:', JSON.stringify(error, null, 2));
             throw error;
         }
         
+        console.log('Update result:', updateResult);
         console.log('Saved successfully');
         
         // Применяем кастомизацию сразу
@@ -1602,6 +1654,14 @@ async function purchaseItem(type, itemId, price) {
         } else if (type === 'badges' && item) {
             applyBadgeColor(item.class);
         }
+        
+        // Сохраняем в sessionStorage для сохранения при навигации
+        sessionStorage.setItem('userCustomization', JSON.stringify({
+            equippedColor: userInventory.equippedColor,
+            equippedBadge: userInventory.equippedBadge,
+            ownedColors: userInventory.colors,
+            ownedBadges: userInventory.badges
+        }));
         
         // Обновляем UI
         document.getElementById('user-tokens').textContent = newTokens;
@@ -1621,10 +1681,17 @@ async function purchaseItem(type, itemId, price) {
         haptic('success');
         showConfetti();
         
+        console.log('=== PURCHASE END ===');
+        
     } catch (error) {
         console.error('Purchase error:', error);
+        console.error('Error message:', error?.message);
+        console.error('Error code:', error?.code);
+        console.error('Error details:', error?.details);
+        console.error('Error hint:', error?.hint);
+        console.error('Full error JSON:', JSON.stringify(error, null, 2));
         if (tg?.showAlert) {
-            tg.showAlert('Ошибка покупки: ' + error.message);
+            tg.showAlert('Ошибка покупки: ' + (error?.message || 'Unknown error'));
         }
     }
 }
@@ -1666,14 +1733,26 @@ async function loadCustomization(userData) {
     
     console.log('Loading customization:', userData);
     
+    // Функция для нормализации массивов
+    const normalizeArray = (arr) => {
+        if (!Array.isArray(arr)) return [];
+        return arr.map(item => {
+            if (typeof item === 'string' && item.startsWith('{') && item.endsWith('}')) {
+                // Убираем фигурные скобки
+                return item.slice(1, -1);
+            }
+            return item;
+        }).filter(item => item && item.length > 0);
+    };
+    
     // Загружаем инвентарь из базы
-    if (userData.owned_colors && Array.isArray(userData.owned_colors)) {
-        userInventory.colors = [...userData.owned_colors];
+    if (userData.owned_colors) {
+        userInventory.colors = normalizeArray(userData.owned_colors);
         console.log('Loaded colors:', userInventory.colors);
     }
     
-    if (userData.owned_badges && Array.isArray(userData.owned_badges)) {
-        userInventory.badges = [...userData.owned_badges];
+    if (userData.owned_badges) {
+        userInventory.badges = normalizeArray(userData.owned_badges);
         console.log('Loaded badges:', userInventory.badges);
     }
     
