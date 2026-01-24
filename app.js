@@ -95,6 +95,10 @@ console.log('Debug console initialized');
 
 // Загрузка данных пользователя из Telegram
 function loadUserData() {
+    // СРАЗУ показываем нули чтобы интерфейс не зависал
+    document.getElementById('user-tokens').textContent = '0';
+    document.getElementById('user-rating').textContent = '0';
+    
     if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
         const user = tg.initDataUnsafe.user;
         
@@ -111,15 +115,16 @@ function loadUserData() {
             avatarContainer.innerHTML = '<div class="avatar-placeholder">👤</div>';
         }
         
-        // Загрузка данных пользователя с сервера
+        // Загрузка данных пользователя с сервера В ФОНЕ (не блокирует интерфейс)
         // Всегда передаем актуальную аватарку из Telegram (или null)
         const actualAvatarUrl = user.photo_url || null;
-        loadUserDataFromAPI(user.id, userName, actualAvatarUrl);
+        loadUserDataFromAPI(user.id, userName, actualAvatarUrl).catch(err => {
+            console.error('Failed to load user data:', err);
+            // Интерфейс все равно работает с нулями
+        });
     } else {
         // Если нет данных Telegram (тестирование в браузере)
         document.getElementById('user-name').textContent = 'Тестовый пользователь';
-        document.getElementById('user-tokens').textContent = '0';
-        document.getElementById('user-rating').textContent = '0';
     }
 }
 
