@@ -7,11 +7,11 @@ console.log('Supabase URL:', SUPABASE_URL);
 console.log('window.supabase available:', !!window.supabase);
 
 // Инициализация Supabase после загрузки библиотеки
-let supabase;
+let supabaseClient;
 if (window.supabase) {
     console.log('Initializing Supabase...');
-    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    console.log('Supabase initialized:', !!supabase);
+    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    console.log('Supabase initialized:', !!supabaseClient);
 } else {
     console.error('Supabase library not loaded!');
 }
@@ -176,7 +176,7 @@ async function loadUserDataFromAPI(telegramId, name, avatarUrl) {
     document.getElementById('user-rating').textContent = '0';
     
     // Проверяем что Supabase загружен
-    if (!supabase) {
+    if (!supabaseClient) {
         console.error('Supabase not initialized!');
         return;
     }
@@ -194,7 +194,7 @@ async function loadUserDataFromAPI(telegramId, name, avatarUrl) {
         console.log('Fetching user from database...');
         
         // Пытаемся получить данные пользователя
-        const fetchPromise = supabase
+        const fetchPromise = supabaseClient
             .from('users')
             .select('*')
             .eq('telegram_id', telegramId)
@@ -213,7 +213,7 @@ async function loadUserDataFromAPI(telegramId, name, avatarUrl) {
         if (!existingUser) {
             // Пользователь не найден - создаем нового
             console.log('User not found, creating new user...');
-            const { data: newUser, error: createError } = await supabase
+            const { data: newUser, error: createError } = await supabaseClient
                 .from('users')
                 .insert([{
                     telegram_id: telegramId,
@@ -230,7 +230,7 @@ async function loadUserDataFromAPI(telegramId, name, avatarUrl) {
         } else {
             // Обновляем данные существующего пользователя
             console.log('User found, updating...');
-            const { data: updatedUser, error: updateError } = await supabase
+            const { data: updatedUser, error: updateError } = await supabaseClient
                 .from('users')
                 .update({
                     name: name,
@@ -271,7 +271,7 @@ async function loadUserDataFromAPI(telegramId, name, avatarUrl) {
 async function loadLeaderboardFromAPI() {
     try {
         console.log('Loading leaderboard...');
-        const { data: leaders, error } = await supabase
+        const { data: leaders, error } = await supabaseClient
             .from('users')
             .select('*')
             .order('rating', { ascending: false })
