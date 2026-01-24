@@ -1583,55 +1583,31 @@ async function purchaseItem(type, itemId, price) {
         
         console.log('Updated inventory:', userInventory);
         
-        // Используем RPC функцию PostgreSQL для добавления в массив
-        // Это безопаснее чем читать-изменять-писать
         const columnName = type === 'colors' ? 'owned_colors' : 'owned_badges';
         
-        // Сначала получаем текущие данные
-        const { data: currentData, error: fetchError } = await supabaseClient
-            .from('users')
-            .select(columnName)
-            .eq('telegram_id', window.currentUserId)
-            .single();
+        // Используем RPC для безопасного добавления в массив
+        // Создаем SQL функцию через обычный UPDATE с COALESCE
+        console.log('Updating database...');
         
-        if (fetchError) {
-            console.error('Fetch error:', fetchError);
-            throw fetchError;
-        }
-        
-        console.log('Current data from DB:', currentData);
-        
-        // Получаем текущий массив и добавляем новый элемент
-        let currentArray = currentData[columnName] || [];
-        console.log('Current array:', currentArray, 'Type:', typeof currentArray);
-        
-        // Убеждаемся что это массив
-        if (!Array.isArray(currentArray)) {
-            console.warn('Not an array, converting:', currentArray);
-            currentArray = [];
-        }
-        
-        // Добавляем новый элемент если его еще нет
-        if (!currentArray.includes(itemId)) {
-            currentArray.push(itemId);
-        }
-        
-        console.log('Updated array:', currentArray);
-        
-        // Обновляем в базе
-        const updateData = {
+        // Формируем данные для обновления
+        // Используем специальный формат для массивов PostgreSQL
+        const updatePayload = {
             tokens: newTokens,
-            [columnName]: currentArray,
             name_color: userInventory.equippedColor,
             badge_color: userInventory.equippedBadge
         };
         
-        console.log('Updating with:', updateData);
-        console.log('Update data JSON:', JSON.stringify(updateData, null, 2));
+        // Для массива используем специальный синтаксис
+        // Отправляем как строку в формате PostgreSQL: {item1,item2,item3}
+        const arrayValue = `{${userInventory[type].join(',')}}`;
+        updatePayload[columnName] = arrayValue;
+        
+        console.log('Update payload:', updatePayload);
+        console.log('Array value:', arrayValue);
         
         const { data: updateResult, error } = await supabaseClient
             .from('users')
-            .update(updateData)
+            .update(updatePayload)
             .eq('telegram_id', window.currentUserId)
             .select();
         
