@@ -126,15 +126,32 @@ function loadUserData() {
 // === API FUNCTIONS ===
 // Загрузка данных пользователя с сервера
 async function loadUserDataFromAPI(telegramId, name, avatarUrl) {
+    // Показываем нули сразу, чтобы интерфейс не зависал
+    document.getElementById('user-tokens').textContent = '0';
+    document.getElementById('user-rating').textContent = '0';
+    
+    // Проверяем что Supabase загружен
+    if (!supabase) {
+        console.error('Supabase not initialized!');
+        return;
+    }
+    
     try {
         console.log(`Loading user data for ${telegramId}...`);
         
+        // Таймаут на случай если запрос зависнет
+        const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Timeout')), 5000)
+        );
+        
         // Пытаемся получить данные пользователя
-        const { data: existingUser, error: fetchError } = await supabase
+        const fetchPromise = supabase
             .from('users')
             .select('*')
             .eq('telegram_id', telegramId)
             .single();
+        
+        const { data: existingUser, error: fetchError } = await Promise.race([fetchPromise, timeoutPromise]);
         
         if (fetchError && fetchError.code !== 'PGRST116') {
             throw fetchError;
