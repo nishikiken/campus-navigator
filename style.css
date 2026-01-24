@@ -1274,33 +1274,41 @@ body {
         0 0 40px #22ff00;
 }
 
-/* Уменьшенное свечение для ников в лидерборде с рассеиванием */
+/* Уменьшенное свечение для ников в лидерборде - такое же как в плашке */
 .leader-name.neon-blue {
+    color: #00d9ff;
     text-shadow: 
-        0 0 8px rgba(0, 217, 255, 0.8),
-        0 0 16px rgba(0, 217, 255, 0.6),
-        0 0 24px rgba(0, 217, 255, 0.4);
+        0 0 10px #00d9ff,
+        0 0 20px #00d9ff,
+        0 0 30px #00d9ff,
+        0 0 40px #00d9ff;
 }
 
 .leader-name.neon-red {
+    color: #ff0055;
     text-shadow: 
-        0 0 8px rgba(255, 0, 85, 0.8),
-        0 0 16px rgba(255, 0, 85, 0.6),
-        0 0 24px rgba(255, 0, 85, 0.4);
+        0 0 10px #ff0055,
+        0 0 20px #ff0055,
+        0 0 30px #ff0055,
+        0 0 40px #ff0055;
 }
 
 .leader-name.neon-purple {
+    color: #d946ef;
     text-shadow: 
-        0 0 8px rgba(217, 70, 239, 0.8),
-        0 0 16px rgba(217, 70, 239, 0.6),
-        0 0 24px rgba(217, 70, 239, 0.4);
+        0 0 10px #d946ef,
+        0 0 20px #d946ef,
+        0 0 30px #d946ef,
+        0 0 40px #d946ef;
 }
 
 .leader-name.neon-green {
+    color: #22ff00;
     text-shadow: 
-        0 0 8px rgba(34, 255, 0, 0.8),
-        0 0 16px rgba(34, 255, 0, 0.6),
-        0 0 24px rgba(34, 255, 0, 0.4);
+        0 0 10px #22ff00,
+        0 0 20px #22ff00,
+        0 0 30px #22ff00,
+        0 0 40px #22ff00;
 }
 
 .shop-item-info {

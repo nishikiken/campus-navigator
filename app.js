@@ -1323,24 +1323,6 @@ function updateZoom() {
 function showStep(stepId) {
     document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
     document.getElementById(stepId).classList.add('active');
-    
-    // Если возвращаемся на главный экран - принудительно фиксируем плашку внизу
-    if (stepId === 'step-main') {
-        const profileCard = document.getElementById('user-profile-card');
-        const darkOverlay = document.getElementById('dark-overlay');
-        
-        // Убираем класс lifted если он есть
-        profileCard.classList.remove('lifted', 'in-leaderboard');
-        
-        // Принудительно устанавливаем позицию внизу
-        setTimeout(() => {
-            profileCard.style.bottom = '20px';
-            darkOverlay.style.setProperty('top', '100vh', 'important');
-            darkOverlay.style.setProperty('opacity', '0', 'important');
-            darkOverlay.style.setProperty('visibility', 'hidden', 'important');
-            darkOverlay.classList.remove('active');
-        }, 0);
-    }
 }
 
 function haptic(type = 'selection') {
