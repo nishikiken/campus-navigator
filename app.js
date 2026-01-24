@@ -1600,22 +1600,30 @@ async function purchaseItem(type, itemId, price) {
         
         console.log('RPC success - item added to array');
         
-        // Обновляем токены и экипированные предметы
+        // Обновляем токены и экипированные предметы (БЕЗ массивов!)
         console.log('Updating tokens and equipped items...');
-        const { error: updateError } = await supabaseClient
+        const updateData = {
+            tokens: newTokens,
+            name_color: userInventory.equippedColor,
+            badge_color: userInventory.equippedBadge
+        };
+        
+        console.log('Update data:', updateData);
+        
+        const { data: updateResult, error: updateError } = await supabaseClient
             .from('users')
-            .update({
-                tokens: newTokens,
-                name_color: userInventory.equippedColor,
-                badge_color: userInventory.equippedBadge
-            })
-            .eq('telegram_id', window.currentUserId);
+            .update(updateData)
+            .eq('telegram_id', window.currentUserId)
+            .select();
         
         if (updateError) {
             console.error('Update error:', updateError);
+            console.error('Update error message:', updateError.message);
+            console.error('Update error code:', updateError.code);
             throw updateError;
         }
         
+        console.log('Update result:', updateResult);
         console.log('Saved successfully');
         
         // Применяем кастомизацию сразу
