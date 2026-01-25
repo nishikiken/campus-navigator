@@ -967,8 +967,10 @@ body {
     font-weight: 600;
     color: var(--tg-theme-text-color);
     white-space: nowrap;
-    overflow: hidden;
+    overflow: visible;
     text-overflow: ellipsis;
+    display: inline-block;
+    max-width: 100%;
 }
 
 .leader-rating {
@@ -1278,37 +1280,37 @@ body {
 .leader-name.neon-blue {
     color: #00d9ff;
     text-shadow: 
-        0 0 10px #00d9ff,
-        0 0 20px #00d9ff,
-        0 0 30px #00d9ff,
-        0 0 40px #00d9ff;
+        0 0 5px rgba(0, 217, 255, 0.8),
+        0 0 10px rgba(0, 217, 255, 0.6),
+        0 0 15px rgba(0, 217, 255, 0.4),
+        0 0 20px rgba(0, 217, 255, 0.2);
 }
 
 .leader-name.neon-red {
     color: #ff0055;
     text-shadow: 
-        0 0 10px #ff0055,
-        0 0 20px #ff0055,
-        0 0 30px #ff0055,
-        0 0 40px #ff0055;
+        0 0 5px rgba(255, 0, 85, 0.8),
+        0 0 10px rgba(255, 0, 85, 0.6),
+        0 0 15px rgba(255, 0, 85, 0.4),
+        0 0 20px rgba(255, 0, 85, 0.2);
 }
 
 .leader-name.neon-purple {
     color: #d946ef;
     text-shadow: 
-        0 0 10px #d946ef,
-        0 0 20px #d946ef,
-        0 0 30px #d946ef,
-        0 0 40px #d946ef;
+        0 0 5px rgba(217, 70, 239, 0.8),
+        0 0 10px rgba(217, 70, 239, 0.6),
+        0 0 15px rgba(217, 70, 239, 0.4),
+        0 0 20px rgba(217, 70, 239, 0.2);
 }
 
 .leader-name.neon-green {
     color: #22ff00;
     text-shadow: 
-        0 0 10px #22ff00,
-        0 0 20px #22ff00,
-        0 0 30px #22ff00,
-        0 0 40px #22ff00;
+        0 0 5px rgba(34, 255, 0, 0.8),
+        0 0 10px rgba(34, 255, 0, 0.6),
+        0 0 15px rgba(34, 255, 0, 0.4),
+        0 0 20px rgba(34, 255, 0, 0.2);
 }
 
 .shop-item-info {
