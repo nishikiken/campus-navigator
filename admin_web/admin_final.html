@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Navigator - Admin Panel</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0e27;
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(88, 166, 255, 0.1) 0%, transparent 50%);
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        .header {
+            background: linear-gradient(135deg, #1a1f3a 0%, #2d1b4e 100%);
+            padding: 30px;
+            border-radius: 16px;
+            border: 1px solid rgba(120, 119, 198, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 36px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        .header p { color: #8e8ea0; font-size: 16px; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 30px; flex-wrap: wrap; }
+        .tab {
+            padding: 12px 24px;
+            background: #1a1f3a;
+            border: 1px solid rgba(120, 119, 198, 0.2);
+            border-radius: 8px;
+            color: #8e8ea0;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        .tab:hover { border-color: #667eea; color: #667eea; }
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: transparent;
+            color: white;
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .card {
+            background: linear-gradient(135deg, #1a1f3a 0%, #2d1b4e 100%);
+            padding: 25px;
+            border-radius: 16px;
+            border: 1px solid rgba(120, 119, 198, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            transition: all 0.3s;
+        }
+        .card:hover { border-color: #667eea; transform: translateY(-2px); }
+        .card h2 { color: #e0e0e0; font-size: 20px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label {
+            display: block;
+            color: #8e8ea0;
+            font-size: 13px;
+            margin-bottom: 8px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(10, 14, 39, 0.6);
+            border: 1px solid rgba(120, 119, 198, 0.3);
+            border-radius: 8px;
+            color: #e0e0e0;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: rgba(10, 14, 39, 0.8);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .btn {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .btn-success { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; }
+        .btn-danger { background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%); color: white; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4); }
+        .btn-full { grid-column: 1 / -1; }
+        .result {
+            margin-top: 15px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            display: none;
+            font-size: 13px;
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .result.success { background: rgba(56, 239, 125, 0.1); color: #38ef7d; border: 1px solid rgba(56, 239, 125, 0.3); }
+        .result.error { background: rgba(235, 51, 73, 0.1); color: #eb3349; border: 1px solid rgba(235, 51, 73, 0.3); }
+        .leaderboard {
+            background: linear-gradient(135deg, #1a1f3a 0%, #2d1b4e 100%);
+            padding: 25px;
+            border-radius: 16px;
+            border: 1px solid rgba(120, 119, 198, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+        .leaderboard h2 { color: #e0e0e0; font-size: 24px; margin-bottom: 20px; }
+        .leader-item {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            background: rgba(10, 14, 39, 0.4);
+            border: 1px solid rgba(120, 119, 198, 0.1);
+            border-radius: 12px;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .leader-item:hover { background: rgba(10, 14, 39, 0.6); border-color: #667eea; transform: translateX(5px); }
+        .leader-rank {
+            font-size: 20px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            width: 50px;
+            text-align: center;
+        }
+        .leader-info { flex: 1; margin-left: 15px; }
+        .leader-name { font-weight: 600; color: #e0e0e0; margin-bottom: 5px; font-size: 16px; }
+        .leader-stats { font-size: 13px; color: #8e8ea0; }
+        .leader-actions { display: flex; gap: 8px; }
+        .btn-small { padding: 6px 12px; font-size: 12px; border-radius: 6px; }
+        .loading { text-align: center; padding: 40px; color: #8e8ea0; }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background: linear-gradient(135deg, #1a1f3a 0%, #2d1b4e 100%);
+            padding: 30px;
+            border-radius: 16px;
+            border: 1px solid rgba(120, 119, 198, 0.2);
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: modalSlideIn 0.3s ease;
+        }
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-header h3 { color: #e0e0e0; font-size: 22px; }
+        .modal-close {
+            background: none;
+            border: none;
+            color: #8e8ea0;
+            font-size: 28px;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        .modal-close:hover { color: #eb3349; }
+        .user-detail {
+            margin-bottom: 15px;
+            padding: 12px;
+            background: rgba(10, 14, 39, 0.4);
+            border-radius: 8px;
+            border: 1px solid rgba(120, 119, 198, 0.1);
+        }
+        .user-detail-label { color: #8e8ea0; font-size: 12px; text-transform: uppercase; margin-bottom: 5px; }
+        .user-detail-value { color: #e0e0e0; font-size: 14px; word-break: break-all; }
+        
+        /* Неоновые эффекты для админ панели */
+        .neon-blue {
+            color: #00d9ff;
+            text-shadow: 
+                0 0 10px #00d9ff,
+                0 0 20px #00d9ff;
+        }
+        .neon-red {
+            color: #ff0055;
+            text-shadow: 
+                0 0 10px #ff0055,
+                0 0 20px #ff0055;
+        }
+        .neon-purple {
+            color: #d946ef;
+            text-shadow: 
+                0 0 10px #d946ef,
+                0 0 20px #d946ef;
+        }
+        .neon-green {
+            color: #22ff00;
+            text-shadow: 
+                0 0 10px #22ff00,
+                0 0 20px #22ff00;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎓 CAMPUS NAVIGATOR</h1>
+            <p>Advanced Admin Control Panel [Supabase]</p>
+        </div>
+        
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('manage')">⚙️ Управление</div>
+            <div class="tab" onclick="switchTab('customization')">🎨 Покрасы</div>
+            <div class="tab" onclick="switchTab('leaderboard')">🏆 Лидерборд</div>
+        </div>
+        
+        <div id="manage" class="tab-content active">
+            <div class="cards">
+                <div class="card">
+                    <h2><span>🔍</span> Поиск пользователя</h2>
+                    <div class="form-group">
+                        <label>Telegram ID</label>
+                        <input type="number" id="searchUserId" placeholder="Введите ID">
+                    </div>
+                    <button class="btn btn-primary btn-full" onclick="searchUser()">Найти</button>
+                    <div id="searchResult" class="result"></div>
+                </div>
+                
+                <div class="card">
+                    <h2><span>⭐</span> Рейтинг</h2>
+                    <div class="form-group">
+                        <label>Telegram ID</label>
+                        <input type="number" id="ratingUserId" placeholder="Введите ID">
+                    </div>
+                    <div class="form-group">
+                        <label>Количество</label>
+                        <input type="number" id="ratingAmount" placeholder="Например: 100">
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-success" onclick="modifyRating('add')">+ Добавить</button>
+                        <button class="btn btn-danger" onclick="modifyRating('remove')">- Убавить</button>
+                    </div>
+                    <div id="ratingResult" class="result"></div>
+                </div>
+                
+                <div class="card">
+                    <h2><span>🪙</span> Токены</h2>
+                    <div class="form-group">
+                        <label>Telegram ID</label>
+                        <input type="number" id="tokensUserId" placeholder="Введите ID">
+                    </div>
+                    <div class="form-group">
+                        <label>Количество</label>
+                        <input type="number" id="tokensAmount" placeholder="Например: 50">
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-success" onclick="modifyTokens('add')">+ Добавить</button>
+                        <button class="btn btn-danger" onclick="modifyTokens('remove')">- Убавить</button>
+                    </div>
+                    <div id="tokensResult" class="result"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="customization" class="tab-content">
+            <div class="card">
+                <h2><span>🎨</span> Управление покрасами</h2>
+                <div class="form-group">
+                    <label>Telegram ID пользователя</label>
+                    <input type="number" id="customUserId" placeholder="Введите ID">
+                </div>
+                <button class="btn btn-primary btn-full" onclick="loadUserCustomization()">Загрузить</button>
+                <div id="customResult" class="result"></div>
+                
+                <div id="customizationPanel" style="display: none; margin-top: 20px;">
+                    <div style="padding: 20px; background: rgba(10, 14, 39, 0.4); border-radius: 12px; border: 1px solid rgba(120, 119, 198, 0.2);">
+                        <h3 style="color: #e0e0e0; margin-bottom: 15px;" id="customUserName"></h3>
+                        
+                        <div class="form-group">
+                            <label>Цвета никнейма</label>
+                            <div style="display: flex; flex-wrap: wrap; gap: 12px; margin-top: 10px;">
+                                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; padding: 8px 12px; background: rgba(0, 217, 255, 0.1); border-radius: 8px; border: 1px solid rgba(0, 217, 255, 0.3);">
+                                    <input type="checkbox" id="custom_color_blue" style="cursor: pointer;">
+                                    <span class="neon-blue" style="font-size: 14px; font-weight: 600;">Синий неон</span>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; padding: 8px 12px; background: rgba(255, 0, 85, 0.1); border-radius: 8px; border: 1px solid rgba(255, 0, 85, 0.3);">
+                                    <input type="checkbox" id="custom_color_red" style="cursor: pointer;">
+                                    <span class="neon-red" style="font-size: 14px; font-weight: 600;">Красный неон</span>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; padding: 8px 12px; background: rgba(217, 70, 239, 0.1); border-radius: 8px; border: 1px solid rgba(217, 70, 239, 0.3);">
+                                    <input type="checkbox" id="custom_color_purple" style="cursor: pointer;">
+                                    <span class="neon-purple" style="font-size: 14px; font-weight: 600;">Фиолетовый неон</span>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; padding: 8px 12px; background: rgba(34, 255, 0, 0.1); border-radius: 8px; border: 1px solid rgba(34, 255, 0, 0.3);">
+                                    <input type="checkbox" id="custom_color_green" style="cursor: pointer;">
+                                    <span class="neon-green" style="font-size: 14px; font-weight: 600;">Зеленый неон</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Бейджики</label>
+                            <div style="display: flex; flex-wrap: wrap; gap: 12px; margin-top: 10px;">
+                                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; padding: 8px 12px; background: rgba(0, 217, 255, 0.1); border-radius: 8px; border: 1px solid rgba(0, 217, 255, 0.3);">
+                                    <input type="checkbox" id="custom_badge_blue" style="cursor: pointer;">
+                                    <span style="font-size: 14px; font-weight: 600; color: #00d9ff;">Синее стекло</span>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; padding: 8px 12px; background: rgba(255, 0, 85, 0.1); border-radius: 8px; border: 1px solid rgba(255, 0, 85, 0.3);">
+                                    <input type="checkbox" id="custom_badge_red" style="cursor: pointer;">
+                                    <span style="font-size: 14px; font-weight: 600; color: #ff0055;">Красное стекло</span>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; padding: 8px 12px; background: rgba(217, 70, 239, 0.1); border-radius: 8px; border: 1px solid rgba(217, 70, 239, 0.3);">
+                                    <input type="checkbox" id="custom_badge_purple" style="cursor: pointer;">
+                                    <span style="font-size: 14px; font-weight: 600; color: #d946ef;">Фиолетовое стекло</span>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; padding: 8px 12px; background: rgba(34, 255, 0, 0.1); border-radius: 8px; border: 1px solid rgba(34, 255, 0, 0.3);">
+                                    <input type="checkbox" id="custom_badge_green" style="cursor: pointer;">
+                                    <span style="font-size: 14px; font-weight: 600; color: #22ff00;">Зеленое стекло</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <button class="btn btn-success btn-full" onclick="saveCustomization()" style="margin-top: 20px;">💾 Сохранить покрасы</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="leaderboard" class="tab-content">
+            <div class="leaderboard">
+                <h2>🏆 Таблица лидеров</h2>
+                <button class="btn btn-primary" onclick="loadLeaderboard()" style="max-width: 200px; margin-bottom: 20px;">🔄 Обновить</button>
+                <div id="leaderboardContent" class="loading">Нажмите "Обновить" для загрузки</div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>👤 Информация о пользователе</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+    
+    <script>
+        // Инициализация Supabase
+        const SUPABASE_URL = 'https://hyxyablgkjtoxcxnurkk.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh5eHlhYmxna2p0b3hjeG51cmtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkxODE5NjksImV4cCI6MjA4NDc1Nzk2OX0._3HQYSymZ2ArXIN143gAiwulCL1yt7i5fiHaTd4bp5U';
+        
+        let supabaseClient;
+        let currentUser = null;
+        
+        // Ждем загрузки библиотеки
+        window.addEventListener('DOMContentLoaded', () => {
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            console.log('Supabase initialized');
+        });
+        
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+            
+            if (tabName === 'leaderboard') {
+                loadLeaderboard();
+            }
+        }
+        
+        function showResult(elementId, message, isSuccess) {
+            const el = document.getElementById(elementId);
+            el.textContent = message;
+            el.className = 'result ' + (isSuccess ? 'success' : 'error');
+            el.style.display = 'block';
+            setTimeout(() => el.style.display = 'none', 5000);
+        }
+        
+        async function searchUser() {
+            const userId = document.getElementById('searchUserId').value;
+            if (!userId) return showResult('searchResult', '❌ Введите Telegram ID', false);
+            
+            try {
+                const { data, error } = await supabaseClient
+                    .from('users')
+                    .select('*')
+                    .eq('telegram_id', userId)
+                    .single();
+                
+                if (error) throw error;
+                if (data) {
+                    showUserModal(data);
+                } else {
+                    showResult('searchResult', '❌ Пользователь не найден', false);
+                }
+            } catch (error) {
+                showResult('searchResult', '❌ Ошибка: ' + error.message, false);
+            }
+        }
+        
+        async function modifyRating(action) {
+            const userId = document.getElementById('ratingUserId').value;
+            const amount = document.getElementById('ratingAmount').value;
+            if (!userId || !amount) return showResult('ratingResult', '❌ Заполните все поля', false);
+            
+            try {
+                const { data: user, error: fetchError } = await supabaseClient
+                    .from('users')
+                    .select('rating')
+                    .eq('telegram_id', userId)
+                    .single();
+                
+                if (fetchError) throw fetchError;
+                
+                const finalAmount = action === 'remove' ? -Math.abs(parseInt(amount)) : Math.abs(parseInt(amount));
+                const newRating = user.rating + finalAmount;
+                
+                const { data, error } = await supabaseClient
+                    .from('users')
+                    .update({ rating: newRating })
+                    .eq('telegram_id', userId)
+                    .select()
+                    .single();
+                
+                if (error) throw error;
+                
+                const actionText = action === 'add' ? 'Добавлено' : 'Убавлено';
+                showResult('ratingResult', `✅ ${actionText}! Всего рейтинга: ${data.rating}`, true);
+                document.getElementById('ratingAmount').value = '';
+            } catch (error) {
+                showResult('ratingResult', '❌ Ошибка: ' + error.message, false);
+            }
+        }
+        
+        async function modifyTokens(action) {
+            const userId = document.getElementById('tokensUserId').value;
+            const amount = document.getElementById('tokensAmount').value;
+            if (!userId || !amount) return showResult('tokensResult', '❌ Заполните все поля', false);
+            
+            try {
+                const { data: user, error: fetchError } = await supabaseClient
+                    .from('users')
+                    .select('tokens')
+                    .eq('telegram_id', userId)
+                    .single();
+                
+                if (fetchError) throw fetchError;
+                
+                const finalAmount = action === 'remove' ? -Math.abs(parseInt(amount)) : Math.abs(parseInt(amount));
+                const newTokens = user.tokens + finalAmount;
+                
+                const { data, error } = await supabaseClient
+                    .from('users')
+                    .update({ tokens: newTokens })
+                    .eq('telegram_id', userId)
+                    .select()
+                    .single();
+                
+                if (error) throw error;
+                
+                const actionText = action === 'add' ? 'Добавлено' : 'Убавлено';
+                showResult('tokensResult', `✅ ${actionText}! Всего токенов: ${data.tokens}`, true);
+                document.getElementById('tokensAmount').value = '';
+            } catch (error) {
+                showResult('tokensResult', '❌ Ошибка: ' + error.message, false);
+            }
+        }
+        
+        async function loadLeaderboard() {
+            const content = document.getElementById('leaderboardContent');
+            content.innerHTML = '<div class="loading">⏳ Загрузка...</div>';
+            
+            try {
+                const { data: leaders, error } = await supabaseClient
+                    .from('users')
+                    .select('*')
+                    .order('rating', { ascending: false })
+                    .order('tokens', { ascending: false })
+                    .limit(50);
+                
+                if (error) throw error;
+                
+                if (leaders.length === 0) {
+                    content.innerHTML = '<div class="loading">📭 Нет данных</div>';
+                    return;
+                }
+                
+                content.innerHTML = leaders.map((leader, index) => {
+                    const rank = index + 1;
+                    let medal = '';
+                    if (rank === 1) medal = '💎';
+                    else if (rank === 2) medal = '🥇';
+                    else if (rank === 3) medal = '🥈';
+                    
+                    return `
+                        <div class="leader-item" onclick='showUserModal(${JSON.stringify(leader).replace(/'/g, "\\'")})'> 
+                            <div class="leader-rank">${rank} ${medal}</div>
+                            <div class="leader-info">
+                                <div class="leader-name">${leader.name}</div>
+                                <div class="leader-stats">⭐ ${leader.rating} • 🪙 ${leader.tokens}</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                content.innerHTML = '<div class="loading">❌ Ошибка: ' + error.message + '</div>';
+            }
+        }
+        
+        function showUserModal(user) {
+            currentUser = user;
+            const modal = document.getElementById('userModal');
+            const content = document.getElementById('modalContent');
+            
+            // Список доступных цветов и бейджей
+            const colors = [
+                { id: 'blue', name: 'Синий неон', class: 'neon-blue' },
+                { id: 'red', name: 'Красный неон', class: 'neon-red' },
+                { id: 'purple', name: 'Фиолетовый неон', class: 'neon-purple' },
+                { id: 'green', name: 'Зеленый неон', class: 'neon-green' }
+            ];
+            
+            const badges = [
+                { id: 'blue', name: 'Синее стекло' },
+                { id: 'red', name: 'Красное стекло' },
+                { id: 'purple', name: 'Фиолетовое стекло' },
+                { id: 'green', name: 'Зеленое стекло' }
+            ];
+            
+            const ownedColors = user.owned_colors || [];
+            const ownedBadges = user.owned_badges || [];
+            
+            content.innerHTML = `
+                <div class="user-detail">
+                    <div class="user-detail-label">Telegram ID</div>
+                    <div class="user-detail-value">${user.telegram_id}</div>
+                </div>
+                <div class="user-detail">
+                    <div class="user-detail-label">Имя</div>
+                    <div class="user-detail-value">${user.name}</div>
+                </div>
+                <div class="user-detail">
+                    <div class="user-detail-label">Рейтинг</div>
+                    <div class="user-detail-value">⭐ ${user.rating}</div>
+                </div>
+                <div class="user-detail">
+                    <div class="user-detail-label">Токены</div>
+                    <div class="user-detail-value">🪙 ${user.tokens}</div>
+                </div>
+                <div class="user-detail">
+                    <div class="user-detail-label">URL Аватарки</div>
+                    <div class="user-detail-value">${user.avatar_url || 'Не указан'}</div>
+                </div>
+                <div class="user-detail">
+                    <div class="user-detail-label">Создан</div>
+                    <div class="user-detail-value">${new Date(user.created_at).toLocaleString('ru-RU')}</div>
+                </div>
+                <div class="user-detail">
+                    <div class="user-detail-label">Последняя активность</div>
+                    <div class="user-detail-value">${new Date(user.last_active).toLocaleString('ru-RU')}</div>
+                </div>
+                
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(120, 119, 198, 0.2);">
+                    <h4 style="color: #667eea; margin-bottom: 15px;">🎨 Управление покрасами</h4>
+                    
+                    <div class="form-group">
+                        <label>Цвета никнейма (${ownedColors.length}/4)</label>
+                        <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;">
+                            ${colors.map(color => `
+                                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                                    <input type="checkbox" 
+                                           id="color_${color.id}" 
+                                           ${ownedColors.includes(color.id) ? 'checked' : ''}
+                                           style="cursor: pointer;">
+                                    <span class="${color.class}" style="font-size: 14px;">${color.name}</span>
+                                </label>
+                            `).join('')}
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Бейджики (${ownedBadges.length}/4)</label>
+                        <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;">
+                            ${badges.map(badge => `
+                                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                                    <input type="checkbox" 
+                                           id="badge_${badge.id}" 
+                                           ${ownedBadges.includes(badge.id) ? 'checked' : ''}
+                                           style="cursor: pointer;">
+                                    <span style="font-size: 14px;">${badge.name}</span>
+                                </label>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(120, 119, 198, 0.2);">
+                    <div class="form-group">
+                        <label>Изменить имя</label>
+                        <input type="text" id="editName" value="${user.name}">
+                    </div>
+                    <div class="form-group">
+                        <label>Изменить URL аватарки</label>
+                        <input type="text" id="editAvatar" value="${user.avatar_url || ''}" placeholder="https://...">
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-success" onclick="updateUser()">💾 Сохранить</button>
+                        <button class="btn btn-danger" onclick="confirmDelete()">🗑️ Удалить</button>
+                    </div>
+                </div>
+            `;
+            
+            modal.classList.add('active');
+        }
+        
+        function closeModal() {
+            document.getElementById('userModal').classList.remove('active');
+            currentUser = null;
+        }
+        
+        async function updateUser() {
+            if (!currentUser) return;
+            
+            const newName = document.getElementById('editName').value;
+            const newAvatar = document.getElementById('editAvatar').value;
+            
+            if (!newName.trim()) {
+                alert('❌ Имя не может быть пустым');
+                return;
+            }
+            
+            // Собираем выбранные покрасы
+            const selectedColors = [];
+            const selectedBadges = [];
+            
+            ['blue', 'red', 'purple', 'green'].forEach(id => {
+                if (document.getElementById(`color_${id}`)?.checked) {
+                    selectedColors.push(id);
+                }
+                if (document.getElementById(`badge_${id}`)?.checked) {
+                    selectedBadges.push(id);
+                }
+            });
+            
+            try {
+                const { data, error } = await supabaseClient
+                    .from('users')
+                    .update({
+                        name: newName,
+                        avatar_url: newAvatar || null,
+                        owned_colors: selectedColors,
+                        owned_badges: selectedBadges
+                    })
+                    .eq('telegram_id', currentUser.telegram_id)
+                    .select()
+                    .single();
+                
+                if (error) throw error;
+                
+                alert('✅ Данные успешно обновлены!');
+                closeModal();
+                loadLeaderboard();
+            } catch (error) {
+                alert('❌ Ошибка: ' + error.message);
+            }
+        }
+        
+        function confirmDelete() {
+            if (!currentUser) return;
+            
+            if (confirm(`⚠️ ВНИМАНИЕ!\n\nВы действительно хотите удалить пользователя "${currentUser.name}"?\n\nЭто действие нельзя отменить!`)) {
+                if (confirm(`🔥 ПОСЛЕДНЕЕ ПРЕДУПРЕЖДЕНИЕ!\n\nПользователь "${currentUser.name}" будет НАВСЕГДА удален!\n\nВы абсолютно уверены?`)) {
+                    deleteUser();
+                }
+            }
+        }
+        
+        async function deleteUser() {
+            if (!currentUser) return;
+            
+            try {
+                const { error } = await supabaseClient
+                    .from('users')
+                    .delete()
+                    .eq('telegram_id', currentUser.telegram_id);
+                
+                if (error) throw error;
+                
+                alert('✅ Пользователь успешно удален');
+                closeModal();
+                setTimeout(() => loadLeaderboard(), 500);
+            } catch (error) {
+                alert('❌ Ошибка: ' + error.message);
+            }
+        }
+        
+        // === УПРАВЛЕНИЕ ПОКРАСАМИ ===
+        let currentCustomUser = null;
+        
+        async function loadUserCustomization() {
+            const userId = document.getElementById('customUserId').value;
+            if (!userId) return showResult('customResult', '❌ Введите Telegram ID', false);
+            
+            try {
+                const { data, error } = await supabaseClient
+                    .from('users')
+                    .select('*')
+                    .eq('telegram_id', userId)
+                    .single();
+                
+                if (error) throw error;
+                if (!data) {
+                    showResult('customResult', '❌ Пользователь не найден', false);
+                    return;
+                }
+                
+                currentCustomUser = data;
+                
+                // Показываем панель
+                document.getElementById('customizationPanel').style.display = 'block';
+                document.getElementById('customUserName').textContent = `👤 ${data.name} (ID: ${data.telegram_id})`;
+                
+                // Загружаем текущие покрасы
+                const ownedColors = data.owned_colors || [];
+                const ownedBadges = data.owned_badges || [];
+                
+                // Устанавливаем чекбоксы
+                ['blue', 'red', 'purple', 'green'].forEach(id => {
+                    const colorCheckbox = document.getElementById(`custom_color_${id}`);
+                    const badgeCheckbox = document.getElementById(`custom_badge_${id}`);
+                    
+                    if (colorCheckbox) colorCheckbox.checked = ownedColors.includes(id);
+                    if (badgeCheckbox) badgeCheckbox.checked = ownedBadges.includes(id);
+                });
+                
+                showResult('customResult', `✅ Загружено! Цветов: ${ownedColors.length}, Бейджей: ${ownedBadges.length}`, true);
+                
+            } catch (error) {
+                showResult('customResult', '❌ Ошибка: ' + error.message, false);
+            }
+        }
+        
+        async function saveCustomization() {
+            if (!currentCustomUser) return;
+            
+            // Собираем выбранные покрасы
+            const selectedColors = [];
+            const selectedBadges = [];
+            
+            ['blue', 'red', 'purple', 'green'].forEach(id => {
+                if (document.getElementById(`custom_color_${id}`)?.checked) {
+                    selectedColors.push(id);
+                }
+                if (document.getElementById(`custom_badge_${id}`)?.checked) {
+                    selectedBadges.push(id);
+                }
+            });
+            
+            try {
+                const { data, error } = await supabaseClient
+                    .from('users')
+                    .update({
+                        owned_colors: selectedColors,
+                        owned_badges: selectedBadges
+                    })
+                    .eq('telegram_id', currentCustomUser.telegram_id)
+                    .select()
+                    .single();
+                
+                if (error) throw error;
+                
+                showResult('customResult', `✅ Покрасы сохранены! Цветов: ${selectedColors.length}, Бейджей: ${selectedBadges.length}`, true);
+                
+            } catch (error) {
+                showResult('customResult', '❌ Ошибка: ' + error.message, false);
+            }
+        }
+        
+        // Закрытие модалки по клику вне её
+        document.getElementById('userModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
