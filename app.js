@@ -2,18 +2,16 @@
 const SUPABASE_URL = 'https://hyxyablgkjtoxcxnurkk.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh5eHlhYmxna2p0b3hjeG51cmtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkxODE5NjksImV4cCI6MjA4NDc1Nzk2OX0._3HQYSymZ2ArXIN143gAiwulCL1yt7i5fiHaTd4bp5U';
 
-console.log('=== SCRIPT LOADED ===');
-console.log('Supabase URL:', SUPABASE_URL);
-console.log('window.supabase available:', !!window.supabase);
+
 
 // Инициализация Supabase после загрузки библиотеки
 let supabaseClient;
 if (window.supabase) {
-    console.log('Initializing Supabase...');
+
     supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    console.log('Supabase initialized:', !!supabaseClient);
+
 } else {
-    console.error('Supabase library not loaded!');
+
 }
 
 // Telegram Web App
@@ -30,95 +28,23 @@ if (tg) {
     document.documentElement.style.setProperty('--tg-theme-secondary-bg-color', tg.themeParams.secondary_bg_color || '#2c2c2e');
 }
 
-// === ВСТРОЕННАЯ КОНСОЛЬ ДЛЯ ОТЛАДКИ ===
-const debugLogs = [];
-const maxLogs = 50;
-
-function addDebugLog(message, type = 'info') {
-    const timestamp = new Date().toLocaleTimeString();
-    const logEntry = `[${timestamp}] ${message}`;
-    debugLogs.push({ message: logEntry, type });
-    
-    if (debugLogs.length > maxLogs) {
-        debugLogs.shift();
-    }
-    
-    updateDebugConsole();
-}
-
-function updateDebugConsole() {
-    const consoleEl = document.getElementById('debug-console');
-    if (!consoleEl) return;
-    
-    consoleEl.innerHTML = debugLogs.map(log => 
-        `<div class="log-entry log-${log.type}">${log.message}</div>`
-    ).join('');
-    
-    consoleEl.scrollTop = consoleEl.scrollHeight;
-}
-
-function toggleDebugConsole() {
-    const consoleEl = document.getElementById('debug-console');
-    if (consoleEl) {
-        consoleEl.classList.toggle('active');
-    }
-}
-
-// Делаем функцию глобальной чтобы работала из HTML
-window.toggleDebugConsole = toggleDebugConsole;
-
-// Перехватываем console.log, console.error, console.warn
-const originalLog = console.log;
-const originalError = console.error;
-const originalWarn = console.warn;
-
-console.log = function(...args) {
-    addDebugLog(args.join(' '), 'info');
-    originalLog.apply(console, args);
-};
-
-console.error = function(...args) {
-    addDebugLog('ERROR: ' + args.join(' '), 'error');
-    originalError.apply(console, args);
-};
-
-console.warn = function(...args) {
-    addDebugLog('WARN: ' + args.join(' '), 'warn');
-    originalWarn.apply(console, args);
-};
-
-// Перехватываем необработанные ошибки
-window.addEventListener('error', (e) => {
-    addDebugLog(`UNCAUGHT ERROR: ${e.message} at ${e.filename}:${e.lineno}`, 'error');
-});
-
-window.addEventListener('unhandledrejection', (e) => {
-    addDebugLog(`UNHANDLED PROMISE: ${e.reason}`, 'error');
-});
-
-console.log('Debug console initialized');
-// === КОНЕЦ КОНСОЛИ ===
 
 // Загрузка данных пользователя из Telegram
 function loadUserData() {
-    console.log('=== loadUserData START ===');
-    
+
     // СРАЗУ показываем нули чтобы интерфейс не зависал
     document.getElementById('user-tokens').textContent = '0';
     document.getElementById('user-rating').textContent = '0';
-    
-    console.log('Telegram WebApp available:', !!tg);
-    
+
     if (tg) {
-        console.log('initDataUnsafe:', tg.initDataUnsafe);
+
         console.log('User data available:', !!(tg.initDataUnsafe && tg.initDataUnsafe.user));
     }
     
     if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
         const user = tg.initDataUnsafe.user;
-        console.log('User ID:', user.id);
-        console.log('User name:', user.first_name);
-        
+
+
         // Устанавливаем имя пользователя
         const userName = user.first_name || user.username || 'Пользователь';
         document.getElementById('user-name').textContent = userName;
@@ -135,64 +61,56 @@ function loadUserData() {
         // Загрузка данных пользователя с сервера В ФОНЕ (не блокирует интерфейс)
         // Всегда передаем актуальную аватарку из Telegram (или null)
         const actualAvatarUrl = user.photo_url || null;
-        console.log('Calling loadUserDataFromAPI...');
+
         loadUserDataFromAPI(user.id, userName, actualAvatarUrl).catch(err => {
-            console.error('Failed to load user data:', err);
+
             // Интерфейс все равно работает с нулями
         });
     } else {
-        console.warn('No Telegram user data available!');
-        console.warn('This might be because:');
-        console.warn('1. Bot is opened outside Telegram');
-        console.warn('2. Telegram WebApp not initialized');
-        console.warn('3. User data not passed by Telegram');
-        
+
+
+
+
+
         // Показываем placeholder данные
         document.getElementById('user-name').textContent = 'Гость';
         document.getElementById('user-avatar').innerHTML = '<div class="avatar-placeholder">👤</div>';
         
         // Если есть Telegram но нет данных - пробуем получить хоть что-то
         if (tg) {
-            console.log('Telegram object exists, trying to get any data...');
-            console.log('Platform:', tg.platform);
-            console.log('Version:', tg.version);
-            console.log('initData:', tg.initData);
+
+
+
+
         }
     }
-    
-    console.log('=== loadUserData END ===');
+
 }
 
 // === API FUNCTIONS ===
 // Загрузка данных пользователя с сервера
 async function loadUserDataFromAPI(telegramId, name, avatarUrl) {
-    console.log('=== loadUserDataFromAPI START ===');
-    console.log('Telegram ID:', telegramId);
-    console.log('Name:', name);
-    console.log('Avatar URL:', avatarUrl);
-    
+
+
+
+
     // Показываем нули сразу, чтобы интерфейс не зависал
     document.getElementById('user-tokens').textContent = '0';
     document.getElementById('user-rating').textContent = '0';
     
     // Проверяем что Supabase загружен
     if (!supabaseClient) {
-        console.error('Supabase not initialized!');
+
         return;
     }
-    
-    console.log('Supabase is ready');
-    
+
     try {
-        console.log(`Loading user data for ${telegramId}...`);
-        
+
         // Таймаут на случай если запрос зависнет
         const timeoutPromise = new Promise((_, reject) => 
             setTimeout(() => reject(new Error('Timeout')), 5000)
         );
-        
-        console.log('Fetching user from database...');
-        
+
         // Пытаемся получить данные пользователя
         const fetchPromise = supabaseClient
             .from('users')
@@ -201,9 +119,7 @@ async function loadUserDataFromAPI(telegramId, name, avatarUrl) {
             .single();
         
         const { data: existingUser, error: fetchError } = await Promise.race([fetchPromise, timeoutPromise]);
-        
-        console.log('Fetch result:', { existingUser, fetchError });
-        
+
         if (fetchError && fetchError.code !== 'PGRST116') {
             throw fetchError;
         }
@@ -212,7 +128,7 @@ async function loadUserDataFromAPI(telegramId, name, avatarUrl) {
         
         if (!existingUser) {
             // Пользователь не найден - создаем нового
-            console.log('User not found, creating new user...');
+
             const { data: newUser, error: createError } = await supabaseClient
                 .from('users')
                 .insert([{
@@ -222,14 +138,12 @@ async function loadUserDataFromAPI(telegramId, name, avatarUrl) {
                 }])
                 .select()
                 .single();
-            
-            console.log('Create result:', { newUser, createError });
-            
+
             if (createError) throw createError;
             userData = newUser;
         } else {
             // Обновляем данные существующего пользователя
-            console.log('User found, updating...');
+
             const { data: updatedUser, error: updateError } = await supabaseClient
                 .from('users')
                 .update({
@@ -239,15 +153,11 @@ async function loadUserDataFromAPI(telegramId, name, avatarUrl) {
                 .eq('telegram_id', telegramId)
                 .select()
                 .single();
-            
-            console.log('Update result:', { updatedUser, updateError });
-            
+
             if (updateError) throw updateError;
             userData = updatedUser;
         }
-        
-        console.log('User data loaded:', userData);
-        
+
         // Обновляем UI
         document.getElementById('user-tokens').textContent = userData.tokens || '0';
         document.getElementById('user-rating').textContent = userData.rating || '0';
@@ -257,13 +167,11 @@ async function loadUserDataFromAPI(telegramId, name, avatarUrl) {
         
         // Загружаем кастомизацию
         await loadCustomization(userData);
-        
-        console.log('=== loadUserDataFromAPI SUCCESS ===');
-        
+
     } catch (error) {
-        console.error('=== loadUserDataFromAPI ERROR ===');
-        console.error('Error loading user data:', error);
-        console.error('Error details:', error.message, error.code, error.details);
+
+
+
         // В случае ошибки показываем нули
         document.getElementById('user-tokens').textContent = '0';
         document.getElementById('user-rating').textContent = '0';
@@ -273,7 +181,7 @@ async function loadUserDataFromAPI(telegramId, name, avatarUrl) {
 // Загрузка таблицы лидеров с сервера
 async function loadLeaderboardFromAPI() {
     try {
-        console.log('Loading leaderboard...');
+
         const { data: leaders, error } = await supabaseClient
             .from('users')
             .select('*')
@@ -282,11 +190,10 @@ async function loadLeaderboardFromAPI() {
             .limit(50);
         
         if (error) throw error;
-        
-        console.log('Leaderboard loaded:', leaders);
+
         return leaders;
     } catch (error) {
-        console.error('Error loading leaderboard:', error);
+
         return [];
     }
 }
@@ -571,8 +478,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (savedCustomization) {
         try {
             const customization = JSON.parse(savedCustomization);
-            console.log('Restoring customization from session:', customization);
-            
+
             // Применяем сохраненную кастомизацию
             if (customization.equippedColor) {
                 const colorItem = shopItems.colors.find(i => i.id === customization.equippedColor);
@@ -588,7 +494,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         } catch (e) {
-            console.error('Error restoring customization:', e);
+
         }
     }
 });
@@ -833,22 +739,14 @@ function closeLeaderboard() {
     const overlayContent = document.querySelector('.overlay-content');
     const profileCard = document.getElementById('user-profile-card');
     const darkOverlay = document.getElementById('dark-overlay');
-    
-    console.log('=== closeLeaderboard START ===');
-    
+
     // Функция для принудительного приклеивания overlay к плашке
     const stickOverlayToCard = () => {
         // ЧИТАЕМ РЕАЛЬНУЮ позицию плашки из DOM
         const cardRect = profileCard.getBoundingClientRect();
         const overlayTop = cardRect.bottom;
-        
-        console.log('Card position:', {
-            top: cardRect.top,
-            bottom: cardRect.bottom,
-            height: cardRect.height
-        });
-        console.log('Setting overlay top to:', overlayTop);
-        
+
+
         darkOverlay.style.setProperty('top', overlayTop + 'px', 'important');
         darkOverlay.style.setProperty('opacity', '1', 'important');
         darkOverlay.style.setProperty('visibility', 'visible', 'important');
@@ -874,8 +772,7 @@ function closeLeaderboard() {
     setTimeout(() => {
         overlayContent.classList.remove('hiding');
     }, 300);
-    
-    console.log('=== closeLeaderboard END ===');
+
     haptic();
 }
 
@@ -1554,16 +1451,15 @@ async function buyOrEquipItem(type, itemId) {
 
 async function purchaseItem(type, itemId, price) {
     try {
-        console.log('=== PURCHASE START ===');
-        console.log('Type:', type, 'ItemId:', itemId, 'Price:', price);
-        
+
+
         // Списываем токены
         const currentTokens = parseInt(document.getElementById('user-tokens').textContent) || 0;
         const newTokens = currentTokens - price;
         
         // Проверяем что предмет еще не куплен
         if (userInventory[type].includes(itemId)) {
-            console.log('Item already owned');
+
             if (tg?.showAlert) {
                 tg.showAlert('Этот предмет уже куплен!');
             }
@@ -1582,10 +1478,8 @@ async function purchaseItem(type, itemId, price) {
         } else {
             userInventory.equippedBadge = itemId;
         }
-        
-        console.log('Updated inventory:', userInventory);
-        console.log('Calling RPC function...');
-        
+
+
         // Используем PostgreSQL функцию для добавления в массив
         const rpcFunction = type === 'colors' ? 'add_owned_color' : 'add_owned_badge';
         const rpcParam = type === 'colors' ? 'color_id' : 'badge_id';
@@ -1596,22 +1490,18 @@ async function purchaseItem(type, itemId, price) {
         });
         
         if (rpcError) {
-            console.error('RPC error:', rpcError);
+
             throw rpcError;
         }
-        
-        console.log('RPC success - item added to array');
-        
+
         // Обновляем токены и экипированные предметы (БЕЗ массивов!)
-        console.log('Updating tokens and equipped items...');
+
         const updateData = {
             tokens: newTokens,
             name_color: userInventory.equippedColor,
             badge_color: userInventory.equippedBadge
         };
-        
-        console.log('Update data:', updateData);
-        
+
         const { data: updateResult, error: updateError } = await supabaseClient
             .from('users')
             .update(updateData)
@@ -1619,15 +1509,13 @@ async function purchaseItem(type, itemId, price) {
             .select();
         
         if (updateError) {
-            console.error('Update error:', updateError);
-            console.error('Update error message:', updateError.message);
-            console.error('Update error code:', updateError.code);
+
+
+
             throw updateError;
         }
-        
-        console.log('Update result:', updateResult);
-        console.log('Saved successfully');
-        
+
+
         // Применяем кастомизацию сразу
         if (type === 'colors' && item) {
             applyNameColor(item.class);
@@ -1660,15 +1548,13 @@ async function purchaseItem(type, itemId, price) {
         
         haptic('success');
         showConfetti();
-        
-        console.log('=== PURCHASE END ===');
-        
+
     } catch (error) {
-        console.error('Purchase error:', error);
-        console.error('Error message:', error?.message);
-        console.error('Error code:', error?.code);
-        console.error('Error details:', error?.details);
-        console.error('Error hint:', error?.hint);
+
+
+
+
+
         console.error('Full error JSON:', JSON.stringify(error, null, 2));
         if (tg?.showAlert) {
             tg.showAlert('Ошибка покупки: ' + (error?.message || 'Unknown error'));
@@ -1702,17 +1588,15 @@ async function saveCustomization() {
             .eq('telegram_id', window.currentUserId);
         
         if (error) throw error;
-        console.log('Customization saved');
+
     } catch (error) {
-        console.error('Save customization error:', error);
+
     }
 }
 
 async function loadCustomization(userData) {
     if (!userData) return;
-    
-    console.log('Loading customization:', userData);
-    
+
     // Функция для нормализации массивов
     const normalizeArray = (arr) => {
         if (!Array.isArray(arr)) return [];
@@ -1728,12 +1612,12 @@ async function loadCustomization(userData) {
     // Загружаем инвентарь из базы
     if (userData.owned_colors) {
         userInventory.colors = normalizeArray(userData.owned_colors);
-        console.log('Loaded colors:', userInventory.colors);
+
     }
     
     if (userData.owned_badges) {
         userInventory.badges = normalizeArray(userData.owned_badges);
-        console.log('Loaded badges:', userInventory.badges);
+
     }
     
     // Загружаем и применяем кастомизацию из базы
@@ -1741,7 +1625,7 @@ async function loadCustomization(userData) {
         userInventory.equippedColor = userData.name_color;
         const item = shopItems.colors.find(i => i.id === userData.name_color);
         if (item) {
-            console.log('Applying name color:', item.class);
+
             applyNameColor(item.class);
         }
     }
@@ -1750,12 +1634,11 @@ async function loadCustomization(userData) {
         userInventory.equippedBadge = userData.badge_color;
         const item = shopItems.badges.find(i => i.id === userData.badge_color);
         if (item) {
-            console.log('Applying badge color:', item.class);
+
             applyBadgeColor(item.class);
         }
     }
-    
-    console.log('Customization loaded:', userInventory);
+
 }
 
 // === ОБМЕННИК ===
@@ -1830,7 +1713,7 @@ async function executeExchange(ratingAmount, tokensAmount) {
         showConfetti();
         
     } catch (error) {
-        console.error('Exchange error:', error);
+
         if (tg?.showAlert) {
             tg.showAlert('Ошибка обмена. Попробуй позже.');
         }
